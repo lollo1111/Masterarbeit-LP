@@ -3,12 +3,26 @@ using System.Threading;
 using System.Text.Json;
 using System.Text;
 using System.Net.Http;
+using Newtonsoft.Json;
+
+//dotnet add package Newtonsoft.Json --version 13.0.1
 
 namespace EngineIO.Samples
 {
     class Program
     {
         private static readonly HttpClient client = new HttpClient();
+        
+        public class Result
+        {
+            public string direction { get; set; }
+        };
+
+        public class Instance
+        {
+            public string instance { get; set; }
+        }
+    
         public class FactoryEvent
         {
             public string name { get; set; }
@@ -57,33 +71,54 @@ namespace EngineIO.Samples
                 address = address,
                 timestamp = DateTime.Now
             };
-            string body = JsonSerializer.Serialize(factoryevent);
+            string body = System.Text.Json.JsonSerializer.Serialize(factoryevent);
             Console.WriteLine(body);
-            //var responseString = await client.GetStringAsync("http://localhost:3000/event");
-            var response = await client.PostAsync("http://localhost:3000/event", new StringContent(body, Encoding.UTF8, "application/json"));
-            //var responseString = await response.Content.ReadAsStringAsync();
-            //Console.WriteLine(responseString);
+            // //var responseString = await client.GetStringAsync("http://localhost:3000/event");
+            // var response = await client.PostAsync("http://localhost:3000/event", new StringContent(body, Encoding.UTF8, "application/json"));
+            // //var responseString = await response.Content.ReadAsStringAsync();
+            // //Console.WriteLine(responseString);
             if (name == "X1_Startsensor" && isVal)
             {
                 var random = new Random();
                 var randomBool = random.Next(2) == 1;
                 Console.WriteLine(string.Format("Neues Produkt in der Fertigungslinie, zugewiesener Wert: {0}.", randomBool));
-                MemoryInt content = MemoryMap.Instance.GetInt("RFID_Write_1", MemoryType.Output);
+                //MemoryInt content = MemoryMap.Instance.GetInt("RFID_Write_1", MemoryType.Output);
                 MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_1", MemoryType.Output);
-                if (randomBool) {
-                    content.Value = 11;
-                } else {
-                    content.Value = 0;
-                }
+                // if (randomBool) {
+                //     content.Value = 11;
+                // } else {
+                //     content.Value = 0;
+                // }
                 command.Value = 3;
                 MemoryMap.Instance.Update();
-                Console.WriteLine(string.Format("Value: {0}", content.Value));
             }
 
             else if (name == "secondtrigger" && isVal) {
                 Console.WriteLine("Set to read");
                 MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_2", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt(5, MemoryType.Input);
                 command.Value = 2;
+                MemoryBit rfid2 = MemoryMap.Instance.GetBit("RFID_Execute_Command_2", MemoryType.Output);
+                rfid2.Value = true;
+                MemoryMap.Instance.Update();
+                int previous = readRfid.Value;
+                while (previous == readRfid.Value)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Console.WriteLine(string.Format("Fetch can be done for: {0}.", readRfid.Value));
+                Instance instance = new Instance
+                {
+                    instance = readRfid.Value.ToString()
+                };
+                string instance_body = System.Text.Json.JsonSerializer.Serialize(instance);
+                var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/info", new StringContent(instance_body, Encoding.UTF8, "application/json"));
+                var responseString = await response.Content.ReadAsStringAsync();
+                //Console.WriteLine(responseString);
+                Result res = JsonConvert.DeserializeObject<Result>(responseString);
+                MemoryInt direction = MemoryMap.Instance.GetInt("RFID_Write_2", MemoryType.Output);
+                direction.Value = 1;//int.Parse(res.direction) + 3;
                 MemoryMap.Instance.Update();
             }
         }

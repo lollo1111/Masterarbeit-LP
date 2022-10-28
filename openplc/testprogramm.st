@@ -39,7 +39,12 @@ PROGRAM testprogramm
     readdata AT %IW100.0 : INT;
   END_VAR
   VAR
-    controlvalue : INT := 11;
+    controlvalue : INT := 1;
+  END_VAR
+  VAR
+    direction AT %QW100.0 : INT;
+  END_VAR
+  VAR
     EQ20_OUT : BOOL;
     AND33_OUT : BOOL;
     OR21_OUT : BOOL;
@@ -59,12 +64,11 @@ PROGRAM testprogramm
   TON0(IN := palettedrinnen, PT := delay);
   SR2(S1 := startsensor_3, R := TON0.Q);
   antrieb_3 := SR2.Q1;
-  EQ36_OUT := EQ(readdata, controlvalue);
+  EQ36_OUT := EQ(direction, controlvalue);
   AND34_OUT := AND(newsensor, EQ36_OUT);
   dreher := AND34_OUT;
   currenttime := TON0.ET;
   rfid := trigger_rfid;
-  rfid2 := secondtrigger;
 END_PROGRAM
 
 

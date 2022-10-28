@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\app2\\app.csproj": {}
+    "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\factoryio\\sdk\\app.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\app2\\app.csproj": {
+    "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\factoryio\\sdk\\app.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\app2\\app.csproj",
+        "projectUniqueName": "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\factoryio\\sdk\\app.csproj",
         "projectName": "app",
-        "projectPath": "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\app2\\app.csproj",
+        "projectPath": "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\factoryio\\sdk\\app.csproj",
         "packagesPath": "C:\\Users\\Lorenz\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\app2\\obj\\",
+        "outputPath": "C:\\Users\\Lorenz\\Desktop\\Uni WIen\\sdktest\\factoryio\\sdk\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Lorenz\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -37,6 +37,12 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

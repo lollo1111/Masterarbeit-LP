@@ -1,10 +1,13 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const HashMap = require('hashmap');
+const map = new HashMap();
 
 app.get('/', (req, res) => {
     res.json({
@@ -12,9 +15,15 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/start', (req, res) => {
+app.post('/start', (req, res) => {
+    const instance = req.headers["cpee-instance"];
+    map.set(instance, req.body);
+    console.log({
+        key: instance,
+        value: map.get(instance)
+    });
     try {
-        io.emit("start");
+        io.emit("start", instance);
     } catch(_err) {
         return res.json({
 	    code: false		
@@ -23,6 +32,11 @@ app.get('/start', (req, res) => {
     return res.json({
         code: true
     });
+});
+
+app.post('/info', (req, res) => {
+    const instance = req.body.instance;
+    res.json(map.get(instance));
 });
 
 io.on("connection", () => {

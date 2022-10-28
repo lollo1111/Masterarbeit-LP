@@ -6,8 +6,11 @@ socket.on('connect', function () {
   console.log("Socket connected");
 });
 
-socket.on('start', async function () {
+socket.on('start', async (arg) => {
   console.log("Process is starting ...");
+  const production_line = await fetch('http://localhost:7410/api/tags/by-name/X1_Startsensor');
+  const production_line_free = await production_line.json();
+  if (production_line_free[0]['value']) return console.log("Production Line is not free.");
   const body_on = [
     {
       name: "X_Emit",
@@ -22,21 +25,36 @@ socket.on('start', async function () {
     body: JSON.stringify(body_on)
   });
   if (emit_on.ok) {
-    const body_off = [
+    const instance_body = [
       {
-        name: "X_Emit",
-        value: false
+        "name": "RFID_Write_1",
+        "value": +arg
       }
     ];
-    const emit_off = await fetch('http://localhost:7410/api/tag/values/by-name', {
+    const rfid_instance = await fetch('http://localhost:7410/api/tag/values/by-name', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(body_off)
+      body: JSON.stringify(instance_body)
     });
-    if (emit_off.ok) {
-      return console.log("Product successfully emited.")
+    if (rfid_instance.ok) {
+      const body_off = [
+        {
+          name: "X_Emit",
+          value: false
+        }
+      ];
+      const emit_off = await fetch('http://localhost:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_off)
+      });
+      if (emit_off.ok) {
+        return console.log("Product successfully emited.")
+      }
     }
   }
   return console.log("Error during emit.");
