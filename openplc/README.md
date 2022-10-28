@@ -9,4 +9,4 @@
 3. Upload the program from the current working directory
 4. Slave Devices (see figure)
 5. Run PLC
-> Open Factory I/O and start the process before running the PLC.
+   > Open Factory I/O and start the process before running the PLC.
