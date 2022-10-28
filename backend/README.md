@@ -10,7 +10,7 @@ npm install
 ```
 
 ## Execute the JS File
-> **Note:** This REST API is currently running on http://abgabe.cs.univie.ac.at:9033 - The Endpoints in the CPEE Instance use this URL. 
+> **Note:** This REST API is currently running on http://abgabe.cs.univie.ac.at:9033 - The Endpoints in CPEE use this URL. 
 ```
 node server.js
 ```

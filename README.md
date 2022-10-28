@@ -1,5 +1,3 @@
-# Requirements
-NodeJS
-ExpressJS
-.NET Runtime
-.NET SDK
+# Masterarbeit
+## Die Vernetzung eines digitalen Zwillings mit einem Workflow System am Beispiel eines Fertigungsprozesses
+Dokumentation folgt ...
