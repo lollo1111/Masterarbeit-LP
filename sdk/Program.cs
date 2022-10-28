@@ -18,8 +18,6 @@ namespace EngineIO.Samples
             public DateTime timestamp { get; set; }
         }
 
-        //In this sample we are showing how to use the InputsNameChanged, InputsValueChange, OutputsNameChanged and OutputsValueChange events.
-        //Add, change and remove Tags in Factory I/O to get notified about its memories changes (no Saved Scene needed).
         static void Main(string[] args)
         {
             //Registering on the events
@@ -42,7 +40,6 @@ namespace EngineIO.Samples
 
         async static void createObj(String name, String val, String type, Int64 address)
         {
-            // Console.WriteLine(string.Format("{0} value changed to: {1}, Address: {2} {3}", name, val, type, address));
             bool isVal;
             if (val == "True")
             {

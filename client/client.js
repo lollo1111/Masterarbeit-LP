@@ -38,18 +38,6 @@ socket.on('start', async function () {
     if (emit_off.ok) {
       return console.log("Product successfully emited.")
     }
-    // setTimeout(async function () {
-    //   const emit_off = await fetch('http://localhost:7410/api/tag/values/by-name', {
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(body_off)
-    //   });
-    //   if (emit_off.ok) {
-    //     return console.log("Product successfully emited.")
-    //   }
-    // }, 1000);
   }
   return console.log("Error during emit.");
 });
