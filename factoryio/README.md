@@ -5,7 +5,7 @@
 
 ## Start Factory I/O and click on the start symbol
 
-## Run the .Net-File
+## Navigate to the directory **sdk** and run the .Net-Project
 > .NET SDK and .NET Runtime must be pre-installed
 ```
 dotnet run
