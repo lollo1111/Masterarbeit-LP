@@ -5,6 +5,7 @@ using System.Text;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Confluent.Kafka;
 
 //dotnet add package Newtonsoft.Json --version 13.0.1
 
@@ -12,6 +13,13 @@ namespace EngineIO.Samples
 {
     class Program
     {
+        public static ProducerConfig config = new ProducerConfig()
+        {
+            BootstrapServers = "localhost:9092"
+        };
+
+        public static IProducer<Null, string> producer = new ProducerBuilder<Null, string>(config).Build();
+
         private static readonly HttpClient client = new HttpClient();
 
         public class Result
@@ -35,7 +43,7 @@ namespace EngineIO.Samples
 
         static void Main(string[] args)
         {
-            //Registering on the events
+            Console.WriteLine("Producer gestartet.");
             MemoryMap.Instance.InputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
             MemoryMap.Instance.OutputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
 
@@ -76,6 +84,9 @@ namespace EngineIO.Samples
             // Console.WriteLine(body);
             if (name == "X1_Startsensor" && isVal)
             {
+                //hier noch try-catch einbauen!
+                var dr = await producer.ProduceAsync("test-topic", new Message<Null, string> { Value="Cool" });
+                Console.WriteLine($"Delivered '{dr.Value}' to '{dr.TopicPartitionOffset}'");
                 Console.WriteLine("Neues Produkt in der Fertigungslinie");
 
                 //###############
