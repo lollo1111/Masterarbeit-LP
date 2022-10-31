@@ -2,6 +2,10 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const io = require('socket.io-client');
 socket = io.connect('http://abgabe.cs.univie.ac.at:9033');
 
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 socket.on('connect', function () {
   console.log("Socket connected");
 });
@@ -25,6 +29,7 @@ socket.on('start', async (arg) => {
     body: JSON.stringify(body_on)
   });
   if (emit_on.ok) {
+    await timeout(100);
     const instance_body = [
       {
         "name": "RFID_Write_1",

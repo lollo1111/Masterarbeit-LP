@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 //dotnet add package Newtonsoft.Json --version 13.0.1
 
@@ -89,20 +90,22 @@ namespace EngineIO.Samples
                 int amount = command_id.Value;
                 rfid.Value = true;
                 MemoryMap.Instance.Update();
-                while(command_id.Value <= amount) {
+                while (command_id.Value <= amount)
+                {
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
-                amount = command_id.Value;
+                await Task.Delay(100);
                 command.Value = 1;
+                amount = command_id.Value;
                 rfid.Value = true;
                 MemoryMap.Instance.Update();
                 while (readRfid.Value <= amount)
                 {
-                    Console.WriteLine("Ich warte ...");
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
+                await Task.Delay(100);
                 Instance instance = new Instance
                 {
                     instance = writeRfid.Value.ToString(),
@@ -111,13 +114,13 @@ namespace EngineIO.Samples
                 var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/setup", new StringContent(body, Encoding.UTF8, "application/json"));
                 var responseString = await response.Content.ReadAsStringAsync();
                 Result res = JsonConvert.DeserializeObject<Result>(responseString);
-                Console.WriteLine(res.direction);
                 memory_index.Value = 1;
                 writeRfid.Value = int.Parse(res.direction);
                 command.Value = 3;
+                amount = command_id.Value;
                 rfid.Value = true;
                 MemoryMap.Instance.Update();
-                while (readRfid.Value <= ++amount)
+                while (readRfid.Value <= amount)
                 {
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
@@ -144,13 +147,13 @@ namespace EngineIO.Samples
                 }
                 Console.WriteLine(string.Format("Direction: {0}.", readRfid.Value));
                 MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
-                direction.Value = readRfid.Value;//int.Parse(res.direction);
+                direction.Value = readRfid.Value;
                 MemoryMap.Instance.Update();
             }
             else if ((name == "end1" || name == "end2") && isVal)
             {
                 MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
-                direction.Value = 0;//int.Parse(res.direction);
+                direction.Value = 0;
                 MemoryMap.Instance.Update();
             }
         }
