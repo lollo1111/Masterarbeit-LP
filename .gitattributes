@@ -1,1 +1,1 @@
-*.st linguist-language=StructuredText
+*.st linguist-detectable=false
