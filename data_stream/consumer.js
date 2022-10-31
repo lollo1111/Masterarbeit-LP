@@ -1,9 +1,11 @@
 const { Kafka, logLevel } = require('kafkajs');
 const { InfluxDB } = require('@influxdata/influxdb-client');
+const dotenv = require('dotenv');
+dotenv.config({ path: './.env' });
 
-const token = 'AXEejzCSVeLZoOWTFnmrFeN1Ikxpx9iD2u4DSQDJCsKkPdxC0syBCLYAIibaHzgMz3UtS7k2aqzthXBn_UHpkQ==';
-const org = 'Uni Wien';
-const bucket = 'FactoryIO';
+const token = process.env.INFLUXDB_TOKEN;
+const org = process.env.INFLUXDB_ORG;
+const bucket = process.env.INFLUXDB_BUCKET;
 
 const client = new InfluxDB({ url: 'http://localhost:8086', token: token });
 
@@ -45,11 +47,6 @@ const run = async () => {
           console.error(e)
           console.log('Finished ERROR')
         })
-      // try {
-      //   writeApi.writePoint(point);
-      // } catch (err) {
-      //   console.log(err);
-      // }
     }
   });
 };
