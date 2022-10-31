@@ -21,7 +21,6 @@ namespace EngineIO.Samples
         public class Instance
         {
             public string instance { get; set; }
-            public string sid { get; set; }
         }
 
         public class FactoryEvent
@@ -55,7 +54,6 @@ namespace EngineIO.Samples
 
         async static void createObj(String name, String val, String type, Int64 address)
         {
-            int previous = 0;
             bool isVal;
             if (val == "True")
             {
@@ -81,32 +79,49 @@ namespace EngineIO.Samples
 
                 //###############
                 MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_1", MemoryType.Output);
-                MemoryInt readRfid = MemoryMap.Instance.GetInt(2, MemoryType.Input);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("RFID_Read_1", MemoryType.Input);
                 MemoryInt writeRfid = MemoryMap.Instance.GetInt("RFID_Write_1", MemoryType.Output);
-                command.Value = 1;
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("RFID_Memory_1", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("RFID_Command_ID_1", MemoryType.Input);
                 MemoryBit rfid = MemoryMap.Instance.GetBit("RFID_Execute_Command_1", MemoryType.Output);
+                memory_index.Value = 0;
+                command.Value = 3;
+                int amount = command_id.Value;
                 rfid.Value = true;
                 MemoryMap.Instance.Update();
-                while (previous == readRfid.Value)
+                while(command_id.Value <= amount) {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                amount = command_id.Value;
+                command.Value = 1;
+                rfid.Value = true;
+                MemoryMap.Instance.Update();
+                while (readRfid.Value <= amount)
                 {
+                    Console.WriteLine("Ich warte ...");
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
                 Instance instance = new Instance
                 {
                     instance = writeRfid.Value.ToString(),
-                    sid = readRfid.Value.ToString()
                 };
                 string body = System.Text.Json.JsonSerializer.Serialize(instance);
                 var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/setup", new StringContent(body, Encoding.UTF8, "application/json"));
                 var responseString = await response.Content.ReadAsStringAsync();
                 Result res = JsonConvert.DeserializeObject<Result>(responseString);
+                Console.WriteLine(res.direction);
+                memory_index.Value = 1;
                 writeRfid.Value = int.Parse(res.direction);
-                //###############
-                //MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_1", MemoryType.Output);
                 command.Value = 3;
                 rfid.Value = true;
                 MemoryMap.Instance.Update();
+                while (readRfid.Value <= ++amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
             }
 
             else if (name == "secondtrigger" && isVal)
@@ -114,32 +129,29 @@ namespace EngineIO.Samples
                 Console.WriteLine("Set to read");
                 MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_2", MemoryType.Output);
                 MemoryInt readRfid = MemoryMap.Instance.GetInt(5, MemoryType.Input);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("RFID_Memory_2", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("RFID_Command_ID_2", MemoryType.Input);
+                int amount = command_id.Value;
                 command.Value = 2;
-                MemoryBit rfid2 = MemoryMap.Instance.GetBit("RFID_Execute_Command_2", MemoryType.Output);
-                rfid2.Value = true;
+                memory_index.Value = 1;
+                MemoryBit rfid = MemoryMap.Instance.GetBit("RFID_Execute_Command_2", MemoryType.Output);
+                rfid.Value = true;
                 MemoryMap.Instance.Update();
-                // int previous = readRfid.Value;
-                //previous = readRfid.Value;
-                while (previous == readRfid.Value)
+                while (command_id.Value <= amount)
                 {
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
-                Console.WriteLine(string.Format("Fetch can be done for: {0}.", readRfid.Value));
-                // Instance instance = new Instance
-                // {
-                //     instance = readRfid.Value.ToString()
-                // };
-                // string instance_body = System.Text.Json.JsonSerializer.Serialize(instance);
-                // Console.WriteLine(string.Format("XXXX The body: {0}.", instance_body));
-                // var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/info", new StringContent(instance_body, Encoding.UTF8, "application/json"));
-                // var responseString = await response.Content.ReadAsStringAsync();
-                // //Console.WriteLine(responseString);
-                // Result res = JsonConvert.DeserializeObject<Result>(responseString);
-                // Console.WriteLine(string.Format("XXXX The response: {0}.", res.direction));
-                // MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
-                // direction.Value = 1;//int.Parse(res.direction);
-                // MemoryMap.Instance.Update();
+                Console.WriteLine(string.Format("Direction: {0}.", readRfid.Value));
+                MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
+                direction.Value = readRfid.Value;//int.Parse(res.direction);
+                MemoryMap.Instance.Update();
+            }
+            else if ((name == "end1" || name == "end2") && isVal)
+            {
+                MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
+                direction.Value = 0;//int.Parse(res.direction);
+                MemoryMap.Instance.Update();
             }
         }
 

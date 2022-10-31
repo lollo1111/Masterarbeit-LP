@@ -56,7 +56,6 @@ PROGRAM testprogramm
     AND17_OUT : BOOL;
   END_VAR
 
-  direction := derwert;
   SR0(S1 := startsensor_1, R := endsensor_1);
   antrieb_1 := SR0.Q1;
   OR53_OUT := OR(gedreht, secondtrigger);

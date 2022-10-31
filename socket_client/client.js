@@ -8,7 +8,7 @@ socket.on('connect', function () {
 
 socket.on('start', async (arg) => {
   console.log("Process is starting ...");
-  const production_line = await fetch('http://localhost:7410/api/tags/by-name/X1_Startsensor');
+  const production_line = await fetch('http://localhost:7410/api/tags/by-name/X1_Antrieb');
   const production_line_free = await production_line.json();
   if (production_line_free[0]['value']) return console.log("Production Line is not free.");
   const body_on = [

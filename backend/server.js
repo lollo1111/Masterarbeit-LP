@@ -34,13 +34,13 @@ app.post('/start', (req, res) => {
     });
 });
 
-app.post('/setup', (req, res) => {
-    map.set(req.body.sid, map.get(req.body.instance));
-    map.delete(req.body.instance);
-    res.json(map.get(req.body.sid));
-});
+// app.post('/setup', (req, res) => {
+//     map.set(req.body.sid, map.get(req.body.instance));
+//     map.delete(req.body.instance);
+//     res.json(map.get(req.body.sid));
+// });
 
-app.post('/info', (req, res) => {
+app.post('/setup', (req, res) => {
     const instance = req.body.instance;
     res.json(map.get(instance));
 });
