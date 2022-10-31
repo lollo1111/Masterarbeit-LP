@@ -31,11 +31,12 @@ services:
     ports:
       - '8086:8086'
     volumes:
-      - influxdb-storage:/var/lib/influxdb
+      - influxvolume:/var/lib/influxdb2
     environment:
       - INFLUXDB_DB=db0
       - INFLUXDB_ADMIN_USER=admin
       - INFLUXDB_ADMIN_PASSWORD=theadmin
 
 volumes:
-  influxdb-storage:
+  influxvolume:
+    external: true
