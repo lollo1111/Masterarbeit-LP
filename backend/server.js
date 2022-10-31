@@ -18,10 +18,10 @@ app.get('/', (req, res) => {
 app.post('/start', (req, res) => {
     const instance = req.headers["cpee-instance"];
     map.set(instance, req.body);
-    console.log({
-        key: instance,
-        value: map.get(instance)
-    });
+    // console.log({
+    //     key: instance,
+    //     value: map.get(instance)
+    // });
     try {
         io.emit("start", instance);
     } catch(_err) {
@@ -32,6 +32,12 @@ app.post('/start', (req, res) => {
     return res.json({
         code: true
     });
+});
+
+app.post('/setup', (req, res) => {
+    map.set(req.body.sid, map.get(req.body.instance));
+    map.delete(req.body.instance);
+    res.json(map.get(req.body.sid));
 });
 
 app.post('/info', (req, res) => {

@@ -12,7 +12,7 @@ namespace EngineIO.Samples
     class Program
     {
         private static readonly HttpClient client = new HttpClient();
-        
+
         public class Result
         {
             public string direction { get; set; }
@@ -21,8 +21,9 @@ namespace EngineIO.Samples
         public class Instance
         {
             public string instance { get; set; }
+            public string sid { get; set; }
         }
-    
+
         public class FactoryEvent
         {
             public string name { get; set; }
@@ -54,6 +55,7 @@ namespace EngineIO.Samples
 
         async static void createObj(String name, String val, String type, Int64 address)
         {
+            int previous = 0;
             bool isVal;
             if (val == "True")
             {
@@ -63,37 +65,52 @@ namespace EngineIO.Samples
             {
                 isVal = false;
             }
-            FactoryEvent factoryevent = new FactoryEvent
-            {
-                name = name,
-                value = isVal,
-                type = type,
-                address = address,
-                timestamp = DateTime.Now
-            };
-            string body = System.Text.Json.JsonSerializer.Serialize(factoryevent);
-            Console.WriteLine(body);
-            // //var responseString = await client.GetStringAsync("http://localhost:3000/event");
-            // var response = await client.PostAsync("http://localhost:3000/event", new StringContent(body, Encoding.UTF8, "application/json"));
-            // //var responseString = await response.Content.ReadAsStringAsync();
-            // //Console.WriteLine(responseString);
+            // FactoryEvent factoryevent = new FactoryEvent
+            // {
+            //     name = name,
+            //     value = isVal,
+            //     type = type,
+            //     address = address,
+            //     timestamp = DateTime.Now
+            // };
+            // string body = System.Text.Json.JsonSerializer.Serialize(factoryevent);
+            // Console.WriteLine(body);
             if (name == "X1_Startsensor" && isVal)
             {
-                var random = new Random();
-                var randomBool = random.Next(2) == 1;
-                Console.WriteLine(string.Format("Neues Produkt in der Fertigungslinie, zugewiesener Wert: {0}.", randomBool));
-                //MemoryInt content = MemoryMap.Instance.GetInt("RFID_Write_1", MemoryType.Output);
+                Console.WriteLine("Neues Produkt in der Fertigungslinie");
+
+                //###############
                 MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_1", MemoryType.Output);
-                // if (randomBool) {
-                //     content.Value = 11;
-                // } else {
-                //     content.Value = 0;
-                // }
+                MemoryInt readRfid = MemoryMap.Instance.GetInt(2, MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("RFID_Write_1", MemoryType.Output);
+                command.Value = 1;
+                MemoryBit rfid = MemoryMap.Instance.GetBit("RFID_Execute_Command_1", MemoryType.Output);
+                rfid.Value = true;
+                MemoryMap.Instance.Update();
+                while (previous == readRfid.Value)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Instance instance = new Instance
+                {
+                    instance = writeRfid.Value.ToString(),
+                    sid = readRfid.Value.ToString()
+                };
+                string body = System.Text.Json.JsonSerializer.Serialize(instance);
+                var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/setup", new StringContent(body, Encoding.UTF8, "application/json"));
+                var responseString = await response.Content.ReadAsStringAsync();
+                Result res = JsonConvert.DeserializeObject<Result>(responseString);
+                writeRfid.Value = int.Parse(res.direction);
+                //###############
+                //MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_1", MemoryType.Output);
                 command.Value = 3;
+                rfid.Value = true;
                 MemoryMap.Instance.Update();
             }
 
-            else if (name == "secondtrigger" && isVal) {
+            else if (name == "secondtrigger" && isVal)
+            {
                 Console.WriteLine("Set to read");
                 MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_2", MemoryType.Output);
                 MemoryInt readRfid = MemoryMap.Instance.GetInt(5, MemoryType.Input);
@@ -101,25 +118,28 @@ namespace EngineIO.Samples
                 MemoryBit rfid2 = MemoryMap.Instance.GetBit("RFID_Execute_Command_2", MemoryType.Output);
                 rfid2.Value = true;
                 MemoryMap.Instance.Update();
-                int previous = readRfid.Value;
+                // int previous = readRfid.Value;
+                //previous = readRfid.Value;
                 while (previous == readRfid.Value)
                 {
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
                 Console.WriteLine(string.Format("Fetch can be done for: {0}.", readRfid.Value));
-                Instance instance = new Instance
-                {
-                    instance = readRfid.Value.ToString()
-                };
-                string instance_body = System.Text.Json.JsonSerializer.Serialize(instance);
-                var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/info", new StringContent(instance_body, Encoding.UTF8, "application/json"));
-                var responseString = await response.Content.ReadAsStringAsync();
-                //Console.WriteLine(responseString);
-                Result res = JsonConvert.DeserializeObject<Result>(responseString);
-                MemoryInt direction = MemoryMap.Instance.GetInt("RFID_Write_2", MemoryType.Output);
-                direction.Value = 1;//int.Parse(res.direction) + 3;
-                MemoryMap.Instance.Update();
+                // Instance instance = new Instance
+                // {
+                //     instance = readRfid.Value.ToString()
+                // };
+                // string instance_body = System.Text.Json.JsonSerializer.Serialize(instance);
+                // Console.WriteLine(string.Format("XXXX The body: {0}.", instance_body));
+                // var response = await client.PostAsync("http://abgabe.cs.univie.ac.at:9033/info", new StringContent(instance_body, Encoding.UTF8, "application/json"));
+                // var responseString = await response.Content.ReadAsStringAsync();
+                // //Console.WriteLine(responseString);
+                // Result res = JsonConvert.DeserializeObject<Result>(responseString);
+                // Console.WriteLine(string.Format("XXXX The response: {0}.", res.direction));
+                // MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
+                // direction.Value = 1;//int.Parse(res.direction);
+                // MemoryMap.Instance.Update();
             }
         }
 

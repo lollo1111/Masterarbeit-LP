@@ -22,11 +22,6 @@ PROGRAM testprogramm
     dreher AT %QX100.4 : BOOL;
     rfid AT %QX100.5 : BOOL;
     rfid2 AT %QX100.6 : BOOL;
-  END_VAR
-  VAR
-    SR3 : SR;
-  END_VAR
-  VAR
     trigger_rfid AT %IX100.5 : BOOL;
     secondtrigger AT %IX101.1 : BOOL;
   END_VAR
@@ -36,39 +31,50 @@ PROGRAM testprogramm
     currenttime : TIME := T#0s;
   END_VAR
   VAR
-    readdata AT %IW100.0 : INT;
+    direction AT %QW100 : INT;
   END_VAR
   VAR
     controlvalue : INT := 1;
   END_VAR
   VAR
-    direction AT %QW100.0 : INT;
+    derwert AT %IW100 : INT;
   END_VAR
   VAR
-    EQ20_OUT : BOOL;
-    AND33_OUT : BOOL;
-    OR21_OUT : BOOL;
-    EQ36_OUT : BOOL;
-    AND34_OUT : BOOL;
+    SR3 : SR;
+  END_VAR
+  VAR
+    ende1 AT %IX101.2 : BOOL;
+    ende2 AT %IX101.3 : BOOL;
+  END_VAR
+  VAR
+    OR53_OUT : BOOL;
+    EQ13_OUT : BOOL;
+    NOT55_OUT : BOOL;
+    AND16_OUT : BOOL;
+    OR54_OUT : BOOL;
+    EQ41_OUT : BOOL;
+    AND17_OUT : BOOL;
   END_VAR
 
-  EQ20_OUT := EQ(readdata, controlvalue);
-  AND33_OUT := AND(newsensor, EQ20_OUT);
-  SR3(S1 := palettedrinnen, R := AND33_OUT);
-  OR21_OUT := OR(SR3.Q1, gedreht);
-  newantrieb := OR21_OUT;
+  direction := derwert;
   SR0(S1 := startsensor_1, R := endsensor_1);
   antrieb_1 := SR0.Q1;
+  OR53_OUT := OR(gedreht, secondtrigger);
+  EQ13_OUT := EQ(derwert, controlvalue);
+  NOT55_OUT := NOT(gedreht);
+  AND16_OUT := AND(newsensor, EQ13_OUT, NOT55_OUT);
+  OR54_OUT := OR(AND16_OUT, ende1, ende2);
+  SR3(S1 := OR53_OUT, R := OR54_OUT);
+  newantrieb := SR3.Q1;
   SR1(S1 := startsensor_2, R := endsensor_2);
   antrieb_2 := SR1.Q1;
   TON0(IN := palettedrinnen, PT := delay);
   SR2(S1 := startsensor_3, R := TON0.Q);
   antrieb_3 := SR2.Q1;
-  EQ36_OUT := EQ(direction, controlvalue);
-  AND34_OUT := AND(newsensor, EQ36_OUT);
-  dreher := AND34_OUT;
+  EQ41_OUT := EQ(derwert, controlvalue);
+  AND17_OUT := AND(newsensor, EQ41_OUT);
+  dreher := AND17_OUT;
   currenttime := TON0.ET;
-  rfid := trigger_rfid;
 END_PROGRAM
 
 
