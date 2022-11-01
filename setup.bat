@@ -1,0 +1,1 @@
+docker volume create influxvolume && docker-compose up -d && cd factoryio/sdk && dotnet run
