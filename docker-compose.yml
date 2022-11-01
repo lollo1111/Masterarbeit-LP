@@ -7,6 +7,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - my-network 
 
   broker:
     image: confluentinc/cp-kafka:7.0.1
@@ -25,8 +27,15 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: kafka-topics --bootstrap-server broker:9092 --list
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - my-network 
 
-  influxdb:
+  influxdb: 
     image: influxdb:latest
     ports:
       - '8086:8086'
@@ -39,7 +48,30 @@ services:
       DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
       DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+    networks:
+      - my-network
+
+  data-stream-consumer:
+    links:
+      - influxdb
+    container_name: consumer
+    build: data_stream/
+    image: consumer_image
+    depends_on:
+      broker:
+        condition: service_healthy
+    networks:
+      - my-network
+
+  socket-client:
+    container_name: client
+    build: socket_client/
+    image: socket_client_image
 
 volumes:
   influxvolume:
     external: true
+
+networks:
+  my-network:
+    driver: bridge
