@@ -12,7 +12,8 @@ socket.on('connect', function () {
 
 socket.on('start', async (arg) => {
   console.log("Process is starting ...");
-  const production_line = await fetch('http://localhost:7410/api/tags/by-name/X1_Antrieb');
+  const production_line = await fetch('http://host.docker.internal:7410/api/tags/by-name/X1_Antrieb');
+  //const production_line = await fetch('http://localhost:7410/api/tags/by-name/X1_Antrieb');
   const production_line_free = await production_line.json();
   if (production_line_free[0]['value']) return console.log("Production Line is not free.");
   const body_on = [
@@ -21,7 +22,8 @@ socket.on('start', async (arg) => {
       value: true
     }
   ];
-  const emit_on = await fetch('http://localhost:7410/api/tag/values/by-name', {
+  const emit_on = await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+  //const emit_on = await fetch('http://localhost:7410/api/tag/values/by-name', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -36,7 +38,8 @@ socket.on('start', async (arg) => {
         "value": +arg
       }
     ];
-    const rfid_instance = await fetch('http://localhost:7410/api/tag/values/by-name', {
+    const rfid_instance = await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+    //const rfid_instance = await fetch('http://localhost:7410/api/tag/values/by-name', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -50,7 +53,8 @@ socket.on('start', async (arg) => {
           value: false
         }
       ];
-      const emit_off = await fetch('http://localhost:7410/api/tag/values/by-name', {
+      const emit_off = await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+      //const emit_off = await fetch('http://localhost:7410/api/tag/values/by-name', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
