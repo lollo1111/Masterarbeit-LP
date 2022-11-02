@@ -1,5 +1,6 @@
 ---
 version: '3'
+name: Masterarbeit
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
