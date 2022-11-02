@@ -68,6 +68,14 @@ services:
     build: socket_client/
     image: socket_client_image
 
+  open-plc:
+    container_name: openplc
+    build: openplc/
+    image: openplc_image
+    ports:
+      - '8080:8080'
+    privileged: true
+
 volumes:
   influxvolume:
     external: true
