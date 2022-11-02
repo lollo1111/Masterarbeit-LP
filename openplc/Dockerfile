@@ -5,7 +5,6 @@ WORKDIR /workdir
 RUN git clone https://github.com/thiagoralves/OpenPLC_v3.git
 WORKDIR /workdir/OpenPLC_v3
 RUN ./install.sh linux
-COPY active_program /workdir/OpenPLC_v3/active_program
 COPY testprogramm.st /workdir/OpenPLC_v3/webserver/st_files
 RUN rm /workdir/OpenPLC_v3/webserver/st_files/blank_program.st
 COPY mbconfig.cfg /workdir/OpenPLC_v3/webserver
@@ -16,3 +15,4 @@ EXPOSE 8080
 EXPOSE 20000
 EXPOSE 43628
 CMD ["/workdir/OpenPLC_v3/setup.sh"]
+# CMD ["/workdir/OpenPLC_v3/setup.sh"]
