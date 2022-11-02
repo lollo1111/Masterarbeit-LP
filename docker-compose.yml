@@ -74,6 +74,7 @@ services:
     image: openplc_image
     ports:
       - '8080:8080'
+      - '192.168.1.2:502:502'
     privileged: true
 
 volumes:
