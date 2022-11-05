@@ -76,6 +76,8 @@ services:
       - '8080:8080'
       - '192.168.1.2:502:502'
     privileged: true
+    volumes:
+      - ./openplc/scripts:/workdir/OpenPLC_v3/webserver/st_files
 
 volumes:
   influxvolume:
