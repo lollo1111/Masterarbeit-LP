@@ -78,10 +78,13 @@ services:
     privileged: true
     volumes:
       - ./openplc/scripts:/workdir/OpenPLC_v3/webserver/st_files
+    depends_on:
+      broker:
+        condition: service_healthy
 
 volumes:
   influxvolume:
-    external: true
+  yolovolume:
 
 networks:
   my-network:

@@ -7,8 +7,6 @@ if %required%==n (echo\ && echo Please start Docker and make sure .NET Runtime a
 echo\
 echo Open FactoryI/O and if necessary, update the IP in the Repository (press any key to continue)
 pause > nul
-echo\ && echo Create Docker Volume for Influx if it does not exist.
-docker volume create influxvolume
 echo\ && echo Build and run Docker Container
 docker-compose up --build -d
 echo\ && echo Important: Open http://localhost:8080, upload the .st Program and start the PLC
