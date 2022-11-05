@@ -82,6 +82,13 @@ services:
       broker:
         condition: service_healthy
 
+  digital-twin:
+    container_name: digitaltwin
+    build: digital_twin/
+    image: digitaltwin_image
+    ports:
+      - '5173:5173'
+
 volumes:
   influxvolume:
   yolovolume:
