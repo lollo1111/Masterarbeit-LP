@@ -1,17 +1,6 @@
 ---
 version: "3"
 services:
-  # test:
-  #   container_name: test
-  #   image: test_image
-  #   build: test/
-  #   ports:
-  #     - "8298:8298"
-  #     - "9296:9296"         # 9296 is the port for enabling the instantiation service
-  #     - "8080:8080"
-  #   networks:
-  #     - cpee-network
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -25,8 +14,6 @@ services:
     image: confluentinc/cp-kafka:7.0.1
     container_name: broker
     ports:
-      # To learn about configuring Kafka for access across networks see
-      # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
       - "9092:9092"
     depends_on:
       - zookeeper
@@ -85,10 +72,12 @@ services:
     image: openplc_image
     ports:
       - '8080:8080'
-      - '192.168.1.2:502:502'
     privileged: true
     volumes:
       - ./openplc/scripts:/workdir/OpenPLC_v3/webserver/st_files
+    environment:
+      - MODBUS_SERVER=${MODBUS_SERVER}
+      - MODBUS_PORT=${MODBUS_PORT}
     depends_on:
       broker:
         condition: service_healthy
@@ -100,13 +89,21 @@ services:
     ports:
       - '5173:5173'
 
+  # test:
+  #   container_name: test
+  #   image: test_image
+  #   build: test/
+  #   ports:
+  #     - "8298:8298"
+  #     - "9296:9296"         # 9296 is the port for enabling the instantiation service
+  #     - "8080:8080"
+  #   networks:
+  #     - cpee-network
+
 volumes:
   influxvolume:
-  yolovolume:
 
 networks:
   my-network:
     driver: bridge
-
-# networks:
-#   cpee-network:
+    # cpee-network:
