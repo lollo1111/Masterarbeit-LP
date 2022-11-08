@@ -1,6 +1,17 @@
 ---
 version: "3"
 services:
+  # test:
+  #   container_name: test
+  #   image: test_image
+  #   build: test/
+  #   ports:
+  #     - "8298:8298"
+  #     - "9296:9296"         # 9296 is the port for enabling the instantiation service
+  #     - "8080:8080"
+  #   networks:
+  #     - cpee-network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -96,3 +107,6 @@ volumes:
 networks:
   my-network:
     driver: bridge
+
+# networks:
+#   cpee-network:
