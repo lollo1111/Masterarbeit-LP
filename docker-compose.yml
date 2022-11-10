@@ -89,16 +89,16 @@ services:
     ports:
       - '5173:5173'
 
-  # test:
-  #   container_name: test
-  #   image: test_image
-  #   build: test/
-  #   ports:
-  #     - "8298:8298"
-  #     - "9296:9296"         # 9296 is the port for enabling the instantiation service
-  #     - "8080:8080"
-  #   networks:
-  #     - cpee-network
+  cpee:
+    container_name: cpee
+    image: cpee_image
+    build: cpee/
+    ports:
+      - "8298:8298"
+      - "9296:9296"         # 9296 is the port for enabling the instantiation service
+      - "8081:8080"
+    networks:
+      - cpee-network
 
 volumes:
   influxvolume:
@@ -106,4 +106,4 @@ volumes:
 networks:
   my-network:
     driver: bridge
-    # cpee-network:
+  cpee-network:
