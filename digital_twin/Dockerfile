@@ -1,7 +1,7 @@
 FROM node:16-alpine
 
 WORKDIR /usr/src/app
-ADD digital_twin/ .
+ADD . .
 RUN npm install
 EXPOSE 5173
 
