@@ -43,7 +43,7 @@ docker-compose up --build -d
 echo\ && echo Give Docker some time ...
 timeout /t 10 /nobreak
 echo\ && echo Open Workflow Engine
-explorer "http://localhost:8081"
+explorer "http://localhost:5174"
 echo\ && echo Start Factory I/O SDK and Producer
 cd factoryio/sdk
 dotnet run
