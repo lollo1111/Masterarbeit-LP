@@ -1,7 +1,8 @@
 <script setup>
-import MyComponent from './components/MyComponent.vue'
+import OtherComponent from './components/OtherComponent.vue';
 </script>
 
 <template>
-  <my-component></my-component>
+  <router-view></router-view>
+  <other-component></other-component>
 </template>

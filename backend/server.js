@@ -10,7 +10,8 @@ const HashMap = require('hashmap');
 const map = new HashMap();
 
 app.get('/', (req, res) => {
-    res.json({
+    console.log("Gotcha!");
+    res.status(200).json({
         lifecheck: "Success"
     });
 });
