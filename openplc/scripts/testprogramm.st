@@ -67,7 +67,7 @@ PROGRAM program0
     spawn_pallett_trigger_sensor AT %IX101.0 : BOOL;
     spawn_pallett_end_sensor AT %IX101.1 : BOOL;
     machining_B_trigger AT %IX101.2 : BOOL;
-    spawn_pallett_material_sensor AT %IX101.3 : BOOL;
+    spawn_pallett_sensor AT %IX101.3 : BOOL;
     elevator_1_right_limit AT %IX101.4 : BOOL;
     elevator_1_left_limit AT %IX101.5 : BOOL;
     first_floor_trigger_sensor AT %IX101.6 : BOOL;
@@ -233,7 +233,7 @@ PROGRAM program0
   spawn_counter := CTUD2.CV;
   spawn_curve_1_2 := spawn_pallett_conveyor;
   spawn_curve_2_2 := spawn_curve_1_2;
-  SR4(S1 := spawn_pallett_trigger_sensor, R := spawn_pallett_material_sensor);
+  SR4(S1 := spawn_pallett_trigger_sensor, R := spawn_pallett_sensor);
   spawn_pallett_stopper := SR4.Q1;
   AND81_OUT := AND(dummy_direction, direction_rfid_sensor);
   R_TRIG5(CLK := AND81_OUT);

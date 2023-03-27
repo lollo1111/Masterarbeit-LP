@@ -25,15 +25,15 @@ echo device0.RTU_Stop_Bits = "None"
 echo device0.RTU_TX_Pause = "None"
 echo\
 echo device0.Discrete_Inputs_Start = "0"
-echo device0.Discrete_Inputs_Size = "16"
+echo device0.Discrete_Inputs_Size = "128"
 echo device0.Coils_Start = "0"
-echo device0.Coils_Size = "16"
+echo device0.Coils_Size = "128"
 echo device0.Input_Registers_Start = "0"
-echo device0.Input_Registers_Size = "8"
+echo device0.Input_Registers_Size = "32"
 echo device0.Holding_Registers_Read_Start = "0"
-echo device0.Holding_Registers_Read_Size = "8"
+echo device0.Holding_Registers_Read_Size = "32"
 echo device0.Holding_Registers_Start = "0"
-echo device0.Holding_Registers_Size = "8"
+echo device0.Holding_Registers_Size = "32"
 ) > openplc/mbconfig.cfg
 echo\
 echo\ && echo Starting Factory I/O ...
