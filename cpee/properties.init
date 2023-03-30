@@ -1,0 +1,328 @@
+<?xml version="1.0"?>
+<properties xmlns="http://cpee.org/ns/properties/2.0">
+  <state changed="2023-03-30T12:20:19.873+02:00">ready</state>
+  <status>
+    <id>0</id>
+    <message>undefined</message>
+  </status>
+  <executionhandler>ruby</executionhandler>
+  <positions/>
+  <dataelements>
+    <id/>
+    <product>schrank</product>
+    <doorType>default</doorType>
+    <mirrorShape>rund</mirrorShape>
+    <quality>acceptable</quality>
+    <tableStyle>classic</tableStyle>
+    <additionalEquipment>true</additionalEquipment>
+    <maxHeight>7.5</maxHeight>
+    <maxWeight>3.0</maxWeight>
+    <height>5</height>
+    <weight>2</weight>
+    <express>true</express>
+  </dataelements>
+  <endpoints>
+    <timeout>http://cpee.org/services/timeout.php</timeout>
+    <subprocess>https-post://cpee.org/flow/start/url/</subprocess>
+    <send>https-post://cpee.org/ing/correlators/message/send/</send>
+    <receive>https-get://cpee.org/ing/correlators/message/receive/</receive>
+    <user>https-post://cpee.org/services/timeout-user.php</user>
+    <auto>https-post://cpee.org/services/timeout-auto.php</auto>
+  </endpoints>
+  <attributes>
+    <uuid>299aa220-8c8b-482d-b2eb-1a6ffa34f114</uuid>
+    <info>xx</info>
+    <modeltype>CPEE</modeltype>
+    <theme>preset</theme>
+  </attributes>
+  <dsl>control flow do manipulate :a5, { :label => "Material vorbereiten" } manipulate :a1, { :label => "RFID Transponder initialisieren" } choose :exclusive do alternative test("data.product == \"schrank\"") do manipulate :a2, { :label => "Material zuschneiden mit Maschine A" } manipulate :a7, { :label => "Löcher vorbohren" } manipulate :a9, { :label => "Regale herstellen" } parallel :wait => -1, :cancel => :last do parallel_branch data do |local| choose :exclusive do alternative test("data.doorType != \"default\"") do manipulate :a10, { :label => "Schiebetür herstellen" } end otherwise do manipulate :a11, { :label => "Standardtür herstellen" } end end manipulate :a12, { :label => "Türschloss einbauen" } end parallel_branch data do |local| manipulate :a13, { :label => "Spiegel zur Bearbeitung vorbereiten" } choose :exclusive do alternative test("data.mirrorShape == \"rund\"") do manipulate :a14, { :label => "Spiegel rund zuschneiden" } end otherwise do manipulate :a15, { :label => "Spiegel eckig zuschneiden" } end end end end manipulate :a3, { :label => "Spiegel auf Tür befestigen" } manipulate :a4, { :label => "Kleiderhaken und Schrankstange beilegen" } end otherwise do manipulate :a6, { :label => "Material zuschneiden mit Maschine B" } manipulate :a8, { :label => "Löcher vorbohren" } manipulate :a21, { :label => "Schubladen herstellen" } choose :exclusive do alternative test("data.tableStyel != \"classic\"") do manipulate :a22, { :label => "Kabeldurchführung einfügen" } end otherwise do manipulate :a23, { :label => "Tischplatte gravieren" } end end manipulate :a24, { :label => "Tischbeine herstellen" } end end manipulate :a16, { :label => "Oberflächenbehandlung" } manipulate :a17, { :label => "Qualitätskontrolle" } loop pre_test("data.quality == \"unacceptable\"") do manipulate :a18, { :label => "Fehlende Bestandteile beilegen" } end choose :exclusive do alternative test("data.additionalEquipment") do manipulate :a25, { :label => "Zusatzausrüstung beilegen" } end end manipulate :a19, { :label => "Produkt mittels Material ermitteln" } choose :exclusive do alternative test("data.product == \"schreibtisch\" and !data.additionalEquipment") do manipulate :a30, { :label => "In Box S verpacken" } end alternative test("(data.product == \"schreibtisch\" and data.additionalEquipment) or (data.product == \"schrank\" and !data.additionalEquipment)") do manipulate :a29, { :label => "In Box M verpacken" } end otherwise do manipulate :a28, { :label => "In Box L verpacken" } end end manipulate :a20, { :label => "Pakethöhe messen" } manipulate :a26, { :label => "Paket wiegen" } choose :exclusive do alternative test("(data.weight < data.maxWeight) and (data.height < data.maxHeight) and !data.express") do manipulate :a32, { :label => "Lieferschein für kleines Paket drucken" } end alternative test("(data.weight >= data.maxWeight) or(data.height >= data.maxHeight) and !data.express") do manipulate :a33, { :label => "Lieferschein für großes Paket drucken" } manipulate :a34, { :label => "Paket auf Palette beladen und abwarten bis diese voll ist" } end otherwise do manipulate :a35, { :label => "Expresslieferschein drucken" } end end manipulate :a27, { :label => "Produkt versenden" } stop :a31 end</dsl>
+<dslx>
+<description xmlns="http://cpee.org/ns/description/1.0">
+<manipulate id="a5" label="Material vorbereiten"/>
+<manipulate id="a1" label="RFID Transponder initialisieren"/>
+<choose mode="exclusive">
+<alternative condition="data.product == "schrank"">
+<_probability>
+<_probability_min/>
+<_probability_max/>
+<_probability_avg/>
+</_probability>
+<manipulate id="a2" label="Material zuschneiden mit Maschine A"/>
+  <manipulate id="a7" label="Löcher vorbohren"/>
+  <manipulate id="a9" label="Regale herstellen"/>
+  <parallel wait="-1" cancel="last">
+    <parallel_branch pass="" local="">
+      <choose mode="exclusive">
+        <alternative condition="data.doorType != "default"">
+          <_probability>
+            <_probability_min/>
+            <_probability_max/>
+            <_probability_avg/>
+          </_probability>
+          <manipulate id="a10" label="Schiebetür herstellen"/>
+        </alternative>
+        <otherwise>
+          <manipulate id="a11" label="Standardtür herstellen"/>
+        </otherwise>
+      </choose>
+      <manipulate id="a12" label="Türschloss einbauen"/>
+    </parallel_branch>
+    <parallel_branch pass="" local="">
+      <manipulate id="a13" label="Spiegel zur Bearbeitung vorbereiten"/>
+      <choose mode="exclusive">
+        <alternative condition="data.mirrorShape == "rund"">
+          <manipulate id="a14" label="Spiegel rund zuschneiden"/>
+          <_probability>
+            <_probability_min/>
+            <_probability_max/>
+            <_probability_avg/>
+          </_probability>
+        </alternative>
+        <otherwise>
+          <manipulate id="a15" label="Spiegel eckig zuschneiden"/>
+        </otherwise>
+      </choose>
+    </parallel_branch>
+  </parallel>
+  <manipulate id="a3" label="Spiegel auf Tür befestigen"/>
+  <manipulate id="a4" label="Kleiderhaken und Schrankstange beilegen"/>
+</alternative>
+<otherwise>
+  <manipulate id="a6" label="Material zuschneiden mit Maschine B"/>
+  <manipulate id="a8" label="Löcher vorbohren"/>
+  <manipulate id="a21" label="Schubladen herstellen"/>
+  <choose mode="exclusive">
+    <alternative condition="data.tableStyel != "classic"">
+      <manipulate id="a22" label="Kabeldurchführung einfügen"/>
+      <_probability>
+        <_probability_min/>
+        <_probability_max/>
+        <_probability_avg/>
+      </_probability>
+    </alternative>
+    <otherwise>
+      <manipulate id="a23" label="Tischplatte gravieren"/>
+    </otherwise>
+  </choose>
+  <manipulate id="a24" label="Tischbeine herstellen"/>
+</otherwise>
+</choose>
+<manipulate id="a16" label="Oberflächenbehandlung"/>
+<manipulate id="a17" label="Qualitätskontrolle"/>
+<loop mode="pre_test" condition="data.quality == "unacceptable"">
+<_probability>
+  <_probability_min/>
+  <_probability_max/>
+  <_probability_avg/>
+</_probability>
+<manipulate id="a18" label="Fehlende Bestandteile beilegen"/>
+</loop>
+<choose mode="exclusive">
+<alternative condition="data.additionalEquipment">
+  <manipulate id="a25" label="Zusatzausrüstung beilegen"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<otherwise></otherwise>
+</choose>
+<manipulate id="a19" label="Produkt mittels Material ermitteln"/>
+<choose mode="exclusive">
+<alternative condition="data.product == "schreibtisch" and !data.additionalEquipment">
+  <manipulate id="a30" label="In Box S verpacken"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<alternative condition="(data.product == "schreibtisch" and data.additionalEquipment) or (data.product == "schrank" and !data.additionalEquipment)">
+  <manipulate id="a29" label="In Box M verpacken"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<otherwise>
+  <manipulate id="a28" label="In Box L verpacken"/>
+</otherwise>
+</choose>
+<manipulate id="a20" label="Pakethöhe messen"/>
+<manipulate id="a26" label="Paket wiegen"/>
+<choose mode="exclusive">
+<alternative condition="(data.weight < data.maxWeight) and (data.height < data.maxHeight) and !data.express">
+  <manipulate id="a32" label="Lieferschein für kleines Paket drucken"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<alternative condition="(data.weight >= data.maxWeight) or(data.height >= data.maxHeight) and !data.express">
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+  <manipulate id="a33" label="Lieferschein für großes Paket drucken"/>
+  <manipulate id="a34" label="Paket auf Palette beladen und abwarten bis diese voll ist"/>
+</alternative>
+<otherwise>
+  <manipulate id="a35" label="Expresslieferschein drucken"/>
+</otherwise>
+</choose>
+<manipulate id="a27" label="Produkt versenden"/>
+<stop id="a31"/>
+</description>
+</dslx>
+<description>
+<description xmlns="http://cpee.org/ns/description/1.0">
+<manipulate id="a5" label="Material vorbereiten"/>
+<manipulate id="a1" label="RFID Transponder initialisieren"/>
+<choose mode="exclusive">
+<alternative condition="data.product == "schrank"">
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+  <manipulate id="a2" label="Material zuschneiden mit Maschine A"/>
+  <manipulate id="a7" label="Löcher vorbohren"/>
+  <manipulate id="a9" label="Regale herstellen"/>
+  <parallel wait="-1" cancel="last">
+    <parallel_branch pass="" local="">
+      <choose mode="exclusive">
+        <alternative condition="data.doorType != "default"">
+          <_probability>
+            <_probability_min/>
+            <_probability_max/>
+            <_probability_avg/>
+          </_probability>
+          <manipulate id="a10" label="Schiebetür herstellen"/>
+        </alternative>
+        <otherwise>
+          <manipulate id="a11" label="Standardtür herstellen"/>
+        </otherwise>
+      </choose>
+      <manipulate id="a12" label="Türschloss einbauen"/>
+    </parallel_branch>
+    <parallel_branch pass="" local="">
+      <manipulate id="a13" label="Spiegel zur Bearbeitung vorbereiten"/>
+      <choose mode="exclusive">
+        <alternative condition="data.mirrorShape == "rund"">
+          <manipulate id="a14" label="Spiegel rund zuschneiden"/>
+          <_probability>
+            <_probability_min/>
+            <_probability_max/>
+            <_probability_avg/>
+          </_probability>
+        </alternative>
+        <otherwise>
+          <manipulate id="a15" label="Spiegel eckig zuschneiden"/>
+        </otherwise>
+      </choose>
+    </parallel_branch>
+  </parallel>
+  <manipulate id="a3" label="Spiegel auf Tür befestigen"/>
+  <manipulate id="a4" label="Kleiderhaken und Schrankstange beilegen"/>
+</alternative>
+<otherwise>
+  <manipulate id="a6" label="Material zuschneiden mit Maschine B"/>
+  <manipulate id="a8" label="Löcher vorbohren"/>
+  <manipulate id="a21" label="Schubladen herstellen"/>
+  <choose mode="exclusive">
+    <alternative condition="data.tableStyel != "classic"">
+      <manipulate id="a22" label="Kabeldurchführung einfügen"/>
+      <_probability>
+        <_probability_min/>
+        <_probability_max/>
+        <_probability_avg/>
+      </_probability>
+    </alternative>
+    <otherwise>
+      <manipulate id="a23" label="Tischplatte gravieren"/>
+    </otherwise>
+  </choose>
+  <manipulate id="a24" label="Tischbeine herstellen"/>
+</otherwise>
+</choose>
+<manipulate id="a16" label="Oberflächenbehandlung"/>
+<manipulate id="a17" label="Qualitätskontrolle"/>
+<loop mode="pre_test" condition="data.quality == "unacceptable"">
+<_probability>
+  <_probability_min/>
+  <_probability_max/>
+  <_probability_avg/>
+</_probability>
+<manipulate id="a18" label="Fehlende Bestandteile beilegen"/>
+</loop>
+<choose mode="exclusive">
+<alternative condition="data.additionalEquipment">
+  <manipulate id="a25" label="Zusatzausrüstung beilegen"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<otherwise></otherwise>
+</choose>
+<manipulate id="a19" label="Produkt mittels Material ermitteln"/>
+<choose mode="exclusive">
+<alternative condition="data.product == "schreibtisch" and !data.additionalEquipment">
+  <manipulate id="a30" label="In Box S verpacken"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<alternative condition="(data.product == "schreibtisch" and data.additionalEquipment) or (data.product == "schrank" and !data.additionalEquipment)">
+  <manipulate id="a29" label="In Box M verpacken"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<otherwise>
+  <manipulate id="a28" label="In Box L verpacken"/>
+</otherwise>
+</choose>
+<manipulate id="a20" label="Pakethöhe messen"/>
+<manipulate id="a26" label="Paket wiegen"/>
+<choose mode="exclusive">
+<alternative condition="(data.weight < data.maxWeight) and (data.height < data.maxHeight) and !data.express">
+  <manipulate id="a32" label="Lieferschein für kleines Paket drucken"/>
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+</alternative>
+<alternative condition="(data.weight >= data.maxWeight) or(data.height >= data.maxHeight) and !data.express">
+  <_probability>
+    <_probability_min/>
+    <_probability_max/>
+    <_probability_avg/>
+  </_probability>
+  <manipulate id="a33" label="Lieferschein für großes Paket drucken"/>
+  <manipulate id="a34" label="Paket auf Palette beladen und abwarten bis diese voll ist"/>
+</alternative>
+<otherwise>
+  <manipulate id="a35" label="Expresslieferschein drucken"/>
+</otherwise>
+</choose>
+<manipulate id="a27" label="Produkt versenden"/>
+<stop id="a31"/>
+</description>
+</description>
+<transformation>
+<description type="copy"/>
+<dataelements type="none"/>
+<endpoints type="none"/>
+</transformation>
+</properties>

@@ -109,8 +109,6 @@ services:
     image: backend_image
     ports:
       - "9033:9033"
-    # networks:
-    #   - cpee-network
 
 volumes:
   influxvolume:

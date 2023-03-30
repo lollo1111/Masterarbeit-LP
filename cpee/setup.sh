@@ -8,4 +8,4 @@
 # fi
 cpee new server
 cpee-instantiation start
-cd server ; ./cpee start ; cd .. ; cd start ; ./instantiation start ; cpee ui
+mv properties.init server/resources/; cd server ; ./cpee start ; cd .. ; cd start ; ./instantiation start ; cpee ui

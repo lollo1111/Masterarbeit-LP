@@ -1,3 +1,4 @@
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const express = require('express');
 const app = express();
 app.use(express.json());
@@ -9,7 +10,23 @@ const io = new Server(server);
 const HashMap = require('hashmap');
 const map = new HashMap();
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+    const production_line = await fetch('http://host.docker.internal:7410/api/tags/by-name/direction_stopper');
+    const production_line_free = await production_line.json();
+    if (production_line_free[0]['value']) return console.log("Production Line is not free.");
+    const body_on = [
+        {
+            name: "start_emitter",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
     console.log("Gotcha!");
     res.status(200).json({
         lifecheck: "Success"
@@ -17,6 +34,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/start', (req, res) => {
+    console.log(req.headers);
     const instance = req.headers["cpee-instance"];
     map.set(instance, req.body);
     // console.log({
@@ -25,9 +43,9 @@ app.post('/start', (req, res) => {
     // });
     try {
         io.emit("start", instance);
-    } catch(_err) {
+    } catch (_err) {
         return res.json({
-	    code: false		
+            code: false
         });
     }
     return res.json({
