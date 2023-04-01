@@ -45,5 +45,5 @@ timeout /t 10 /nobreak
 echo\ && echo Open Workflow Engine
 explorer "http://localhost:5173"
 echo\ && echo Start Factory I/O SDK and Producer
-cd factoryio/sdk
-dotnet run
+@REM cd factoryio/sdk
+@REM dotnet run

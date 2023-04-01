@@ -103,12 +103,12 @@ services:
     networks:
       - cpee-network
 
-  backend:
-    container_name: backend
-    build: backend/
-    image: backend_image
-    ports:
-      - "9033:9033"
+  # backend:
+  #   container_name: backend
+  #   build: backend/
+  #   image: backend_image
+  #   ports:
+  #     - "9033:9033"
 
 volumes:
   influxvolume:

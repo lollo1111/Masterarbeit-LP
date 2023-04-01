@@ -210,6 +210,7 @@ PROGRAM program0
     logistic_option_1_out_sensor AT %IX106.2 : BOOL;
     after_logistic_sensor AT %IX106.3 : BOOL;
     varnishing_rfid_sensor AT %IX106.4 : BOOL;
+    start_sensor AT %IX106.5 : BOOL;
     spawn_pallett_conveyor AT %QX100.6 : BOOL;
     spawn_pallett_emit AT %QX100.7 : BOOL;
     machining_B_remover AT %QX101.0 : BOOL;
@@ -598,7 +599,7 @@ PROGRAM program0
   direction_conveyor_left_3_3 := direction_conveyor_left_2_3;
   machining_B_remover := machining_B_remover_sensor;
   machining_A_remover := direction_end_sensor_forward;
-  R_TRIG1(CLK := start_rfid_sensor);
+  R_TRIG1(CLK := start_sensor);
   OR4_OUT := OR(direction_end_sensor_forward, direction_end_sensor_left);
   R_TRIG2(CLK := OR4_OUT);
   CTUD0(CU := R_TRIG1.Q, CD := R_TRIG2.Q, PV := 10000);
