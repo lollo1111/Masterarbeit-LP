@@ -140,7 +140,6 @@ PROGRAM program0
   VAR
     maximum : INT := 10000;
     CTUD0 : CTUD;
-    dummy_direction : BOOL := True;
     dummy_quality : BOOL := True;
     dummy_box : INT := 1;
     quality_acceptable_counter : INT := 0;
@@ -305,6 +304,7 @@ PROGRAM program0
     pick_positionZ AT %IW105 : INT;
     height_light_array_emitter AT %IW106 : INT;
     tank_levelMeter AT %IW107 : INT;
+    direction_rfid_read AT %IW108 : INT;
   END_VAR
   VAR
     const_done : INT := 50;
@@ -368,12 +368,16 @@ PROGRAM program0
     GT28_OUT : BOOL;
     GE32_OUT : BOOL;
     OR7_OUT : BOOL;
+    EQ705_OUT : BOOL;
     NOT45_OUT : BOOL;
     AND37_OUT : BOOL;
     OR9_OUT : BOOL;
+    EQ703_OUT : BOOL;
     AND10_OUT : BOOL;
+    EQ707_OUT : BOOL;
     NOT49_OUT : BOOL;
     AND51_OUT : BOOL;
+    EQ709_OUT : BOOL;
     AND18_OUT : BOOL;
     EQ86_OUT : BOOL;
     R_TRIG1 : R_TRIG;
@@ -384,6 +388,7 @@ PROGRAM program0
     R_TRIG3 : R_TRIG;
     NOT114_OUT : BOOL;
     R_TRIG4 : R_TRIG;
+    EQ710_OUT : BOOL;
     AND81_OUT : BOOL;
     R_TRIG5 : R_TRIG;
     R_TRIG6 : R_TRIG;
@@ -578,21 +583,25 @@ PROGRAM program0
   GE32_OUT := GE(start_counter, 2);
   direction_stopper := GE32_OUT;
   OR7_OUT := OR(direction_limit_90, direction_rfid_sensor);
+  EQ705_OUT := EQ(direction_rfid_read, 0);
   NOT45_OUT := NOT(direction_limit_90);
-  AND37_OUT := AND(direction_limit_front, dummy_direction, NOT45_OUT);
+  AND37_OUT := AND(direction_limit_front, EQ705_OUT, NOT45_OUT);
   OR9_OUT := OR(AND37_OUT, machining_A_trigger, direction_end_sensor_left);
   SR0(S1 := OR7_OUT, R := OR9_OUT);
   direction_roll_forward := SR0.Q1;
-  AND10_OUT := AND(direction_limit_front, dummy_direction);
+  EQ703_OUT := EQ(direction_rfid_read, 0);
+  AND10_OUT := AND(direction_limit_front, EQ703_OUT);
   direction_turn := AND10_OUT;
   direction_conveyor_forward_2_3 := direction_conveyor_forward_1_3;
-  NOT49_OUT := NOT(dummy_direction);
+  EQ707_OUT := EQ(direction_rfid_read, 0);
+  NOT49_OUT := NOT(EQ707_OUT);
   AND51_OUT := AND(direction_limit_front, NOT49_OUT);
   SR1(S1 := AND51_OUT, R := machining_A_trigger);
   direction_conveyor_forward_1_3 := SR1.Q1;
   direction_conveyor_forward_3_3 := direction_conveyor_forward_2_3;
   direction_conveyor_left_2_3 := direction_conveyor_left_1_3;
-  AND18_OUT := AND(direction_limit_front, dummy_direction);
+  EQ709_OUT := EQ(direction_rfid_read, 0);
+  AND18_OUT := AND(direction_limit_front, EQ709_OUT);
   EQ86_OUT := EQ(left_counter, 0);
   SR2(S1 := AND18_OUT, R := EQ86_OUT);
   direction_conveyor_left_1_3 := SR2.Q1;
@@ -618,7 +627,8 @@ PROGRAM program0
   spawn_curve_2_2 := spawn_curve_1_2;
   SR4(S1 := spawn_pallett_trigger_sensor, R := spawn_pallett_sensor);
   spawn_pallett_stopper := SR4.Q1;
-  AND81_OUT := AND(dummy_direction, direction_rfid_sensor);
+  EQ710_OUT := EQ(direction_rfid_read, 0);
+  AND81_OUT := AND(EQ710_OUT, direction_rfid_sensor);
   R_TRIG5(CLK := AND81_OUT);
   R_TRIG6(CLK := machining_B_trigger);
   CTUD1(CU := R_TRIG5.Q, CD := R_TRIG6.Q, PV := 10000);

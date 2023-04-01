@@ -255,7 +255,7 @@ namespace EngineIO.Samples
                 MemoryInt memory_index = MemoryMap.Instance.GetInt("direction_rfid_memoryindex", MemoryType.Output);
                 MemoryInt command_id = MemoryMap.Instance.GetInt("direction_rfid_id", MemoryType.Input);
                 MemoryBit rfid = MemoryMap.Instance.GetBit("direction_rfid_execute", MemoryType.Output);
-                memory_index.Value = 2;
+                memory_index.Value = 1;
                 command.Value = 2;
                 int amount = command_id.Value;
                 rfid.Value = true;
