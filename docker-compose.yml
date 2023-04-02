@@ -72,6 +72,7 @@ services:
     image: openplc_image
     ports:
       - '8080:8080'
+    stop_grace_period: 30s
     privileged: true
     volumes:
       - ./openplc/scripts:/workdir/OpenPLC_v3/webserver/st_files
@@ -100,6 +101,7 @@ services:
       - "8298:8298"
       - "9296:9296"         # 9296 is the port for enabling the instantiation service
       - "8081:8080"
+    stop_grace_period: 30s
     networks:
       - cpee-network
 

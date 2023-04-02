@@ -7,8 +7,6 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 
-//dotnet add package Newtonsoft.Json --version 13.0.1
-
 namespace EngineIO.Samples
 {
     class Program
@@ -44,6 +42,8 @@ namespace EngineIO.Samples
             public bool Express { get; set; }
             [JsonProperty("additionalEquipment")]
             public string AdditionalEquipment { get; set; }
+            [JsonProperty("status")]
+            public string Status { get; set; }
         }
 
         public class Result
@@ -86,6 +86,46 @@ namespace EngineIO.Samples
             MemoryMap.Instance.Dispose();
         }
 
+        // async static void createFObj(String name, float val, String type, Int64 address)
+        // {
+        //     //
+        // }
+
+        async static void createIObj(String name, String val, String type, Int64 address)
+        {
+            var intVal = int.Parse(val);
+            if (name == "height_light_array_emitter" && intVal > 0)
+            {
+                Console.WriteLine("HEHEHEHEEHEH");
+                MemoryInt command = MemoryMap.Instance.GetInt("measurement_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("measurement_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("measurement_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("measurement_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("measurement_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("measurement_rfid_execute", MemoryType.Output);
+                var boxRef = await client.GetAsync("http://host.docker.internal:9033/start/preparePaket");
+                var boxRefString = await boxRef.Content.ReadAsStringAsync();
+                Reference reference = JsonConvert.DeserializeObject<Reference>(boxRefString);
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                var order = await client.PostAsync("http://host.docker.internal:9033/start/details", new StringContent(body, Encoding.UTF8, "application/json"));
+                var orderString = await order.Content.ReadAsStringAsync();
+                Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
+                // 1. Referenznummer auf Index 0 hinterlegen
+                memory_index.Value = 0;
+                var amount = command_id.Value;
+                writeRfid.Value = int.Parse(reference.reference);
+                command.Value = 3;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+            }
+        }
+
         async static void createObj(String name, String val, String type, Int64 address)
         {
             bool isVal;
@@ -124,26 +164,12 @@ namespace EngineIO.Samples
                 MemoryInt readRfid = MemoryMap.Instance.GetInt("start_rfid_read", MemoryType.Input);
                 MemoryInt writeRfid = MemoryMap.Instance.GetInt("start_rfid_write", MemoryType.Output);
                 MemoryInt memory_index = MemoryMap.Instance.GetInt("start_rfid_memoryindex", MemoryType.Output);
-                //number of executed commands --> id
                 MemoryInt command_id = MemoryMap.Instance.GetInt("start_rfid_id", MemoryType.Input);
                 MemoryBit rfid = MemoryMap.Instance.GetBit("start_rfid_execute", MemoryType.Output);
-                // Speicher an Stelle 0 --> Write Command: 3
-                // memory_index.Value = 0;
-                // command.Value = 3;
-                // int amount = command_id.Value;
-                // rfid.Value = true;
-                // MemoryMap.Instance.Update();
-                // while (command_id.Value <= amount)
-                // {
-                //     MemoryMap.Instance.Update();
-                //     Thread.Sleep(16);
-                // }
-                // await Task.Delay(100);
                 memory_index.Value = 0;
                 command.Value = 1;
                 int amount = command_id.Value;
                 rfid.Value = true;
-                // MemoryMap.Instance.Update();
                 while (command_id.Value <= amount)
                 {
                     MemoryMap.Instance.Update();
@@ -171,15 +197,12 @@ namespace EngineIO.Samples
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
-                string body = System.Text.Json.JsonSerializer.Serialize(reference);
-                var response = await client.PostAsync("http://host.docker.internal:9033/start/setup", new StringContent(body, Encoding.UTF8, "application/json"));
-
-
+                
                 // 2. Produkt auf Index 1 hinterlegen
-                memory_index.Value = 1;
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
                 await Task.Delay(100);
+                memory_index.Value = 1;
                 amount = command_id.Value;
                 if (theOrder.Product == "schrank")
                 {
@@ -197,10 +220,10 @@ namespace EngineIO.Samples
                 }
 
                 // 3. Wenn Schrank, dann Türtyp, andernfalls Tischstil auf Index 2 hinterlegen
-                memory_index.Value = 2;
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
                 await Task.Delay(100);
+                memory_index.Value = 2;
                 amount = command_id.Value;
                 if (theOrder.DoorType != null)
                 {
@@ -232,20 +255,8 @@ namespace EngineIO.Samples
                 }
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
-                // var responseString = await response.Content.ReadAsStringAsync();
-                
-                // Result res = JsonConvert.DeserializeObject<Result>(responseString);
-                // memory_index.Value = 1;
-                // writeRfid.Value = int.Parse(res.direction);
-                // command.Value = 3;
-                // amount = command_id.Value;
-                // rfid.Value = true;
-                // MemoryMap.Instance.Update();
-                // while (readRfid.Value <= amount)
-                // {
-                //     MemoryMap.Instance.Update();
-                //     Thread.Sleep(16);
-                // }
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                var response = await client.PostAsync("http://host.docker.internal:9033/start/setup", new StringContent(body, Encoding.UTF8, "application/json"));
             }
             else if (name == "direction_rfid_sensor" && isVal)
             {
@@ -259,7 +270,6 @@ namespace EngineIO.Samples
                 command.Value = 2;
                 int amount = command_id.Value;
                 rfid.Value = true;
-                // MemoryMap.Instance.Update();
                 while (command_id.Value <= amount)
                 {
                     MemoryMap.Instance.Update();
@@ -269,33 +279,290 @@ namespace EngineIO.Samples
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
             }
-            else if (name == "secondtrigger" && isVal)
+            else if (name == "direction_end_sensor_left" && isVal)
             {
-                Console.WriteLine("Set to read");
-                MemoryInt command = MemoryMap.Instance.GetInt("RFID_Command_2", MemoryType.Output);
-                MemoryInt readRfid = MemoryMap.Instance.GetInt(5, MemoryType.Input);
-                MemoryInt memory_index = MemoryMap.Instance.GetInt("RFID_Memory_2", MemoryType.Output);
-                MemoryInt command_id = MemoryMap.Instance.GetInt("RFID_Command_ID_2", MemoryType.Input);
-                int amount = command_id.Value;
+                MemoryInt command = MemoryMap.Instance.GetInt("before_machining_b_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("before_machining_b_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("before_machining_b_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("before_machining_b_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("before_machining_b_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("before_machining_b_rfid_execute", MemoryType.Output);
+                memory_index.Value = 0;
                 command.Value = 2;
-                memory_index.Value = 1;
-                MemoryBit rfid = MemoryMap.Instance.GetBit("RFID_Execute_Command_2", MemoryType.Output);
+                int amount = command_id.Value;
                 rfid.Value = true;
-                MemoryMap.Instance.Update();
                 while (command_id.Value <= amount)
                 {
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
-                Console.WriteLine(string.Format("Direction: {0}.", readRfid.Value));
-                MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
-                direction.Value = readRfid.Value;
+                Reference reference = new Reference
+                {
+                    reference = readRfid.Value.ToString(),
+                };
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                await client.PostAsync("http://host.docker.internal:9033/start/saveSchrank", new StringContent(body, Encoding.UTF8, "application/json"));
+                rfid.Value = false;
                 MemoryMap.Instance.Update();
             }
-            else if ((name == "end1" || name == "end2") && isVal)
+            else if (name == "direction_forward_rfid_sensor" && isVal)
             {
-                MemoryInt direction = MemoryMap.Instance.GetInt("direction", MemoryType.Output);
-                direction.Value = 0;
+                MemoryInt command = MemoryMap.Instance.GetInt("before_machining_a_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("before_machining_a_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("before_machining_a_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("before_machining_a_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("before_machining_a_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("before_machining_a_rfid_execute", MemoryType.Output);
+                memory_index.Value = 0;
+                command.Value = 2;
+                int amount = command_id.Value;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Reference reference = new Reference
+                {
+                    reference = readRfid.Value.ToString(),
+                };
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                await client.PostAsync("http://host.docker.internal:9033/start/saveSchreibtisch", new StringContent(body, Encoding.UTF8, "application/json"));
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+            }
+            else if (name == "spawn_pallett_trigger_sensor" && isVal)
+            {
+                MemoryInt command = MemoryMap.Instance.GetInt("spawn_pallett_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("spawn_pallett_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("spawn_pallett_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("spawn_pallett_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("spawn_pallett_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("spawn_pallett_rfid_execute", MemoryType.Output);
+                var palletRef = await client.GetAsync("http://host.docker.internal:9033/start/prepareSchrank");
+                var palletRefString = await palletRef.Content.ReadAsStringAsync();
+                Reference reference = JsonConvert.DeserializeObject<Reference>(palletRefString);
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                var order = await client.PostAsync("http://host.docker.internal:9033/start/details", new StringContent(body, Encoding.UTF8, "application/json"));
+                var orderString = await order.Content.ReadAsStringAsync();
+                Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
+                // 1. Referenznummer auf Index 0 hinterlegen
+                memory_index.Value = 0;
+                var amount = command_id.Value;
+                writeRfid.Value = int.Parse(reference.reference);
+                command.Value = 3;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+                await Task.Delay(100);
+                // Auf Index 1 Türtyp hinterlegen
+                memory_index.Value = 1;
+                amount = command_id.Value;
+                if (theOrder.DoorType != null)
+                {
+                    if (theOrder.DoorType == "default")
+                    {
+                        writeRfid.Value = 0;
+                    }
+                    else
+                    {
+                        writeRfid.Value = 1;
+                    }
+                    rfid.Value = true;
+                    while (command_id.Value <= amount)
+                    {
+                        MemoryMap.Instance.Update();
+                        Thread.Sleep(16);
+                    }
+                    rfid.Value = false;
+                    MemoryMap.Instance.Update();
+                }
+            }
+            else if (name == "after_machining_a_sensor" && isVal)
+            {
+                MemoryInt command = MemoryMap.Instance.GetInt("after_machining_a_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("after_machining_a_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("after_machining_a_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("after_machining_a_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("after_machining_a_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("after_machining_a_rfid_execute", MemoryType.Output);
+                var palletRef = await client.GetAsync("http://host.docker.internal:9033/start/prepareSchreibtisch");
+                var palletRefString = await palletRef.Content.ReadAsStringAsync();
+                Reference reference = JsonConvert.DeserializeObject<Reference>(palletRefString);
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                var order = await client.PostAsync("http://host.docker.internal:9033/start/details", new StringContent(body, Encoding.UTF8, "application/json"));
+                var orderString = await order.Content.ReadAsStringAsync();
+                Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
+                // 1. Referenznummer auf Index 0 hinterlegen
+                memory_index.Value = 0;
+                var amount = command_id.Value;
+                writeRfid.Value = int.Parse(reference.reference);
+                command.Value = 3;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+                await Task.Delay(100);
+                // Auf Index 1 Tischstil hinterlegen
+                memory_index.Value = 1;
+                amount = command_id.Value;
+                if (theOrder.TableStyle != null)
+                {
+                    if (theOrder.TableStyle == "classic")
+                    {
+                        writeRfid.Value = 0;
+                    }
+                    else
+                    {
+                        writeRfid.Value = 1;
+                    }
+                    rfid.Value = true;
+                    while (command_id.Value <= amount)
+                    {
+                        MemoryMap.Instance.Update();
+                        Thread.Sleep(16);
+                    }
+                    rfid.Value = false;
+                    MemoryMap.Instance.Update();
+                }
+                await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
+            }
+            else if (name == "after_machining_b_sensor" && isVal)
+            {
+                MemoryInt command = MemoryMap.Instance.GetInt("after_machining_b_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("after_machining_b_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("after_machining_b_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("after_machining_b_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("after_machining_b_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("after_machining_b_rfid_execute", MemoryType.Output);
+                memory_index.Value = 0;
+                command.Value = 2;
+                int amount = command_id.Value;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Reference reference = new Reference
+                {
+                    reference = readRfid.Value.ToString(),
+                };
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+            }
+            else if (name == "elevator_1_right_limit" && !isVal)
+            {
+                MemoryInt command = MemoryMap.Instance.GetInt("elevator_1_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("elevator_1_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("elevator_1_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("elevator_1_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("elevator_1_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("elevator_1_rfid_execute", MemoryType.Output);
+                memory_index.Value = 0;
+                command.Value = 2;
+                int amount = command_id.Value;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Reference reference = new Reference
+                {
+                    reference = readRfid.Value.ToString(),
+                };
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                await client.PostAsync("http://host.docker.internal:9033/start/mirrorReference", new StringContent(body, Encoding.UTF8, "application/json"));
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+            }
+            else if (name == "second_floor_trigger_sensor" && isVal) {
+                MemoryInt command = MemoryMap.Instance.GetInt("second_floor_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("second_floor_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("second_floor_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("second_floor_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("second_floor_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("second_floor_rfid_execute", MemoryType.Output);
+                var mirrorRef = await client.GetAsync("http://host.docker.internal:9033/start/prepareSpiegel");
+                var mirrorRefString = await mirrorRef.Content.ReadAsStringAsync();
+                Reference reference = JsonConvert.DeserializeObject<Reference>(mirrorRefString);
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                var order = await client.PostAsync("http://host.docker.internal:9033/start/details", new StringContent(body, Encoding.UTF8, "application/json"));
+                var orderString = await order.Content.ReadAsStringAsync();
+                Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
+                // 1. Referenznummer auf Index 0 hinterlegen
+                memory_index.Value = 0;
+                var amount = command_id.Value;
+                writeRfid.Value = int.Parse(reference.reference);
+                command.Value = 3;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+                await Task.Delay(100);
+                // Spiegelform auf Index 1 hinterlegen
+                memory_index.Value = 1;
+                amount = command_id.Value;
+                if (theOrder.MirrorShape != null)
+                {
+                    if (theOrder.MirrorShape == "eckig")
+                    {
+                        writeRfid.Value = 0;
+                    }
+                    else
+                    {
+                        writeRfid.Value = 1;
+                    }
+                    rfid.Value = true;
+                    while (command_id.Value <= amount)
+                    {
+                        MemoryMap.Instance.Update();
+                        Thread.Sleep(16);
+                    }
+                    rfid.Value = false;
+                    MemoryMap.Instance.Update();
+                }
+            }
+            else if (name == "pack_rfid_sensor" && isVal)
+            {
+                MemoryInt command = MemoryMap.Instance.GetInt("pack_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("pack_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("pack_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("pack_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("pack_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("pack_rfid_execute", MemoryType.Output);
+                memory_index.Value = 0;
+                command.Value = 2;
+                int amount = command_id.Value;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Reference reference = new Reference
+                {
+                    reference = readRfid.Value.ToString(),
+                };
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                await client.PostAsync("http://host.docker.internal:9033/start/boxReference", new StringContent(body, Encoding.UTF8, "application/json"));
+                rfid.Value = false;
                 MemoryMap.Instance.Update();
             }
         }
@@ -309,17 +576,15 @@ namespace EngineIO.Samples
             }
 
             //Display any changed MemoryFLoat
-            foreach (MemoryFloat mem in value.MemoriesFloat)
-            {
-                createObj(mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address);
-                // Console.WriteLine(string.Format("{0} value changed to: {1}, Address: {2} {3}", mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address));
-            }
+            // foreach (MemoryFloat mem in value.MemoriesFloat)
+            // {
+            //     createFObj(mem.Name, mem.Value, mem.MemoryType.ToString(), mem.Address);
+            // }
 
             //Display any changed MemoryInt
             foreach (MemoryInt mem in value.MemoriesInt)
             {
-                createObj(mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address);
-                // Console.WriteLine(string.Format("{0} value changed to: {1}, Address: {2} {3}", mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address));
+                createIObj(mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address);
             }
         }
     }
