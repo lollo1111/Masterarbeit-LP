@@ -186,6 +186,50 @@ router.post('/boxReference', (req, res) => {
     res.send();
 });
 
+router.post('/pack', (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    if (req.body.box === "S") {
+        theOrder.box = 1;
+    } else if (req.body.box === "M") {
+        theOrder.box = 2;
+    } else {
+        // Paket L
+        theOrder.box = 4;
+    }
+    map.set(req.body.reference, theOrder);
+    console.log("Box Order: ", map.get(req.body.reference));
+    res.send();
+});
+
+router.post('/logisticOption', (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    if (req.body.logisticOption === "Express") {
+        theOrder.logisticOption = 1;
+    } else if (req.body.logisticOption === "Palette") {
+        theOrder.logisticOption = 3;
+    } else {
+        // Standard
+        theOrder.logisticOption = 2;
+    }
+    map.set(req.body.reference, theOrder);
+    console.log("LogisticOption Order: ", map.get(req.body.reference));
+    res.send();
+});
+
+router.post('/determineQuality', (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    const quality = Math.random() < 0.8;
+    if (quality) {
+        theOrder.qualityAcceptable = true;
+    } else {
+        // Ungenügend
+        theOrder.qualityAcceptable = false;
+    }
+    map.set(req.body.reference, theOrder);
+    console.log("Quality Order: ", map.get(req.body.reference));
+    res.send();
+});
+
 router.get('/prepareSchrank', (req, res) => {
     const ref = schraenke.shift();
     res.status(200).json({

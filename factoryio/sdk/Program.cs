@@ -87,6 +87,12 @@ namespace EngineIO.Samples
             public string AdditionalEquipment { get; set; }
             [JsonProperty("status")]
             public string Status { get; set; }
+            [JsonProperty("box")]
+            public int Box { get; set; }
+            [JsonProperty("logisticOption")]
+            public int LogisticOption { get; set; }
+            [JsonProperty("qualityAcceptable")]
+            public bool QualityAcceptable { get; set; }
         }
 
         public class Result
@@ -131,7 +137,7 @@ namespace EngineIO.Samples
             MemoryMap.Instance.Dispose();
         }
 
-        async static void createFObj(String name, String val, String type, Int64 address)
+        static void createFObj(String name, String val, String type, Int64 address)
         {
             var floatVal = float.Parse(val);
             var intVal = (int)(floatVal * 100);
@@ -337,7 +343,7 @@ namespace EngineIO.Samples
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
-                Console.WriteLine("Result:" + readRfid.Value.ToString());
+                Console.WriteLine("Direction:" + readRfid.Value.ToString());
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
             }
@@ -419,6 +425,7 @@ namespace EngineIO.Samples
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
+                Console.WriteLine("Palette mit Referenz verbunden: " + writeRfid.Value.ToString());
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
                 await Task.Delay(100);
@@ -441,6 +448,7 @@ namespace EngineIO.Samples
                         MemoryMap.Instance.Update();
                         Thread.Sleep(16);
                     }
+                    Console.WriteLine("DoorType: " + writeRfid.Value.ToString());
                     rfid.Value = false;
                     MemoryMap.Instance.Update();
                 }
@@ -471,6 +479,20 @@ namespace EngineIO.Samples
                     MemoryMap.Instance.Update();
                     Thread.Sleep(16);
                 }
+                Console.WriteLine("Palette mit Referenz verbunden: " + writeRfid.Value.ToString());
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+                await Task.Delay(100);
+                //XXX
+                command.Value = 2;
+                amount = command_id.Value;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                Console.WriteLine("Again ref: " + readRfid.Value.ToString());
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
                 await Task.Delay(100);
@@ -493,10 +515,33 @@ namespace EngineIO.Samples
                         MemoryMap.Instance.Update();
                         Thread.Sleep(16);
                     }
+                    Console.WriteLine("TableStyle: " + writeRfid.Value.ToString());
                     rfid.Value = false;
                     MemoryMap.Instance.Update();
                 }
                 await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
+            }
+            else if (name == "pre_drill_a_sensor" && isVal)
+            {
+                Console.WriteLine("Pre-Drill.");
+                // MemoryInt readRfid = MemoryMap.Instance.GetInt("after_machining_a_rfid_read", MemoryType.Input);
+                // Reference reference = new Reference
+                // {
+                //     reference = readRfid.Value.ToString(),
+                // };
+                // string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                // await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
+            }
+            else if (name == "drawers_sensor" && isVal)
+            {
+                Console.WriteLine("Drawers.");
+                // MemoryInt readRfid = MemoryMap.Instance.GetInt("after_machining_a_rfid_read", MemoryType.Input);
+                // Reference reference = new Reference
+                // {
+                //     reference = readRfid.Value.ToString(),
+                // };
+                // string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                // await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
             }
             else if (name == "after_machining_b_sensor" && isVal)
             {
