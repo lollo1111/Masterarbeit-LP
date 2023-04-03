@@ -20,6 +20,49 @@ namespace EngineIO.Samples
 
         private static readonly HttpClient client = new HttpClient();
 
+        public class ScaleValuesArray
+        {
+            private int[] scaleValues;
+
+            public ScaleValuesArray()
+            {
+                scaleValues = new int[0];
+            }
+
+            public void AddScaleValue(int value)
+            {
+                int[] newArray = new int[scaleValues.Length + 1];
+                for (int i = 0; i < scaleValues.Length; i++)
+                {
+                    newArray[i] = scaleValues[i];
+                }
+                newArray[scaleValues.Length] = value;
+                scaleValues = newArray;
+            }
+
+            public void ClearScaleValues()
+            {
+                scaleValues = new int[0];
+            }
+
+            public int GetHighestScaleValue()
+            {
+                if (scaleValues.Length == 0)
+                {
+                    throw new InvalidOperationException("ScaleValuesArray is empty");
+                }
+                int highestValue = scaleValues[0];
+                for (int i = 1; i < scaleValues.Length; i++)
+                {
+                    if (scaleValues[i] > highestValue)
+                    {
+                        highestValue = scaleValues[i];
+                    }
+                }
+                return highestValue;
+            }
+        }
+
         public class Order
         {
             [JsonProperty("id")]
@@ -65,6 +108,8 @@ namespace EngineIO.Samples
             public DateTime timestamp { get; set; }
         }
 
+        static ScaleValuesArray scaleValuesArray = new ScaleValuesArray();
+
         static void Main(string[] args)
         {
             Console.WriteLine("Producer gestartet.");
@@ -86,17 +131,21 @@ namespace EngineIO.Samples
             MemoryMap.Instance.Dispose();
         }
 
-        // async static void createFObj(String name, float val, String type, Int64 address)
-        // {
-        //     //
-        // }
+        async static void createFObj(String name, String val, String type, Int64 address)
+        {
+            var floatVal = float.Parse(val);
+            var intVal = (int)(floatVal * 100);
+            if (name == "scale_weight" && floatVal > 0)
+            {
+                scaleValuesArray.AddScaleValue(intVal);
+            }
+        }
 
         async static void createIObj(String name, String val, String type, Int64 address)
         {
             var intVal = int.Parse(val);
             if (name == "height_light_array_emitter" && intVal > 0)
             {
-                Console.WriteLine("HEHEHEHEEHEH");
                 MemoryInt command = MemoryMap.Instance.GetInt("measurement_rfid_command", MemoryType.Output);
                 MemoryInt readRfid = MemoryMap.Instance.GetInt("measurement_rfid_read", MemoryType.Input);
                 MemoryInt writeRfid = MemoryMap.Instance.GetInt("measurement_rfid_write", MemoryType.Output);
@@ -115,6 +164,19 @@ namespace EngineIO.Samples
                 var amount = command_id.Value;
                 writeRfid.Value = int.Parse(reference.reference);
                 command.Value = 3;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+                await Task.Delay(100);
+                // 2. Auf Index 1 Höhe hinterlegen
+                memory_index.Value = 1;
+                amount = command_id.Value;
+                writeRfid.Value = intVal;
                 rfid.Value = true;
                 while (command_id.Value <= amount)
                 {
@@ -565,6 +627,33 @@ namespace EngineIO.Samples
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
             }
+            else if (name == "scale_forward" && isVal)
+            {
+                scaleValuesArray = new ScaleValuesArray();
+            }
+            else if (name == "after_pack_sensor" && isVal)
+            {
+                int highestValue = scaleValuesArray.GetHighestScaleValue();
+                MemoryInt command = MemoryMap.Instance.GetInt("measurement_rfid_command", MemoryType.Output);
+                MemoryInt readRfid = MemoryMap.Instance.GetInt("measurement_rfid_read", MemoryType.Input);
+                MemoryInt writeRfid = MemoryMap.Instance.GetInt("measurement_rfid_write", MemoryType.Output);
+                MemoryInt memory_index = MemoryMap.Instance.GetInt("measurement_rfid_memoryindex", MemoryType.Output);
+                MemoryInt command_id = MemoryMap.Instance.GetInt("measurement_rfid_id", MemoryType.Input);
+                MemoryBit rfid = MemoryMap.Instance.GetBit("measurement_rfid_execute", MemoryType.Output);
+                // Gewicht auf Index 2 hinterlegen
+                memory_index.Value = 2;
+                var amount = command_id.Value;
+                writeRfid.Value = highestValue;
+                command.Value = 3;
+                rfid.Value = true;
+                while (command_id.Value <= amount)
+                {
+                    MemoryMap.Instance.Update();
+                    Thread.Sleep(16);
+                }
+                rfid.Value = false;
+                MemoryMap.Instance.Update();
+            }
         }
 
         static void Instance_ValueChanged(MemoryMap sender, MemoriesChangedEventArgs value)
@@ -575,11 +664,11 @@ namespace EngineIO.Samples
                 createObj(mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address);
             }
 
-            //Display any changed MemoryFLoat
-            // foreach (MemoryFloat mem in value.MemoriesFloat)
-            // {
-            //     createFObj(mem.Name, mem.Value, mem.MemoryType.ToString(), mem.Address);
-            // }
+            // Display any changed MemoryFLoat
+            foreach (MemoryFloat mem in value.MemoriesFloat)
+            {
+                createFObj(mem.Name, mem.Value.ToString(), mem.MemoryType.ToString(), mem.Address);
+            }
 
             //Display any changed MemoryInt
             foreach (MemoryInt mem in value.MemoriesInt)

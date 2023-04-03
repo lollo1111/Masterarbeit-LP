@@ -16,7 +16,6 @@ function timeout(ms) {
 }
 
 router.post('/', async (req, res) => {
-    console.log("ok?");
     const id = crypto.randomUUID();
     let start_counter = await fetch('http://host.docker.internal:7410/api/tags/by-name/start_counter');
     let start_counter_amount = await start_counter.json();
