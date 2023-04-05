@@ -90,12 +90,62 @@ router.get('/finished', async (req, res) => {
     res.status(200).send();
 });
 
-router.get('/init', (req, res) => {
+router.get('/init', async (req, res) => {
     var callback = req.headers['cpee-callback']; // + "/";
     var taskName = req.headers['cpee-label'];
     order.callback = callback;
     order.currentTask = taskName;
     order.status = "In Progress";
+    const body_on = [
+        {
+            name: "simulate_init",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+
+router.post('/machining', async (req, res) => {
+    var callback = req.headers['cpee-callback']; // + "/";
+    var taskName = req.headers['cpee-label'];
+    let theOrder = map.get(req.body.reference);
+    theOrder.status = "In Progress";
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    console.log("Machine: ", req.body.machine);
+    theOrder.direction = req.body.machine === "A" ? 1 : 0;
+    let body_on;
+    if (req.body.machine === "A") {
+        body_on = [
+            {
+                name: "machining_A_start",
+                value: true
+            }
+        ];
+    } else {
+        body_on = [
+            {
+                name: "machining_B_start",
+                value: true
+            }
+        ];
+    }
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    map.set(req.body.reference, theOrder);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
@@ -216,18 +266,107 @@ router.post('/logisticOption', (req, res) => {
     res.send();
 });
 
-router.post('/determineQuality', (req, res) => {
+router.post('/determineQuality', async (req, res) => {
     let theOrder = map.get(req.body.reference);
-    const quality = Math.random() < 0.8;
+    const quality = Math.random() < 0.5;
     if (quality) {
         theOrder.qualityAcceptable = true;
     } else {
         // Ungenügend
         theOrder.qualityAcceptable = false;
-    }
+    }    
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
-    console.log("Quality Order: ", map.get(req.body.reference));
-    res.send();
+    const body_on = [
+        {
+            name: "simulate_quality_check",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.post('/classicTable', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    map.set(req.body.reference, theOrder);
+    const body_on = [
+        {
+            name: "classic",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.post('/modernTable', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    map.set(req.body.reference, theOrder);
+    const body_on = [
+        {
+            name: "modern",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.post('/tableLegs', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    map.set(req.body.reference, theOrder);
+    const body_on = [
+        {
+            name: "simulate_table_legs_production",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
 });
 
 router.get('/prepareSchrank', (req, res) => {
@@ -253,11 +392,58 @@ router.get('/prepareSpiegel', (req, res) => {
 
 router.get('/preparePaket', (req, res) => {
     const ref = boxes.shift();
+    console.log("REF: ", ref);
     res.status(200).json({
         reference: ref
     })
 });
 
+router.post('/preDrill', async (req, res) => {
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    let theOrder = map.get(req.body.reference);
+    theOrder.status = "In Progress";
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    map.set(req.body.reference, theOrder);
+    const body_on = [
+        {
+            name: "simulate_pre_drill",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
+});
 
+router.post('/drawers', async (req, res) => {
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    let theOrder = map.get(req.body.reference);
+    theOrder.status = "In Progress";
+    theOrder.callback = callback;
+    theOrder.currentTask = taskName;
+    map.set(req.body.reference, theOrder);
+    const body_on = [
+        {
+            name: "simulate_drawers_production",
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
+    res.status(200).setHeader('cpee-callback', true).send();
+});
 
 module.exports = router;

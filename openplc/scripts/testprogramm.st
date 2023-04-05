@@ -140,7 +140,6 @@ PROGRAM program0
   VAR
     maximum : INT := 10000;
     CTUD0 : CTUD;
-    dummy_quality : BOOL := True;
     dummy_box : INT := 1;
     quality_acceptable_counter : INT := 0;
     quality_unacceptable_counter : INT := 0;
@@ -305,6 +304,7 @@ PROGRAM program0
     height_light_array_emitter AT %IW106 : INT;
     tank_levelMeter AT %IW107 : INT;
     direction_rfid_read AT %IW108 : INT;
+    check_rfid_read AT %IW109 : INT;
   END_VAR
   VAR
     const_done : INT := 50;
@@ -510,13 +510,14 @@ PROGRAM program0
     GT445_OUT : BOOL;
     NOT448_OUT : BOOL;
     AND447_OUT : BOOL;
-    NOT467_OUT : BOOL;
+    EQ711_OUT : BOOL;
     AND458_OUT : BOOL;
-    NOT466_OUT : BOOL;
     OR480_OUT : BOOL;
+    EQ713_OUT : BOOL;
     AND491_OUT : BOOL;
     R_TRIG17 : R_TRIG;
     R_TRIG18 : R_TRIG;
+    EQ715_OUT : BOOL;
     NOT493_OUT : BOOL;
     AND469_OUT : BOOL;
     R_TRIG19 : R_TRIG;
@@ -526,6 +527,7 @@ PROGRAM program0
     GT506_OUT : BOOL;
     GT507_OUT : BOOL;
     AND540_OUT : BOOL;
+    EQ717_OUT : BOOL;
     AND459_OUT : BOOL;
     OR532_OUT : BOOL;
     GT566_OUT : BOOL;
@@ -628,7 +630,7 @@ PROGRAM program0
   SR4(S1 := spawn_pallett_trigger_sensor, R := spawn_pallett_sensor);
   spawn_pallett_stopper := SR4.Q1;
   EQ710_OUT := EQ(direction_rfid_read, 0);
-  AND81_OUT := AND(EQ710_OUT, direction_rfid_sensor);
+  AND81_OUT := AND(EQ710_OUT, direction_limit_front);
   R_TRIG5(CLK := AND81_OUT);
   R_TRIG6(CLK := machining_B_trigger);
   CTUD1(CU := R_TRIG5.Q, CD := R_TRIG6.Q, PV := 10000);
@@ -828,20 +830,21 @@ PROGRAM program0
   GT445_OUT := GT(varnishing_counter, 0);
   NOT448_OUT := NOT(before_check_stopper);
   AND447_OUT := AND(GT445_OUT, NOT448_OUT, check_direction_limit_front);
-  NOT467_OUT := NOT(dummy_quality);
-  AND458_OUT := AND(NOT467_OUT, check_direction_limit_90);
-  NOT466_OUT := NOT(check_direction_limit_front);
-  SR26(S1 := AND458_OUT, R := NOT466_OUT);
+  EQ711_OUT := EQ(check_rfid_read, 1);
+  AND458_OUT := AND(EQ711_OUT, check_direction_limit_90);
+  SR26(S1 := AND458_OUT, R := repeat_out_sensor);
   OR480_OUT := OR(AND447_OUT, SR26.Q1);
   check_direction_roll_back := OR480_OUT;
-  AND491_OUT := AND(check_direction_limit_90, dummy_quality);
+  EQ713_OUT := EQ(check_rfid_read, 0);
+  AND491_OUT := AND(check_direction_limit_90, EQ713_OUT);
   R_TRIG17(CLK := AND491_OUT);
   R_TRIG18(CLK := pack_rfid_sensor);
   CTUD7(CU := R_TRIG17.Q, CD := R_TRIG18.Q, PV := 10000);
   quality_acceptable_counter := CTUD7.CV;
   before_pack_conveyor_2_3 := before_pack_conveyor_1_3;
   before_pack_conveyor_3_3 := before_pack_conveyor_2_3;
-  NOT493_OUT := NOT(dummy_quality);
+  EQ715_OUT := EQ(check_rfid_read, 0);
+  NOT493_OUT := NOT(EQ715_OUT);
   AND469_OUT := AND(check_direction_limit_90, NOT493_OUT);
   R_TRIG19(CLK := AND469_OUT);
   NOT557_OUT := NOT(check_direction_limit_0);
@@ -860,7 +863,8 @@ PROGRAM program0
   before_pack_conveyor_1_3 := GT507_OUT;
   AND540_OUT := AND(check_direction_limit_0, check_rfid_sensor);
   SR24(S1 := AND540_OUT, R := check_direction_limit_front);
-  AND459_OUT := AND(check_direction_limit_90, dummy_quality);
+  EQ717_OUT := EQ(check_rfid_read, 0);
+  AND459_OUT := AND(check_direction_limit_90, EQ717_OUT);
   SR25(S1 := AND459_OUT, R := check_out_sensor);
   OR532_OUT := OR(SR24.Q1, SR25.Q1);
   check_direction_roll_forward := OR532_OUT;
