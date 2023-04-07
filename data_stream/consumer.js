@@ -20,7 +20,8 @@ const kafka = new Kafka({
   clientId: 'example-consumer',
 });
 
-const topic = 'test-topic';
+const topic = 'Test';
+// const topic = 'test-topic';
 const consumer = kafka.consumer({ groupId: 'test-group' });
 
 const run = async () => {
@@ -30,28 +31,21 @@ const run = async () => {
     eachMessage: async ({ topic, partition, message }) => {
       const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
       console.log(`- ${prefix} ${message.key}#${message.value}`);
-      // const msg = JSON.parse(message.value);
       // const point = new Point("weatherstation")
-      //   .tag("name", msg.name)
-      //   .tag("type", msg.type)
-      //   .tag("address", msg.address)
-      //   .intField("bool", msg.value ? 1 : 0)
-      //   .timestamp(new Date(Date.parse(msg.timestamp)));
-      const point = new Point("weatherstation")
-        .tag("name", "Shiesh")
-        .intField("val", 1)
-        .timestamp(new Date(Date.now()));
-      writeApi
-        .writePoint(point)
-      writeApi
-        .flush()
-        .then(() => {
-          console.log('FINISHED')
-        })
-        .catch(e => {
-          console.error(e)
-          console.log('Finished ERROR')
-        })
+      //   .tag("name", "Shiesh")
+      //   .intField("val", 1)
+      //   .timestamp(new Date(Date.now()));
+      // writeApi
+      //   .writePoint(point)
+      // writeApi
+      //   .flush()
+      //   .then(() => {
+      //     console.log('FINISHED')
+      //   })
+      //   .catch(e => {
+      //     console.error(e)
+      //     console.log('Finished ERROR')
+      //   })
     }
   });
 };

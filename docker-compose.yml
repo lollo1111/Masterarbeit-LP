@@ -1,5 +1,5 @@
 ---
-version: "3"
+version: "3.7"
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -112,8 +112,47 @@ services:
   #   ports:
   #     - "9033:9033"
 
+  mosquitto:
+    image: eclipse-mosquitto:2
+    user: mosquitto
+    volumes:
+      - type: bind
+        source: ./mosquitto/config/
+        target: /mosquitto/config/
+      - type: bind
+        source: ./mosquitto/log/
+        target: /mosquitto/log/
+      - type: volume
+        source: data
+        target: /mosquitto/data/
+    ports:
+      - target: 1883
+        published: 1883
+        protocol: tcp
+        mode: host
+      - target: 9001
+        published: 9001
+        protocol: tcp
+        mode: host
+    depends_on:
+      broker:
+        condition: service_healthy
+    networks:
+      - my-network 
+      
+  mqttbridge:
+    build:
+      context: ./bridge
+      dockerfile: Dockerfile
+    depends_on:
+      - mosquitto
+    networks:
+      - my-network 
+
 volumes:
   influxvolume:
+  data:
+    name: "mqtt-broker-data"
 
 networks:
   my-network:
