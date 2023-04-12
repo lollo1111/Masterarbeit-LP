@@ -35,6 +35,7 @@ services:
 
   influxdb: 
     image: influxdb:latest
+    container_name: influxdb
     ports:
       - '8086:8086'
     volumes:
@@ -49,10 +50,29 @@ services:
     networks:
       - my-network
 
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-enterprise:latest
+    restart: always
+    links:
+     - influxdb
+    depends_on:
+     - influxdb
+    environment:
+     - BUCKET=${INFLUXDB_BUCKET}
+     - ORG=${INFLUXDB_ORG}
+     - TKN=${INFLUXDB_TOKEN}
+    ports:
+      - 3000:3000
+    user: '104'
+    volumes:
+     - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+     - grafana_data:/var/lib/grafana
+
   data-stream-consumer:
+    container_name: consumer
     links:
       - influxdb
-    container_name: consumer
     build: data_stream/
     image: consumer_image
     depends_on:
@@ -115,6 +135,7 @@ services:
   #     - "9033:9033"
 
   mosquitto:
+    container_name: mosquitto
     image: eclipse-mosquitto:2
     user: mosquitto
     volumes:
@@ -143,6 +164,7 @@ services:
       - my-network 
       
   mqttbridge:
+    container_name: mqttbridge
     build:
       context: ./bridge
       dockerfile: Dockerfile
@@ -153,6 +175,7 @@ services:
 
 volumes:
   influxvolume:
+  grafana_data:
   data:
     name: "mqtt-broker-data"
 
