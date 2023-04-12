@@ -268,7 +268,7 @@ router.post('/logisticOption', (req, res) => {
 
 router.post('/determineQuality', async (req, res) => {
     let theOrder = map.get(req.body.reference);
-    const quality = Math.random() < 0.5;
+    const quality = Math.random() < 0.8;
     if (quality) {
         theOrder.qualityAcceptable = true;
     } else {
@@ -392,7 +392,6 @@ router.get('/prepareSpiegel', (req, res) => {
 
 router.get('/preparePaket', (req, res) => {
     const ref = boxes.shift();
-    console.log("REF: ", ref);
     res.status(200).json({
         reference: ref
     })

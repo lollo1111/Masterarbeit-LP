@@ -1,6 +1,7 @@
 #!/bin/bash
 
 stop_cpee() {
+  ./cpee stop
   pkill cpee
 }
 
@@ -16,6 +17,6 @@ trap stop_cpee SIGTERM
 cpee new server
 # cpee-instantiation start
 # mv properties.init server/resources/; 
-cd server ; ./cpee start ; cd .. ; cpee ui
+cd server ; ./cpee start ; cd .. ; cpee ui ; cd server
 # cd start ; ./instantiation start ; cpee ui
 wait $!

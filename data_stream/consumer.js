@@ -17,11 +17,10 @@ writeApi.useDefaultTags({ host: 'host1' });
 const kafka = new Kafka({
   logLevel: logLevel.INFO,
   brokers: ["broker:29092"],
-  clientId: 'example-consumer',
+  clientId: 'factory-consumer',
 });
 
 const topic = 'Test';
-// const topic = 'test-topic';
 const consumer = kafka.consumer({ groupId: 'test-group' });
 
 const run = async () => {
@@ -31,23 +30,23 @@ const run = async () => {
     eachMessage: async ({ topic, partition, message }) => {
       const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
       console.log(`- ${prefix} ${message.key}#${message.value}`);
-      // const point = new Point("weatherstation")
-      //   .tag("name", "Shiesh")
-      //   .intField("val", 1)
-      //   .timestamp(new Date(Date.now()));
-      // writeApi
-      //   .writePoint(point)
-      // writeApi
-      //   .flush()
-      //   .then(() => {
-      //     console.log('FINISHED')
-      //   })
-      //   .catch(e => {
-      //     console.error(e)
-      //     console.log('Finished ERROR')
-      //   })
+      const point = new Point("weatherstation")
+        .tag("name", "Shiesh")
+        .intField("val", 1)
+        .timestamp(new Date(Date.now()));
+      writeApi
+        .writePoint(point)
+      writeApi
+        .flush()
+        .then(() => {
+          console.log('FINISHED')
+        })
+        .catch(e => {
+          console.error(e)
+          console.log('Finished ERROR')
+        })
     }
   });
 };
 
-run().catch(e => console.error(`[example/consumer] ${e.message}`, e));
+run().catch(e => console.error(`[factory/consumer] ${e.message}`, e));

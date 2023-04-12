@@ -7,10 +7,16 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 
+using MQTTnet;
+using MQTTnet.Client;
+// using MQTTnet.Client.Options;
+
 namespace EngineIO.Samples
 {
     class Program
     {
+        private static IMqttClient _client;
+
         public static ProducerConfig config = new ProducerConfig()
         {
             BootstrapServers = "localhost:9092"
@@ -118,8 +124,17 @@ namespace EngineIO.Samples
 
         static ScaleValuesArray scaleValuesArray = new ScaleValuesArray();
 
-        static void Main(string[] args)
+        // static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            var factory = new MqttFactory();
+            _client = factory.CreateMqttClient();
+
+            var options = new MqttClientOptionsBuilder()
+                .WithTcpServer("localhost", 1883) // Specify the broker address and port
+                .Build();
+
+            await _client.ConnectAsync(options);
             Console.WriteLine("Producer gestartet.");
             MemoryMap.Instance.InputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
             MemoryMap.Instance.OutputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
@@ -224,11 +239,17 @@ namespace EngineIO.Samples
             }
             else if (name == "start_rfid_sensor" && isVal)
             {
-                //hier noch try-catch einbauen!
-                var dr = await producer.ProduceAsync("test-topic", new Message<Null, string> { Value="produkt" });
-                Console.WriteLine($"Delivered '{dr.Value}' to '{dr.TopicPartitionOffset}'");
                 Console.WriteLine("Neues Produkt in der Fertigungslinie");
-
+                var mqttMessage = new MqttApplicationMessageBuilder()
+                    .WithTopic("Test") // Specify the topic to publish to
+                    .WithPayload("OKI") // Set the message payload
+                    // .WithExactlyOnceQoS() // Specify the quality of service level
+                    // .WithRetainFlag() // Set the retain flag
+                    .Build();
+                await _client.PublishAsync(mqttMessage);
+                //hier noch try-catch einbauen!
+                // var dr = await producer.ProduceAsync("test-topic", new Message<Null, string> { Value="produkt" });
+                // Console.WriteLine($"Delivered '{dr.Value}' to '{dr.TopicPartitionOffset}'");
                 //###############
                 MemoryInt command = MemoryMap.Instance.GetInt("start_rfid_command", MemoryType.Output);
                 MemoryInt readRfid = MemoryMap.Instance.GetInt("start_rfid_read", MemoryType.Input);
