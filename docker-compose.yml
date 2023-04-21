@@ -29,7 +29,7 @@ services:
       test: kafka-topics --bootstrap-server broker:9092 --list
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
     networks:
       - my-network 
 
@@ -66,7 +66,9 @@ services:
       - 3000:3000
     user: '104'
     volumes:
+     - ./grafana/custom.ini:/etc/grafana/grafana.ini
      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+     - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
      - grafana_data:/var/lib/grafana
 
   data-stream-consumer:
@@ -76,8 +78,9 @@ services:
     build: data_stream/
     image: consumer_image
     depends_on:
-      broker:
-        condition: service_healthy
+      - mqttbridge
+      # broker:
+      #   condition: service_healthy
     networks:
       - my-network
 
@@ -111,8 +114,7 @@ services:
     ports:
       - '5173:5173'
     depends_on:
-      broker:
-        condition: service_healthy
+      - grafana
 
   cpee:
     container_name: cpee

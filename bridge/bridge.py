@@ -11,13 +11,13 @@ producer = Producer(conf)
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-    client.subscribe("Test")
+    client.subscribe("device/#")
 
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-    orsch = str(msg.payload.decode("utf-8", "ignore"))
-    producer.produce('Test', key="DiezeWert", value="OK")
-    producer.flush()
+    print(msg.topic+" "+str(msg.payload.decode('utf-8')))
+    producer.produce(msg.topic.replace("/", "-"), value=str(msg.payload.decode('utf-8')))
+    #producer.flush()
+    producer.poll()
 
 client = mqtt.Client('MQTTBridge')
 client.on_connect = on_connect

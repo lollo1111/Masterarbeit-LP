@@ -1,12 +1,16 @@
 <template>
-    <my-component></my-component>
+    <other-component></other-component>
+    <the-dashboard></the-dashboard>
 </template>
 
 <script>
-import MyComponent from '../components/MyComponent.vue';
+import TheDashboard from '../components/TheDashboard.vue';
+import OtherComponent from '../components/OtherComponent.vue'
+
 export default {
     components: {
-        MyComponent
+        OtherComponent,
+        TheDashboard
     }
 }
 </script>

@@ -20,20 +20,32 @@ const kafka = new Kafka({
   clientId: 'factory-consumer',
 });
 
-const topic = 'Test';
-const consumer = kafka.consumer({ groupId: 'test-group' });
+const consumer = kafka.consumer({ groupId: 'factory-data-stream' });
 
 const run = async () => {
   await consumer.connect();
-  await consumer.subscribe({ topic, fromBeginning: true });
+  await consumer.subscribe({ 
+    topics: ["device-startsensor"],
+    fromBeginning: true
+  });
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
       console.log(`- ${prefix} ${message.key}#${message.value}`);
-      const point = new Point("weatherstation")
-        .tag("name", "Shiesh")
-        .intField("val", 1)
-        .timestamp(new Date(Date.now()));
+      const deviceid = topic.split('-')[1]
+      const payload = JSON.parse(message.value.toString());
+      let point;
+      if (deviceid === 'startsensor') {
+        console.log(`Received message from startsensor`)
+        point = new Point("sensor")
+          .tag("name", "startsensor")
+          .intField("val", 1)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'device2') {
+        console.log(`Received message from else if`)
+      } else {
+        console.log(`Received message from unknown device`)
+      }
       writeApi
         .writePoint(point)
       writeApi

@@ -4,12 +4,11 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-
 using MQTTnet;
 using MQTTnet.Client;
-// using MQTTnet.Client.Options;
 
 namespace EngineIO.Samples
 {
@@ -222,16 +221,6 @@ namespace EngineIO.Samples
             {
                 isVal = false;
             }
-            // FactoryEvent factoryevent = new FactoryEvent
-            // {
-            //     name = name,
-            //     value = isVal,
-            //     type = type,
-            //     address = address,
-            //     timestamp = DateTime.Now
-            // };
-            // string body = System.Text.Json.JsonSerializer.Serialize(factoryevent);
-            // Console.WriteLine(body);
             if (name == "start_sensor" && isVal)
             {
                 // Produkt wurde platziert
@@ -240,17 +229,16 @@ namespace EngineIO.Samples
             else if (name == "start_rfid_sensor" && isVal)
             {
                 Console.WriteLine("Neues Produkt in der Fertigungslinie");
+                var deviceId = "startsensor";
+                var mqttMsg = new JObject();
+                mqttMsg["name"] = "Simulation gestartet";
+                mqttMsg["timestamp"] = DateTime.Now;
+                string payload = JsonConvert.SerializeObject(mqttMsg);
                 var mqttMessage = new MqttApplicationMessageBuilder()
-                    .WithTopic("Test") // Specify the topic to publish to
-                    .WithPayload("OKI") // Set the message payload
-                    // .WithExactlyOnceQoS() // Specify the quality of service level
-                    // .WithRetainFlag() // Set the retain flag
+                    .WithTopic($"device/{deviceId}")
+                    .WithPayload(payload)
                     .Build();
                 await _client.PublishAsync(mqttMessage);
-                //hier noch try-catch einbauen!
-                // var dr = await producer.ProduceAsync("test-topic", new Message<Null, string> { Value="produkt" });
-                // Console.WriteLine($"Delivered '{dr.Value}' to '{dr.TopicPartitionOffset}'");
-                //###############
                 MemoryInt command = MemoryMap.Instance.GetInt("start_rfid_command", MemoryType.Output);
                 MemoryInt readRfid = MemoryMap.Instance.GetInt("start_rfid_read", MemoryType.Input);
                 MemoryInt writeRfid = MemoryMap.Instance.GetInt("start_rfid_write", MemoryType.Output);
@@ -479,31 +467,6 @@ namespace EngineIO.Samples
                 Console.WriteLine("Palette mit Referenz verbunden: " + writeRfid.Value.ToString());
                 rfid.Value = false;
                 MemoryMap.Instance.Update();
-                // await Task.Delay(100);
-                // // Auf Index 1 Tischstil hinterlegen
-                // memory_index.Value = 1;
-                // command.Value = 3;
-                // amount = command_id.Value;
-                // if (theOrder.TableStyle != null)
-                // {
-                //     if (theOrder.TableStyle == "classic")
-                //     {
-                //         writeRfid.Value = 0;
-                //     }
-                //     else
-                //     {
-                //         writeRfid.Value = 1;
-                //     }
-                //     rfid.Value = true;
-                //     while (command_id.Value <= amount)
-                //     {
-                //         MemoryMap.Instance.Update();
-                //         Thread.Sleep(16);
-                //     }
-                //     Console.WriteLine("TableStyle: " + writeRfid.Value.ToString());
-                //     rfid.Value = false;
-                //     MemoryMap.Instance.Update();
-                // }
                 await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
             }
             else if (name == "pre_drill_a_sensor" && isVal)
