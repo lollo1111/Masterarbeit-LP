@@ -176,6 +176,7 @@ namespace EngineIO.Samples
                 MemoryBit rfid = MemoryMap.Instance.GetBit("measurement_rfid_execute", MemoryType.Output);
                 var boxRef = await client.GetAsync("http://host.docker.internal:9033/start/preparePaket");
                 var boxRefString = await boxRef.Content.ReadAsStringAsync();
+                Console.WriteLine("Strange: " + boxRefString);
                 Reference reference = JsonConvert.DeserializeObject<Reference>(boxRefString);
                 string body = System.Text.Json.JsonSerializer.Serialize(reference);
                 var order = await client.PostAsync("http://host.docker.internal:9033/start/details", new StringContent(body, Encoding.UTF8, "application/json"));
@@ -231,7 +232,7 @@ namespace EngineIO.Samples
                 Console.WriteLine("Neues Produkt in der Fertigungslinie");
                 var deviceId = "startsensor";
                 var mqttMsg = new JObject();
-                mqttMsg["name"] = "Simulation gestartet";
+                mqttMsg["val"] = 1;
                 mqttMsg["timestamp"] = DateTime.Now;
                 string payload = JsonConvert.SerializeObject(mqttMsg);
                 var mqttMessage = new MqttApplicationMessageBuilder()
@@ -852,6 +853,33 @@ namespace EngineIO.Samples
                 };
                 string body = System.Text.Json.JsonSerializer.Serialize(reference);
                 await client.PostAsync("http://host.docker.internal:9033/start/complete", new StringContent(body, Encoding.UTF8, "application/json"));
+            }
+            else if (name == "end_sensor" && isVal)
+            {
+                var deviceId = "endsensor";
+                var mqttMsg = new JObject();
+                mqttMsg["val"] = 1;
+                mqttMsg["timestamp"] = DateTime.Now;
+                string payload = JsonConvert.SerializeObject(mqttMsg);
+                var mqttMessage = new MqttApplicationMessageBuilder()
+                    .WithTopic($"device/{deviceId}")
+                    .WithPayload(payload)
+                    .Build();
+                await _client.PublishAsync(mqttMessage);
+            }
+            else if (name == "varnishing_stopper_1_2")
+            {
+                MemoryFloat tank_levelMeter = MemoryMap.Instance.GetFloat("tank_levelMeter", MemoryType.Input);
+                var deviceId = "tank";
+                var mqttMsg = new JObject();
+                mqttMsg["val"] = (float)Math.Round(tank_levelMeter.Value, 2);
+                mqttMsg["timestamp"] = DateTime.Now;
+                string payload = JsonConvert.SerializeObject(mqttMsg);
+                var mqttMessage = new MqttApplicationMessageBuilder()
+                    .WithTopic($"device/{deviceId}")
+                    .WithPayload(payload)
+                    .Build();
+                await _client.PublishAsync(mqttMessage);
             }
         }
 

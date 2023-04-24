@@ -1,6 +1,10 @@
 <template>
-    <other-component></other-component>
+    <h1>Test</h1>
+</template>
+
+<!-- <template>
     <the-dashboard></the-dashboard>
+    <other-component></other-component>
 </template>
 
 <script>
@@ -13,4 +17,4 @@ export default {
         TheDashboard
     }
 }
-</script>
+</script> -->

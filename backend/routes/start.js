@@ -268,7 +268,8 @@ router.post('/logisticOption', (req, res) => {
 
 router.post('/determineQuality', async (req, res) => {
     let theOrder = map.get(req.body.reference);
-    const quality = Math.random() < 0.8;
+    // const quality = Math.random() < 0.8;
+    const quality = true;
     if (quality) {
         theOrder.qualityAcceptable = true;
     } else {

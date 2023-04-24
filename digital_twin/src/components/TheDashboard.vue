@@ -1,4 +1,20 @@
 <template>
     <h1>Dashboard</h1>
-    <iframe src="http://localhost:3000/d-solo/q9FIABE4k/digital-twin-dashboard?orgId=1&from=1682055628539&to=1682077228539&theme=dark&panelId=2" width="450" height="200" frameborder="0"></iframe>
+    <div class="container">
+        <iframe src="http://localhost:3000/d/q9FIABE4k/digital-twin-dashboard?refresh=5s&orgId=1" frameborder="0"></iframe>
+    </div>
 </template>
+
+<style scoped>
+.container {
+    max-width: 1200px;
+    height: auto;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+}
+</style>
