@@ -61,7 +61,7 @@ ul {
 }
 
 li {
-    padding: 1rem;
+    padding: 1rem 1rem 1rem 0;
     border-bottom: 1px dotted #333;
 }
 

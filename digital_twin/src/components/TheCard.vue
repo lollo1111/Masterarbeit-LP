@@ -10,7 +10,7 @@
 .container {
     max-width: 1500px;
     margin: 3rem auto;
-    padding: .5rem;
+    padding: 2rem;
 }
 
 h1 {

@@ -8,3 +8,8 @@ html,
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+html {
+  width: 100vw;
+  overflow-x: hidden;
+}

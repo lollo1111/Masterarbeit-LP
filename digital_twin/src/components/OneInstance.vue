@@ -1,25 +1,29 @@
 <template>
     <div class="heading">
         <div class="tex">
-            <h3 @click="toggleInstance">Instanz {{ instanceId }}</h3>
+            <h3 @click="toggleInstance">{{ opened ? "◀️" : "🔽" }} Instanz {{ instanceId }}</h3>
         </div>
         <div class="control">
             <span @click="$emit('delete-instance', instanceId)">❌</span>
         </div>
-        <p class="show" @click="toggleInstance">{{ opened ? "⬆️" : "⬇️" }}</p>
     </div>
     <iframe v-if="opened" :src="instance" frameborder="0"></iframe>
 </template>
 
 <script>
+import { useInstanceStore } from '../stores/InstanceStore';
+const store = useInstanceStore();
+
 export default {
     async created() {
-      const formData = new URLSearchParams();
-      formData.append('info', 'WfMS for the Digital Twin');
+        store.increment();
+        store.doubleCount;
+        const formData = new URLSearchParams();
+        formData.append('info', 'WfMS for the Digital Twin');
         const response = await fetch('http://localhost:8298/', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: formData
         });
@@ -58,13 +62,6 @@ p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
-}
-
-.show {
-    position: absolute;
-    top: calc(100% - 5px);
-    left: 50%;
 }
 
 iframe {

@@ -2,6 +2,7 @@ const express = require('express');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const HashMap = require('hashmap');
 const crypto = require('crypto');
+const fs = require('fs').promises;
 
 let router = express.Router();
 const map = new HashMap();
@@ -13,6 +14,12 @@ let boxes = [];
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function readJson() {
+    const data = await fs.readFile("./data/worklist.json", "binary");
+    const json = JSON.parse(Buffer.from(data));
+    return json;
 }
 
 router.post('/', async (req, res) => {
@@ -444,6 +451,15 @@ router.post('/drawers', async (req, res) => {
         body: JSON.stringify(body_on)
     });
     res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.get('/newfunction', async (req, res) => {
+    const json = await readJson();
+    const sensorObj = json.find(obj => obj.device === 'startsensor');
+    sensorObj.list.push("LOL");
+    console.log(JSON.stringify(json));
+    await fs.writeFile('./data/neu.json', JSON.stringify(json));
+    res.send("OK");
 });
 
 module.exports = router;

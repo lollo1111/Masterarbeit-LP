@@ -1,18 +1,18 @@
 <template>
     <div class="container">
-        <h3><router-link to="/">Digitaler Zwilling Web Anwendung</router-link></h3>
+        <h3><router-link to="/">🏭Digitaler Zwilling Web Anwendung</router-link></h3>
         <ul>
-            <li><router-link to="/form">Simulation erstellen</router-link></li>
-            <li><router-link to="/wfms">WfMS</router-link></li>
-            <li><router-link to="/dashboard">Dashboard</router-link></li>
-            <li><router-link to="/worklist">Worklist</router-link></li>
+            <li><router-link to="/form">📦 Simulation erstellen</router-link></li>
+            <li><router-link to="/wfms">🕹️WfMS</router-link></li>
+            <li><router-link to="/dashboard">📊 Dashboard</router-link></li>
+            <li><router-link to="/worklist">📜Worklist</router-link></li>
         </ul>
     </div>
 </template>
 
 <style scoped>
 .container {
-    padding: 1rem 0.5rem;
+    padding: 1rem 2rem;
     max-width: 1500px;
     margin: 0 auto;
     display: flex;
@@ -25,6 +25,11 @@ ul {
     display: flex;
     justify-content: space-between;
     gap: 0 3.5rem;
+}
+
+h3,
+ul li {
+  user-select: none;
 }
 
 a {
