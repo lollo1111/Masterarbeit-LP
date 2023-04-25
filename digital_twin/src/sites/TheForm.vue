@@ -48,6 +48,7 @@ input {
 label {
     display: block;
     font-weight: bold;
+    user-select: none;
 }
 
 input {
@@ -64,5 +65,7 @@ button {
     font-size: inherit;
     font-weight: bold;
     cursor: pointer;
+    user-select: none;
+    padding: .1rem;
 }
 </style>

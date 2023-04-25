@@ -4,6 +4,7 @@ const TheDashboard = () => import('./sites/TheDashboard.vue');
 const TheForm = () => import('./sites/TheForm.vue');
 const TheWfms = () => import('./sites/TheWfms.vue');
 const TheWorklist = () => import('./sites/TheWorklist.vue');
+const HealthCheck = () => import('./sites/HealthCheck.vue');
 const NotFound = () => import('./sites/NotFound.vue');
 
 const router = createRouter({
@@ -24,6 +25,9 @@ const router = createRouter({
         }, {
             path: '/worklist',
             component: TheWorklist
+        }, {
+            path: '/healthcheck',
+            component: HealthCheck
         }, {
             path: '/:notFound(.*)',
             component: NotFound

@@ -57,6 +57,11 @@ export default {
     cursor: pointer;
 }
 
+.create:hover {
+    border: 2px solid #000;
+    background-color: #ccc;
+}
+
 a {
     font-weight: bold;
 }

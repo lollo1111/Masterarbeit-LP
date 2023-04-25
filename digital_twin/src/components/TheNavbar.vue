@@ -6,6 +6,7 @@
             <li><router-link to="/wfms">🕹️WfMS</router-link></li>
             <li><router-link to="/dashboard">📊 Dashboard</router-link></li>
             <li><router-link to="/worklist">📜Worklist</router-link></li>
+            <li><router-link to="/healthcheck">🩺Healthcheck</router-link></li>
         </ul>
     </div>
 </template>
@@ -43,13 +44,13 @@ a:hover,
     text-shadow: 0px 0px 1px blue;
 }
 
-@media only screen and (min-width: 901px) {
+@media only screen and (min-width: 1201px) {
     .container {
         border-bottom: .5px solid #333;
     }
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1200px) {
   .container,
   ul {
     flex-direction: column;
