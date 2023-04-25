@@ -1,7 +1,7 @@
 <template>
     <div class="heading">
         <div class="tex">
-            <h3 @click="toggleInstance">{{ opened ? "◀️" : "🔽" }} Instanz {{ instanceId }}</h3>
+            <h3 @click="toggleInstance">{{ opened ? "🔽" : "◀️" }} Instanz {{ instanceId }}</h3>
         </div>
         <div class="control">
             <span @click="$emit('delete-instance', instanceId)">❌</span>
@@ -11,13 +11,8 @@
 </template>
 
 <script>
-import { useInstanceStore } from '../stores/InstanceStore';
-const store = useInstanceStore();
-
 export default {
     async created() {
-        store.increment();
-        store.doubleCount;
         const formData = new URLSearchParams();
         formData.append('info', 'WfMS for the Digital Twin');
         const response = await fetch('http://localhost:8298/', {

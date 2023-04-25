@@ -2,11 +2,13 @@
     <the-card>
         <template #header>Workflow Management System</template>
         <template #default>
-            <a @click="createInstance">Instanz erstellen</a>
-            <p>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et inventore
-                alias necessitatibus beatae perferendis, ratione placeat.
-            </p>
+            <div @click="createInstance" class="create">
+                <a>🆕<span class="textspan">Instanz erstellen</span></a>
+                <p>
+                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et inventore
+                    alias necessitatibus beatae perferendis, ratione placeat.
+                </p>
+            </div>
             <ul>
                 <keep-alive>
                     <li v-for="instance in instances">
@@ -47,13 +49,16 @@ export default {
 </script>
 
 <style scoped>
-a {
+.create {
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
     cursor: pointer;
-    font-weight: bold;
 }
 
-p {
-    margin-bottom: 2rem;
+a {
+    font-weight: bold;
 }
 
 ul {
@@ -67,5 +72,9 @@ li {
 
 li:first-child {
     border-top: 1px dotted #333;
+}
+
+.create:hover .textspan {
+    text-decoration: underline 1px solid #000;
 }
 </style>

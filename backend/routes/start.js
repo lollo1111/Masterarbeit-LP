@@ -17,7 +17,7 @@ function timeout(ms) {
 }
 
 async function readJson() {
-    const data = await fs.readFile("./data/worklist.json", "binary");
+    const data = await fs.readFile("./data/worklist.json", "utf8");
     const json = JSON.parse(Buffer.from(data));
     return json;
 }
@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
     const id = crypto.randomUUID();
     let start_counter = await fetch('http://host.docker.internal:7410/api/tags/by-name/start_counter');
     let start_counter_amount = await start_counter.json();
-    while(start_counter_amount[0]['value'] > 0) {
+    while (start_counter_amount[0]['value'] > 0) {
         console.log("Production Line is not free.");
         start_counter = await fetch('http://host.docker.internal:7410/api/tags/by-name/start_counter');
         start_counter_amount = await start_counter.json();
@@ -208,7 +208,7 @@ router.post('/setup', async (req, res) => {
     return res.json(map.get(req.body.reference));
 });
 
-router.post('/setstatus', (req,res) => {
+router.post('/setstatus', (req, res) => {
     let status;
     if (req.body.code === 0) {
         status = "Completed";
@@ -282,7 +282,7 @@ router.post('/determineQuality', async (req, res) => {
     } else {
         // Ungenügend
         theOrder.qualityAcceptable = false;
-    }    
+    }
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
     theOrder.callback = callback;
@@ -453,13 +453,25 @@ router.post('/drawers', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.get('/newfunction', async (req, res) => {
+router.get('/worklist', async (req, res) => {
     const json = await readJson();
-    const sensorObj = json.find(obj => obj.device === 'startsensor');
-    sensorObj.list.push("LOL");
-    console.log(JSON.stringify(json));
-    await fs.writeFile('./data/neu.json', JSON.stringify(json));
-    res.send("OK");
+    const response = await fetch("http://localhost:7410/api/tags");
+    const devices = await response.json();
+    const replaceDevicesWithObjects = (json, devices) => {
+        return json.map(obj => {
+            const devicesWithObjects = obj.devices.map(device => {
+                const matchingDevice = devices.find(obj2 => obj2.name === device);
+                return matchingDevice ? matchingDevice : device;
+            });
+            return { ...obj, devices: devicesWithObjects };
+        });
+    };
+    const result = replaceDevicesWithObjects(json, devices);
+    // const sensorObj = json.find(obj => obj.device === 'startsensor');
+    // sensorObj.list.push("LOL");
+    // console.log(JSON.stringify(json));
+    // await fs.writeFile('./data/neu.json', JSON.stringify(json));
+    res.status(200).json(result);
 });
 
 module.exports = router;

@@ -2,8 +2,7 @@
     <the-card>
         <template #header>Worklist</template>
         <template #default>
-            <a @click="refresh">🔄️<span class="spantext">Aktualisieren</span></a>
-            <a @click="toggleFilter">🎚️Filter</a>
+            <a @click="refresh">🔄️<span class="spantext">Aktualisieren</span></a> | <a @click="toggleFilter">🎚️<span class="spantext">Filter</span></a> | <a @click="toggleFilter">⏩<span class="spantext">Automatisch aktualisieren</span></a>
             <dialog :open="filter">
                 <p>Greetings, one and all!</p>
                 <button @click="filter = false">OK</button>
@@ -13,14 +12,8 @@
                 alias necessitatibus beatae perferendis, ratione placeat.
             </p>
             <ul>
-                <li v-for="device in devices" :key="device.id">
-                    <one-device>
-                        <template #header>{{ device.name }}</template>
-                        <template #default>
-                            <p>{{ device.type }}</p>
-                            <p>{{ device.value }}</p>
-                        </template>
-                    </one-device>
+                <li :class="{activeSimulation: item.items.length > 0}" v-for="item of worklist" :key="item.task">
+                    <device-group :item="item"></device-group>
                 </li>
             </ul>
         </template>
@@ -28,25 +21,30 @@
 </template>
 
 <script>
-import OneDevice from '../components/OneDevice.vue';
+import DeviceGroup from '../components/DeviceGroup.vue';
+import { useInstanceStore } from '../stores/InstanceStore';
+const store = useInstanceStore();
 export default {
     async created() {
         await this.refresh();
 
     },
     components: {
-        OneDevice
+        DeviceGroup
     },
     data() {
         return {
-            devices: null,
-            filter: false
+            filter: false,
+        }
+    },
+    computed: {
+        worklist() {
+            return store.getWorklist;
         }
     },
     methods: {
         async refresh() {
-            const response = await fetch("http://localhost:7410/api/tags");
-            this.devices = await response.json();
+            await store.loadWorklist();
         },
         toggleFilter() {
             this.filter = !this.filter;
@@ -75,11 +73,13 @@ dialog::after {
     height: 100%;
     z-index: -1;
 }
+
 ul {
     margin-top: 1rem;
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: min-content;
     gap: 1rem;
 }
 
@@ -89,11 +89,33 @@ ul li {
     padding: .5rem;
 }
 
+.activeSimulation {
+    animation: borderAnimation infinite 5s;
+    border-width: 10px;
+}
+
 a {
     cursor: pointer;
 }
 
 a:hover .spantext {
     text-decoration: underline solid #000;
+}
+@keyframes borderAnimation {
+    0% {
+        border-color: red;
+    }
+    20% {
+        border-color: blue;
+    }
+    60% {
+        border-color: gold;
+    }
+    80% {
+        border-color: red;
+    }
+    100% {
+        border-color: red;
+    }
 }
 </style>

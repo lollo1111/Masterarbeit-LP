@@ -16,7 +16,17 @@
     {
         "task": "RFID Transponder initialisieren",
         "product": "both",
-        "items": [],
+        "items": [{
+            "id": "xx",
+            "details": {
+                "Produkt": "Schrank"
+            }},
+            {
+                "id": "yy",
+                "details": {
+                    "Produkt": "schreibtisch"
+                }
+        }],
         "process": "production",
         "devices": [
             "start_rfid_sensor",

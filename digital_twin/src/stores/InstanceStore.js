@@ -1,13 +1,24 @@
 import { defineStore } from 'pinia'
 
 export const useInstanceStore = defineStore('InstanceStore', {
-    state: () => ({ count: 0, name: 'Eduardo' }),
+    state: () => ({ worklist: [] }),
     getters: {
-        doubleCount: (state) => state.count * 2,
+        getWorklist: (state) => state.worklist,
     },
     actions: {
-        increment() {
-            this.count++
+        async loadWorklist() {
+            try {
+                const [response1, response2] = await Promise.all([
+                    fetch('http://localhost:9033/start/worklist'),
+                    fetch('http://localhost:7410/api/tags')
+                ]);
+
+                const data1 = await response1.json();
+                const data2 = await response2.json();
+                this.worklist = data1;
+            } catch (error) {
+                console.error(error);
+            }
         },
     },
 })
