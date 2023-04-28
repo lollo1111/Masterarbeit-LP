@@ -309,7 +309,9 @@ namespace EngineIO.Samples
                 {
                     reference = readRfid.Value.ToString(),
                 };
-                var order = await client.GetAsync("http://host.docker.internal:9033/start/details");
+                string body = System.Text.Json.JsonSerializer.Serialize(reference);
+                var order = await client.PostAsync("http://host.docker.internal:9033/start/details", new StringContent(body, Encoding.UTF8, "application/json"));
+                // var order = await client.GetAsync("http://host.docker.internal:9033/start/details");
                 var orderString = await order.Content.ReadAsStringAsync();
                 Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
                 // Richtung auf Index 1 hinterlegen
@@ -732,6 +734,7 @@ namespace EngineIO.Samples
             }
             else if ((name == "before_check_direction_sensor" || name == "check_rfid_sensor") && isVal)
             {
+                Console.WriteLine("Determine Quality.");
                 MemoryInt command = MemoryMap.Instance.GetInt("check_rfid_command", MemoryType.Output);
                 MemoryInt readRfid = MemoryMap.Instance.GetInt("check_rfid_read", MemoryType.Input);
                 MemoryInt writeRfid = MemoryMap.Instance.GetInt("check_rfid_write", MemoryType.Output);

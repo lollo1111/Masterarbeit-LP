@@ -11,9 +11,8 @@
             </div>
             <ul>
                 <keep-alive>
-                    <li v-for="instance in instances">
-                        <one-instance :instanceId="instance.id" @delete-instance="deleteInstance"
-                            :key="instance.id"></one-instance>
+                    <li v-for="instance in instances" :key="instance.id">
+                        <one-instance :instanceId="instance.id" @delete-instance="deleteInstance"></one-instance>
                     </li>
                 </keep-alive>
             </ul>

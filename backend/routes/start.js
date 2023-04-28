@@ -220,9 +220,10 @@ router.post('/setup', async (req, res) => {
 });
 
 router.post('/completeQuality', async (req, res) => {
-    order.status = "Completed";
-    map.set(req.body.reference, order);
-    await fetch(order.callback, {
+    let theOrder = map.get(req.body.reference);
+    theOrder.status = "Completed";
+    map.set(req.body.reference, theOrder);
+    await fetch(theOrder.callback, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
