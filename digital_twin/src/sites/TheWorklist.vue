@@ -14,8 +14,8 @@
                     </the-card>
                 </dialog>
                 <a @click="refresh">🔄️<span class="spantext">Aktualisieren</span></a> | <a @click="toggleFilter">🎚️<span
-                        class="spantext">Filter</span></a> | <a @click="toggleFilter">⏩<span class="spantext">Automatisch
-                        aktualisieren</span></a>
+                        class="spantext">Filter</span></a> | <a @click="toggleAuto">⏩<span class="spantext">Automatisch
+                        aktualisieren</span> {{ auto ? "✅" : "" }}</a>
                 <p>
                     Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et inventore
                     alias necessitatibus beatae perferendis, ratione placeat.
@@ -45,7 +45,8 @@ export default {
     data() {
         return {
             filter: false,
-            scrollPosition: 0
+            scrollPosition: 0,
+            auto: false
         }
     },
     computed: {
@@ -71,6 +72,9 @@ export default {
                 // Scroll the page back to the original position
                 window.scrollTo(0, this.scrollPosition);
             }
+        },
+        toggleAuto() {
+            this.auto = !this.auto;
         }
     }
 }

@@ -68,4 +68,10 @@ button {
     user-select: none;
     padding: .1rem;
 }
+
+@media only screen and (max-width: 1200px) {
+  form {
+    width: 100%;
+  }
+}
 </style>
