@@ -54,6 +54,7 @@ export default {
     padding: 1.5rem;
     margin-bottom: 2rem;
     cursor: pointer;
+    transition: background .3s;
 }
 
 .create:hover {

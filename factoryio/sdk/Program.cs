@@ -140,6 +140,7 @@ namespace EngineIO.Samples
                 .Build();
 
             await _client.ConnectAsync(options);
+            await client.GetAsync("http://host.docker.internal:9033/start/startContainer");
             Console.WriteLine("Producer gestartet.");
             MemoryMap.Instance.InputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
             MemoryMap.Instance.OutputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
@@ -155,7 +156,7 @@ namespace EngineIO.Samples
 
                 Thread.Sleep(16);
             }
-
+            await client.GetAsync("http://host.docker.internal:9033/start/endContainer");
             MemoryMap.Instance.Dispose();
         }
 

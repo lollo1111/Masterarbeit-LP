@@ -15,8 +15,8 @@ trap stop_cpee SIGTERM
 #   cpee-instantiation start
 # fi
 cpee new server
-# cpee-instantiation start
+cpee-instantiation instantiation
 # mv properties.init server/resources/; 
-cd server ; ./cpee start ; cd .. ; cpee ui ; cd server
-# cd start ; ./instantiation start ; cpee ui
+# cd server ; ./cpee start ; cd .. ; cpee ui ; cd server
+cd server ; ./cpee start ; cd .. ; cd instantiation ; ./instantiation start ; cd .. ; cpee ui ; cd server
 wait $!
