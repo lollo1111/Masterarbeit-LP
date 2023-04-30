@@ -821,7 +821,7 @@ router.get('/healthcheck', async (req, res) => {
         statuses.push(...[mosquitto, kafka, consumer, mqttBridge, sdk_health]);
         // const statuses = responses.map(response => response.status);
 
-        const openPLC = spawn('docker', ['logs', '--since', '30s', 'openplc']);
+        const openPLC = spawn('docker', ['logs', '--since', '10s', 'openplc']);
 
         let logs = '';
 
@@ -831,7 +831,7 @@ router.get('/healthcheck', async (req, res) => {
             // Search for log message
             const logMatch = logs.includes("Connection failed on MB device FactoryIO");
             if (logMatch) {
-                statuses[4] = 500;
+                statuses[3] = 500;
             }
         });
 
@@ -852,6 +852,28 @@ router.get('/startContainer', (req, res) => {
 
 router.get('/endContainer', (req, res) => {
     sdk_health = 500;
+    res.status(200).send();
+});
+
+router.get('/files', async (req, res) => {
+    try {
+        const files = await fs.readdir('./data/xmls');
+        res.status(200).json(files);
+    } catch(error) {
+        console.error(error);
+    }
+});
+
+router.post('/createFile', async (req, res) => {
+    res.status(201).send();
+});
+
+router.delete('/deleteFile', async (req, res) => {
+    res.status(200).send();
+});
+
+router.get('/selectFile/:fileId', async (req, res) => {
+    const fileId = req.params.fileId;
     res.status(200).send();
 });
 

@@ -2,6 +2,12 @@
     <the-card>
         <template #header>Workflow Management System</template>
         <template #default>
+            <select v-model="selectedValue">
+                <option value="" disabled>Select an option</option>
+                <option v-for="option in options" :key="option" :value="option">
+                    {{ option }}
+                </option>
+            </select>
             <div @click="createInstance" class="create">
                 <a>🆕<span class="textspan">Instanz erstellen</span></a>
                 <p>
@@ -24,13 +30,19 @@
 import OneInstance from '../components/OneInstance.vue';
 
 export default {
+    async created() {
+        const response = await fetch("http://localhost:9033/start/files");
+        this.options = await response.json();
+    },
     components: {
         OneInstance
     },
     data() {
         return {
             instances: [],
-            currentCounter: 0
+            currentCounter: 0,
+            selectedValue: '',
+            options: []
         }
     },
     methods: {
