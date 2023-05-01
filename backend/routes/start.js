@@ -25,6 +25,11 @@ async function readJson() {
     return json;
 }
 
+async function readFile(filename) {
+    const data = await fs.readFile(("./data/xmls/"+ filename), "utf8");
+    return data;
+}
+
 router.post('/', async (req, res) => {
     const id = crypto.randomUUID();
     let start_counter = await fetch('http://host.docker.internal:7410/api/tags/by-name/start_counter');
@@ -749,7 +754,7 @@ router.post('/angularMirror', async (req, res) => {
 
 router.get('/worklist', async (req, res) => {
     const json = await readJson();
-    const response = await fetch("http://localhost:7410/api/tags");
+    const response = await fetch("http://host.docker.internal:7410/api/tags");
     const devices = await response.json();
     const replaceDevicesWithObjects = (json, devices) => {
         return json.map(obj => {
@@ -874,7 +879,9 @@ router.delete('/deleteFile', async (req, res) => {
 
 router.get('/selectFile/:fileId', async (req, res) => {
     const fileId = req.params.fileId;
-    res.status(200).send();
+    const xml = await readFile((fileId + ".xml"));
+    res.set('Content-Type', 'text/xml');
+    res.status(200).send(xml);
 });
 
 module.exports = router;

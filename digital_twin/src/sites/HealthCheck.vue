@@ -144,7 +144,7 @@
 export default {
     async created() {
         try {
-        const response = await fetch('http://localhost:9033/start/healthcheck');
+            const response = await fetch('http://localhost:9033/start/healthcheck');
             this.codes = [ "healthy" ];
             const msg = await response.json();
             for (let i = 0; i < msg.length; i++) {
@@ -152,16 +152,12 @@ export default {
             }
         } catch (error) {
             console.error('Error fetching data:', error);
-            this.codes = ["unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy"]
+            this.codes = [ "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy" ]
         }
     },
     data() {
         return {
-            codes: ["unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy"],
-            mqtt: "unhealthy",
-            kafka: "unhealthy",
-            bridge: "unhealthy",
-            sdk: "unhealthy",
+            codes: [ "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy" ],
         }
     }
 }

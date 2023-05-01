@@ -8,6 +8,7 @@
                     {{ option }}
                 </option>
             </select>
+            <button @click="readFile">Read</button>
             <div @click="createInstance" class="create">
                 <a>🆕<span class="textspan">Instanz erstellen</span></a>
                 <p>
@@ -18,7 +19,7 @@
             <ul>
                 <keep-alive>
                     <li v-for="instance in instances" :key="instance.id">
-                        <one-instance :instanceId="instance.id" @delete-instance="deleteInstance"></one-instance>
+                        <one-instance :xml="instance.xml" :mode="instance.mode" :instanceId="instance.id" @delete-instance="deleteInstance"></one-instance>
                     </li>
                 </keep-alive>
             </ul>
@@ -42,18 +43,27 @@ export default {
             instances: [],
             currentCounter: 0,
             selectedValue: '',
-            options: []
+            options: [],
+            xml: null
         }
     },
     methods: {
         createInstance() {
+            if (!this.xml) return alert("Select a XML!");
             const id = ++this.currentCounter;
             this.instances.push({
-                id: id
+                id: id,
+                xml: this.xml,
+                mode: "wait_running"
             })
         },
         deleteInstance(instance) {
             this.instances = this.instances.filter(oneInstance => oneInstance.id !== instance);
+        },
+        async readFile() {
+            const selectedFile = this.selectedValue.split(".")[0];
+            const response = await fetch(('http://localhost:9033/start/selectFile/' + selectedFile));
+            this.xml = await response.text();
         }
     }
 }
