@@ -11,9 +11,14 @@
 </template>
 
 <script>
+import { useInstanceStore } from '../stores/InstanceStore';
+const store = useInstanceStore();
 export default {
     async created() {
-        if (!this.xml) {
+        if (this.exists) {
+            const cpeeId = store.getCpeeId(this.instanceId);
+            this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + cpeeId + "/";
+        } else if (!this.xml) {
             const formData = new URLSearchParams();
             formData.append('info', 'WfMS for the Digital Twin');
             const response = await fetch('http://localhost:8298/', {
@@ -25,6 +30,7 @@ export default {
             });
             const instance = await response.json();
             this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + instance + "/";
+            store.setCpeeId(this.instanceId, instance);
         } else {
             const response = await fetch(this.url, {
                 method: 'POST',
@@ -34,12 +40,14 @@ export default {
             const msg = await response.json();
             const instance = msg["CPEE-INSTANCE"];
             this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + instance + "/";
+            store.setCpeeId(this.instanceId, instance);
         }
     },
     props: [
         'instanceId',
         'xml',
-        'mode'
+        'mode',
+        'exists'
     ],
     emits: [
         'delete-instance'

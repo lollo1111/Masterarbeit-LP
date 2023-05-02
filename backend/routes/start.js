@@ -875,13 +875,12 @@ router.post('/createFile', async (req, res) => {
 
 router.delete('/deleteFile/:fileId', async (req, res) => {
     const fileId = req.params.fileId;
-    fs.unlink(('./data/xmls/' + fileId + '.xml'), (err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            res.status(200).send();
-        }
-    });
+    try {
+        await fs.unlink('./data/xmls/' + fileId + '.xml');
+        res.status(204).send();
+    } catch (err) {
+        console.error(err);
+    }
 });
 
 router.get('/download/:fileId', async (req, res) => {

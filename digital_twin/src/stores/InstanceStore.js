@@ -1,24 +1,35 @@
 import { defineStore } from 'pinia'
 
 export const useInstanceStore = defineStore('InstanceStore', {
-    state: () => ({ worklist: [] }),
+    state: () => ({ 
+        worklist: [],
+        instances: []
+    }),
     getters: {
         getWorklist: (state) => state.worklist,
+        getInstances: (state) => state.instances,
+        getCpeeId: (state) => {
+            return (instanceId) => state.instances.filter(instance => instance.id === instanceId)[0]["cpeeId"];
+          }
     },
     actions: {
         async loadWorklist() {
             try {
-                const [response1, response2] = await Promise.all([
-                    fetch('http://localhost:9033/start/worklist'),
-                    fetch('http://localhost:7410/api/tags')
-                ]);
-
-                const data1 = await response1.json();
-                const data2 = await response2.json();
-                this.worklist = data1;
+                const response = await fetch('http://localhost:9033/start/worklist');
+                const data = await response.json();
+                this.worklist = data;
             } catch (error) {
                 console.error(error);
             }
         },
+        addInstance(instance) {
+            this.instances.push(instance);
+        },
+        deleteInstance(instanceId) {
+            this.instances = this.instances.filter(instance => instance.id !== instanceId);
+        },
+        setCpeeId(instanceId, cpeeId) {
+            this.instances.filter(instance => instance.id === instanceId)[0]["cpeeId"] = cpeeId;
+        }
     },
 })

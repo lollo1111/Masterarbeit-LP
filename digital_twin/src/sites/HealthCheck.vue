@@ -3,10 +3,10 @@
         <template #header>Healthcheck</template>
         <template #default>
             <p v-if="stringTime">
-                Zuletzt aktualisiert: {{ stringTime }}. Aktualisiert alle 10 Sekunden neu.
+                Zuletzt aktualisiert: {{ stringTime }}.
             </p>
             <p v-else>
-                Wird geladen ...
+                Wird aktualisiert ...
             </p>
             <ul>
                 <li>

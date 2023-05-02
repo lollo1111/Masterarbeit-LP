@@ -33,7 +33,7 @@
             <ul>
                 <keep-alive>
                     <li v-for="instance in instances" :key="instance.id">
-                        <one-instance :xml="instance.xml" :mode="instance.mode" :instanceId="instance.id"
+                        <one-instance :exists="instance.exists" :xml="instance.xml" :mode="instance.mode" :instanceId="instance.id"
                             @delete-instance="deleteInstance"></one-instance>
                     </li>
                 </keep-alive>
@@ -44,11 +44,29 @@
 
 <script>
 import OneInstance from '../components/OneInstance.vue';
-
+import { useInstanceStore } from '../stores/InstanceStore';
+const store = useInstanceStore();
 export default {
-    async created() {
-        const response = await fetch("http://localhost:9033/start/files");
-        this.options = await response.json();
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            async function getInstances() {
+                const instances = store.getInstances;
+                let highestId = 0;
+                for (let instance of instances) {
+                    if (instance.id > highestId) highestId = instance.id;
+                    vm.instances.push({
+                        id: instance.id,
+                        exists: true,
+                        xml: null,
+                        mode: null
+                    });
+                }
+                vm.currentCounter = highestId;
+                const response = await fetch("http://localhost:9033/start/files");
+                vm.options = await response.json();
+            }
+            getInstances();
+        });
     },
     components: {
         OneInstance
@@ -78,20 +96,26 @@ export default {
         createInstance() {
             if (this.xml) {
                 const id = ++this.currentCounter;
-                this.instances.push({
+                const instance = {
                     id: id,
+                    exists: false,
                     xml: this.xml,
                     mode: "wait_running"
-                })
+                };
+                this.instances.push(instance);
+                store.addInstance(instance);
             }
         },
         createEmptyInstance() {
             const id = ++this.currentCounter;
-            this.instances.push({
+            const instance = {
                 id: id,
+                exists: false,
                 xml: null,
                 mode: "wait_ready"
-            })
+            };
+            this.instances.push(instance);
+            store.addInstance(instance);
         },
         async deleteXML() {
             const selectedFile = this.selectedValue.split(".")[0];
@@ -124,6 +148,7 @@ export default {
         },
         deleteInstance(instance) {
             this.instances = this.instances.filter(oneInstance => oneInstance.id !== instance);
+            store.deleteInstance(instance);
         },
         async readFile() {
             const selectedFile = this.selectedValue.split(".")[0];
