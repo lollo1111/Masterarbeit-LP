@@ -7,21 +7,42 @@
                     <the-card>
                         <div class="all">
                             <div class="filter">
-                                <h1>Filter</h1>
-                                <button @click="toggleFilter">Bestätigen</button>
+                                <div class="filters">
+                                    <h1>Filter</h1>
+                                    <a :class="{ activeFilter: filterType === 'schreibtisch' }"
+                                        @click="applyFilter('schreibtisch')">{{ filterType === "schreibtisch" ? "🟢" : "🔴"
+                                        }}<span>Schreibtisch-Tasks</span> </a>
+                                    <a :class="{ activeFilter: filterType === 'schrank' }"
+                                        @click="applyFilter('schrank')">{{
+                                            filterType === "schrank" ? "🟢" : "🔴" }}<span>Schrank-Tasks</span></a>
+                                    <a :class="{ activeFilter: filterType === 'both' }" @click="applyFilter('both')">{{
+                                        filterType === "both" ? "🟢" : "🔴" }}<span>In beide Produkte involvierte
+                                            Tasks</span></a>
+                                    <a :class="{ activeFilter: filterType === 'production' }"
+                                        @click="applyFilter('production')">{{ filterType === "production" ? "🟢" : "🔴"
+                                        }}<span>Produktion von Möbeln</span></a>
+                                    <a :class="{ activeFilter: filterType === 'logistic' }"
+                                        @click="applyFilter('logistic')">{{ filterType === "logistic" ? "🟢" : "🔴"
+                                        }}<span>Verpackung und Versand</span></a>
+                                    <a :class="{ activeFilter: filterType === 'items' }" @click="applyFilter('items')">{{
+                                        filterType === "items" ? "🟢" : "🔴" }}<span>Führt Simulation aus</span></a>
+                                </div>
+                                <button @click="toggleFilter">Schließen</button>
                             </div>
                         </div>
                     </the-card>
                 </dialog>
                 <a @click="refresh">🔄️<span class="spantext">Aktualisieren</span></a> | <a @click="toggleFilter">🎚️<span
-                        class="spantext">Filter</span></a> | <a @click="toggleAuto">⏩<span class="spantext">Automatisch
+                        class="spantext">Filter</span></a> | <a @click="toggleAuto">⏩<span
+                        title="Aktualisiert automatisch alle 10 Sekunden." class="spantext">Automatisch
                         aktualisieren</span> {{ auto ? "✅" : "" }}</a>
                 <p>
                     Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et inventore
                     alias necessitatibus beatae perferendis, ratione placeat.
                 </p>
                 <ul>
-                    <li :class="{ activeSimulation: item.items.length > 0 }" v-for="item of worklist" :key="item.task">
+                    <li :class="{ activeSimulation: item.items.length > 0 }" v-for="item of filteredWorklist"
+                        :key="item.task">
                         <device-group :item="item"></device-group>
                     </li>
                 </ul>
@@ -36,7 +57,7 @@ import { useInstanceStore } from '../stores/InstanceStore';
 const store = useInstanceStore();
 export default {
     async created() {
-        await this.refresh();
+        await this.refreshWorklist();
 
     },
     components: {
@@ -46,16 +67,34 @@ export default {
         return {
             filter: false,
             scrollPosition: 0,
-            auto: false
+            auto: false,
+            filterType: null
         }
     },
     computed: {
         worklist() {
             return store.getWorklist;
+        },
+        filteredWorklist() {
+            if (!this.filterType) {
+                return this.worklist;
+            } else if (this.filterType === "schreibtisch") {
+                return this.worklist.filter(item => item.product === "schreibtisch" || item.product === "both");
+            } else if (this.filterType === "schrank") {
+                return this.worklist.filter(item => item.product === "schrank" || item.product === "both");
+            } else if (this.filterType === "both") {
+                return this.worklist.filter(item => item.product === "both");
+            } else if (this.filterType === "production") {
+                return this.worklist.filter(item => item.process === "production");
+            } else if (this.filterType === "logistic") {
+                return this.worklist.filter(item => item.process === "logistic");
+            } else if (this.filterType === "items") {
+                return this.worklist.filter(item => item.items.length > 0);
+            }
         }
     },
     methods: {
-        async refresh() {
+        async refreshWorklist() {
             await store.loadWorklist();
         },
         toggleFilter() {
@@ -66,27 +105,60 @@ export default {
                 document.body.classList.add('modal-open');
                 document.body.style.top = `-${scrollPosition}px`;
             } else {
-                // Remove the 'modal-open' class from the body
                 document.body.classList.remove('modal-open');
-                // Reset the scroll position explicitly on the body
-                // Scroll the page back to the original position
                 window.scrollTo(0, this.scrollPosition);
             }
         },
-        toggleAuto() {
+        async toggleAuto() {
             this.auto = !this.auto;
+            if (this.auto) {
+                while (this.auto) {
+                    await this.delay(10000);
+                    await this.refreshWorklist();
+                    console.log("Refreshed");
+                }
+            }
+        },
+        applyFilter(filter) {
+            if (this.filterType === filter) {
+                this.filterType = null;
+            } else {
+                this.filterType = filter;
+            }
+        },
+        delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
     }
 }
 </script>
 
 <style scoped>
+.filter button {
+    display: block;
+    font-size: 1.2rem;
+    padding: .2rem;
+    margin: 0 auto;
+}
+
+.filter .filters a {
+    text-decoration: underline solid 1px transparent;
+    color: #000;
+    cursor: pointer;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.filter .filters a span {
+    text-decoration: underline solid 1px transparent;
+}
+
 .container {
     position: relative;
 }
 
 .all {
-    height: 500px;
+    /* height: 500px; */
     width: 500px;
     margin: 0 auto;
     border: 1px solid #000;
@@ -150,7 +222,20 @@ a:hover .spantext {
     width: 100%;
     height: 100%;
     padding: 2rem;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.filter .filters h1,
+.filter button {
     text-align: center;
+}
+
+.filter .filters a.activeFilter span,
+.filter .filters a:hover span {
+    text-decoration-color: #000;
 }
 
 @keyframes borderAnimation {

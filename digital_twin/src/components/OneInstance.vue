@@ -13,23 +13,28 @@
 <script>
 export default {
     async created() {
-        // const formData = new URLSearchParams();
-        // formData.append('info', 'WfMS for the Digital Twin');
-        // const response = await fetch('http://localhost:8298/', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/x-www-form-urlencoded',
-        //     },
-        //     body: formData
-        // });
-        const response = await fetch(this.url, {
-            method: 'POST',
-            headers: this.headers,
-            body: this.xml
-        });
-        const msg = await response.json();
-        const instance = msg["CPEE-INSTANCE"];
-        this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + instance + "/";
+        if (!this.xml) {
+            const formData = new URLSearchParams();
+            formData.append('info', 'WfMS for the Digital Twin');
+            const response = await fetch('http://localhost:8298/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            });
+            const instance = await response.json();
+            this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + instance + "/";
+        } else {
+            const response = await fetch(this.url, {
+                method: 'POST',
+                headers: this.headers,
+                body: this.xml
+            });
+            const msg = await response.json();
+            const instance = msg["CPEE-INSTANCE"];
+            this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + instance + "/";
+        }
     },
     props: [
         'instanceId',
@@ -47,8 +52,7 @@ export default {
                 'Content-ID': 'xml'
             },
             opened: true,
-            instance: null,
-            xml: this.xml
+            instance: null
         }
     },
     methods: {

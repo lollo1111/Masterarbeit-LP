@@ -26,7 +26,7 @@ async function readJson() {
 }
 
 async function readFile(filename) {
-    const data = await fs.readFile(("./data/xmls/"+ filename), "utf8");
+    const data = await fs.readFile(("./data/xmls/" + filename), "utf8");
     return data;
 }
 
@@ -864,7 +864,7 @@ router.get('/files', async (req, res) => {
     try {
         const files = await fs.readdir('./data/xmls');
         res.status(200).json(files);
-    } catch(error) {
+    } catch (error) {
         console.error(error);
     }
 });
@@ -873,8 +873,26 @@ router.post('/createFile', async (req, res) => {
     res.status(201).send();
 });
 
-router.delete('/deleteFile', async (req, res) => {
-    res.status(200).send();
+router.delete('/deleteFile/:fileId', async (req, res) => {
+    const fileId = req.params.fileId;
+    fs.unlink(('./data/xmls/' + fileId + '.xml'), (err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            res.status(200).send();
+        }
+    });
+});
+
+router.get('/download/:fileId', async (req, res) => {
+    const fileId = req.params.fileId;
+    const xml = await readFile((fileId + ".xml"));
+    const filename = fileId + '.xml';
+    res.set({
+        'Content-Type': 'application/xml',
+        'Content-Disposition': `attachment; filename="${filename}"`
+    });
+    res.status(200).send(xml);
 });
 
 router.get('/selectFile/:fileId', async (req, res) => {

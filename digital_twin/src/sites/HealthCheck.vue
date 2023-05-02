@@ -2,17 +2,20 @@
     <the-card>
         <template #header>Healthcheck</template>
         <template #default>
-            <p>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et inventore
-                alias necessitatibus beatae perferendis, ratione placeat.
+            <p v-if="stringTime">
+                Zuletzt aktualisiert: {{ stringTime }}. Aktualisiert alle 10 Sekunden neu.
+            </p>
+            <p v-else>
+                Wird geladen ...
             </p>
             <ul>
                 <li>
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[1] === 'unhealthy' ? 'Kontrolliere, ob Factory I/O geöffnet ist.' : ''" :class="{ healthy: codes[1] === 'healthy', unhealthy: codes[1] === 'unhealthy' }">{{
-                                codes[1] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span :title="codes[1] === 'unhealthy' ? 'Kontrolliere, ob Factory I/O geöffnet ist.' : ''"
+                                :class="{ healthy: codes[1] === 'healthy', unhealthy: codes[1] === 'unhealthy' }">{{
+                                    codes[1] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>Factory I/O API</h4>
                         <div class="line"></div>
@@ -25,8 +28,9 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[11] === 'unhealthy' ? 'Kontrolliere ob SDK gestartet wurde.' : ''" :class="{ healthy: codes[11] === 'healthy', unhealthy: codes[11] === 'unhealthy' }">{{
-                                codes[11] === 'healthy' ? 'HEALTHY' : 'UNHEALTHY' }}</span>
+                            <span :title="codes[11] === 'unhealthy' ? 'Kontrolliere ob SDK gestartet wurde.' : ''"
+                                :class="{ healthy: codes[11] === 'healthy', unhealthy: codes[11] === 'unhealthy' }">{{
+                                    codes[11] === 'healthy' ? 'HEALTHY' : 'UNHEALTHY' }}</span>
                         </div>
                         <h4>Factory I/O SDK</h4>
                         <div class="line"></div>
@@ -38,8 +42,9 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[0] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''" :class="{ healthy: codes[0] === 'healthy', unhealthy: codes[0] === 'unhealthy' }">{{
-                                codes[0] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span :title="codes[0] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''"
+                                :class="{ healthy: codes[0] === 'healthy', unhealthy: codes[0] === 'unhealthy' }">{{
+                                    codes[0] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>Simulation API</h4>
                         <div class="line"></div>
@@ -51,8 +56,10 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[2] === 'unhealthy' || codes[3] === 'unhealthy' ? 'Kontrolliere Docker Microservice. Eventuell docker-compose down -v anwenden und Docker neu starten.' : ''" :class="{ healthy: codes[2] === 'healthy' && codes[3] === 'healthy', unhealthy: codes[2] === 'unhealthy' || codes[3] === 'unhealthy' }">{{
-                                codes[2] === 'healthy' && codes[3] === 'healthy' ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span
+                                :title="codes[2] === 'unhealthy' || codes[3] === 'unhealthy' ? 'Kontrolliere Docker Microservice. Eventuell docker-compose down -v anwenden und Docker neu starten.' : ''"
+                                :class="{ healthy: codes[2] === 'healthy' && codes[3] === 'healthy', unhealthy: codes[2] === 'unhealthy' || codes[3] === 'unhealthy' }">{{
+                                    codes[2] === 'healthy' && codes[3] === 'healthy' ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>WfMS (CPEE)</h4>
                         <div class="line"></div>
@@ -64,8 +71,10 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[4] === 'unhealthy' ? 'Kontrolliere Docker Microservice und auf localhost:8080, ob Factory I/O erfolgreich verbunden ist.' : ''" :class="{ healthy: codes[4] === 'healthy', unhealthy: codes[4] === 'unhealthy' }">{{
-                                codes[4] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span
+                                :title="codes[4] === 'unhealthy' ? 'Kontrolliere Docker Microservice und auf localhost:8080, ob Factory I/O erfolgreich verbunden ist.' : ''"
+                                :class="{ healthy: codes[4] === 'healthy', unhealthy: codes[4] === 'unhealthy' }">{{
+                                    codes[4] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>PLC (OpenPLC)</h4>
                         <div class="line"></div>
@@ -77,8 +86,9 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[7] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''" :class="{ healthy: codes[7] === 'healthy', unhealthy: codes[7] === 'unhealthy' }">{{
-                                codes[7] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span :title="codes[7] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''"
+                                :class="{ healthy: codes[7] === 'healthy', unhealthy: codes[7] === 'unhealthy' }">{{
+                                    codes[7] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>Mosquitto</h4>
                         <div class="line"></div>
@@ -89,8 +99,9 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[8] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''" :class="{ healthy: codes[8] === 'healthy', unhealthy: codes[8] === 'unhealthy' }">{{
-                                codes[8] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span :title="codes[8] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''"
+                                :class="{ healthy: codes[8] === 'healthy', unhealthy: codes[8] === 'unhealthy' }">{{
+                                    codes[8] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>Kafka</h4>
                         <div class="line"></div>
@@ -101,8 +112,10 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[9] === 'unhealthy' || codes[10] === 'unhealthy' ? 'Kontrolliere Docker Microservice.' : ''" :class="{ healthy: codes[9] === 'healthy' && codes[10] === 'healthy', unhealthy: codes[9] === 'unhealthy' || codes[10] === 'unhealthy' }">{{
-                                codes[9] === 'healthy' && codes[10] === 'healthy' ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span
+                                :title="codes[9] === 'unhealthy' || codes[10] === 'unhealthy' ? 'Kontrolliere Docker Microservice.' : ''"
+                                :class="{ healthy: codes[9] === 'healthy' && codes[10] === 'healthy', unhealthy: codes[9] === 'unhealthy' || codes[10] === 'unhealthy' }">{{
+                                    codes[9] === 'healthy' && codes[10] === 'healthy' ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>MQTT Bridge</h4>
                         <div class="line"></div>
@@ -113,8 +126,10 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[6] === 'unhealthy' ? 'Kontrolliere in Docker, ob sowohl der Consumer als auch die Bridge aktiv sind.' : ''" :class="{ healthy: codes[6] === 'healthy', unhealthy: codes[6] === 'unhealthy' }">{{
-                                codes[6] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span
+                                :title="codes[6] === 'unhealthy' ? 'Kontrolliere in Docker, ob sowohl der Consumer als auch die Bridge aktiv sind.' : ''"
+                                :class="{ healthy: codes[6] === 'healthy', unhealthy: codes[6] === 'unhealthy' }">{{
+                                    codes[6] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>InfluxDB</h4>
                         <div class="line"></div>
@@ -126,8 +141,9 @@
                     <div class="service">
                         <div class="heading">
                             <span>⚙️</span>
-                            <span :title="codes[5] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''" :class="{ healthy: codes[5] === 'healthy', unhealthy: codes[5] === 'unhealthy' }">{{
-                                codes[5] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
+                            <span :title="codes[5] === 'unhealthy' ? 'Kontrolliere Docker Microservice' : ''"
+                                :class="{ healthy: codes[5] === 'healthy', unhealthy: codes[5] === 'unhealthy' }">{{
+                                    codes[5] === "healthy" ? "HEALTHY" : "UNHEALTHY" }}</span>
                         </div>
                         <h4>Grafana</h4>
                         <div class="line"></div>
@@ -144,20 +160,41 @@
 export default {
     async created() {
         try {
-            const response = await fetch('http://localhost:9033/start/healthcheck');
-            this.codes = [ "healthy" ];
-            const msg = await response.json();
-            for (let i = 0; i < msg.length; i++) {
-                this.codes.push(msg[i] === 200 ? "healthy" : "unhealthy");
-            }
+            do {
+                this.refreshTime = null;
+                const response = await fetch('http://localhost:9033/start/healthcheck');
+                this.codes = ["healthy"];
+                const msg = await response.json();
+                for (let i = 0; i < msg.length; i++) {
+                    this.codes.push(msg[i] === 200 ? "healthy" : "unhealthy");
+                }
+                this.refreshTime = new Date();
+                await this.delay(10000);
+            } while (true);
+
         } catch (error) {
             console.error('Error fetching data:', error);
-            this.codes = [ "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy" ]
+            this.codes = ["unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy"]
         }
     },
     data() {
         return {
-            codes: [ "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy" ],
+            refreshTime: null,
+            codes: ["unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy", "unhealthy"],
+        }
+    },
+    computed: {
+        stringTime() {
+            if (!this.refreshTime) return null;
+            const hours = this.refreshTime.getHours().toString().padStart(2, '0');
+            const minutes = this.refreshTime.getMinutes().toString().padStart(2, '0');
+            const seconds = this.refreshTime.getSeconds().toString().padStart(2, '0');
+            return (`${hours}:${minutes}:${seconds}`);
+        }
+    },
+    methods: {
+        delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
     }
 }
