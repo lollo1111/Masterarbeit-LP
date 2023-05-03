@@ -139,12 +139,11 @@ PROGRAM program0
     tank_fillValve AT %QW107 : INT := 0;
     tank_dischargeValve AT %QW108 : INT := 0;
     start_emitter_base AT %QW109 : INT := 1;
-    start_emitter_part AT %QW110 : INT := 32;
   END_VAR
   VAR
     maximum : INT := 10000;
     CTUD0 : CTUD;
-    dummy_box : INT := 1;
+    dummy_box : INT := 4;
     quality_acceptable_counter : INT := 0;
     quality_unacceptable_counter : INT := 0;
     elevator_1_dummy : INT := 0;
@@ -321,6 +320,9 @@ PROGRAM program0
     palletizer_belt_forward AT %QX112.5 : BOOL;
     palletizer_push AT %QX112.6 : BOOL;
     palletizer_openPlate AT %QX112.7 : BOOL;
+    expressShip AT %QX113.0 : BOOL;
+    largeShip AT %QX113.1 : BOOL;
+    standardShip AT %QX113.2 : BOOL;
     machining_B_progress AT %IW100 : INT;
     elevator_1_position AT %IW101 : INT;
     elevator_2_position AT %IW102 : INT;
@@ -331,6 +333,8 @@ PROGRAM program0
     tank_levelMeter AT %IW107 : INT;
     direction_rfid_read AT %IW108 : INT;
     check_rfid_read AT %IW109 : INT;
+    box_rfid_read AT %IW110 : INT;
+    measurement_rfid_read AT %IW111 : INT;
   END_VAR
   VAR
     const_done : INT := 50;
@@ -600,14 +604,12 @@ PROGRAM program0
     R_TRIG24 : R_TRIG;
     GT463_OUT : BOOL;
     setBox572_OUT : INT;
-    NE575_OUT : BOOL;
-    AND577_OUT : BOOL;
     GT583_OUT : BOOL;
     R_TRIG25 : R_TRIG;
     OR617_OUT : BOOL;
     R_TRIG26 : R_TRIG;
     GT588_OUT : BOOL;
-    EQ593_OUT : BOOL;
+    EQ886_OUT : BOOL;
     AND595_OUT : BOOL;
     R_TRIG27 : R_TRIG;
     EQ820_OUT : BOOL;
@@ -622,9 +624,9 @@ PROGRAM program0
     R_TRIG29 : R_TRIG;
     NOT817_OUT : BOOL;
     R_TRIG30 : R_TRIG;
-    EQ604_OUT : BOOL;
+    EQ888_OUT : BOOL;
     AND606_OUT : BOOL;
-    EQ548_OUT : BOOL;
+    EQ891_OUT : BOOL;
     AND550_OUT : BOOL;
     R_TRIG31 : R_TRIG;
     AND641_OUT : BOOL;
@@ -1005,12 +1007,8 @@ PROGRAM program0
   GT463_OUT := GT(current_pack_counter, 0);
   pack_stopper := GT463_OUT;
   SR29(S1 := pack_trigger_sensor, R := pack_end_sensor);
-  setBox572_OUT := setBox(SR29.Q1, dummy_box);
+  setBox572_OUT := setBox(SR29.Q1, box_rfid_read);
   pack_emitter_part := setBox572_OUT;
-  pack_emitter := pack_remover;
-  NE575_OUT := NE(pack_emitter_part, 0);
-  AND577_OUT := AND(pack_trigger_sensor, NE575_OUT);
-  pack_remover := AND577_OUT;
   GT583_OUT := GT(height_light_array_emitter, 0);
   R_TRIG25(CLK := GT583_OUT);
   OR617_OUT := OR(logistic_option_1_task_sensor, logistic_option_2_task_sensor, logistic_option_3_task_sensor);
@@ -1020,8 +1018,8 @@ PROGRAM program0
   logistic_pusher_conveyor := scale_forward;
   GT588_OUT := GT(pack_passed_counter, 0);
   scale_forward := GT588_OUT;
-  EQ593_OUT := EQ(pusher_dummy, 3);
-  AND595_OUT := AND(logistic_2_pusher_sensor, EQ593_OUT);
+  EQ886_OUT := EQ(measurement_rfid_read, 3);
+  AND595_OUT := AND(logistic_2_pusher_sensor, EQ886_OUT);
   R_TRIG27(CLK := AND595_OUT);
   EQ820_OUT := EQ(option_3_amount, 0);
   AND822_OUT := AND(EQ820_OUT, end_option_3_sensor_2);
@@ -1046,12 +1044,12 @@ PROGRAM program0
   logistic_option_3_conveyor_3_4 := logistic_option_3_conveyor_2_4;
   logistic_option_3_conveyor_4_4 := logistic_option_3_conveyor_3_4;
   palletizer_belt_forward := logistic_option_3_conveyor_4_4;
-  EQ604_OUT := EQ(pusher_dummy, 1);
-  AND606_OUT := AND(logistic_1_pusher_sensor, EQ604_OUT);
+  EQ888_OUT := EQ(measurement_rfid_read, 1);
+  AND606_OUT := AND(logistic_1_pusher_sensor, EQ888_OUT);
   SR30(S1 := AND606_OUT, R := logistic_1_pusher_front_limit);
   logistic_1_pusher := SR30.Q1;
-  EQ548_OUT := EQ(pusher_dummy, 2);
-  AND550_OUT := AND(logistic_2_pusher_sensor, EQ548_OUT);
+  EQ891_OUT := EQ(measurement_rfid_read, 2);
+  AND550_OUT := AND(logistic_2_pusher_sensor, EQ891_OUT);
   SR31(S1 := AND550_OUT, R := logistic_2_pusher_front_limit);
   logistic_2_pusher := SR31.Q1;
   R_TRIG31(CLK := logistic_1_pusher_front_limit);

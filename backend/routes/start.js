@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
         //details
         id: id,
         instance: instance,
-        callback: callback,
+        callback: callback.replace("https", "http").replace("localhost", "host.docker.internal"),
         currentTask: taskName,
         product: req.body.product,
         mirrorShape: req.body.mirrorShape !== "" ? req.body.mirrorShape : null,
@@ -60,6 +60,19 @@ router.post('/', async (req, res) => {
         if (order[key] === null) {
             delete order[key];
         }
+    });
+    const part = [
+        {
+            name: "start_emitter_part",
+            value: order.product === "schrank" ? 32 : 16
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(part)
     });
     const body_on = [
         {
@@ -108,7 +121,7 @@ router.get('/finished', async (req, res) => {
 router.get('/init', async (req, res) => {
     var callback = req.headers['cpee-callback']; // + "/";
     var taskName = req.headers['cpee-label'];
-    order.callback = callback;
+    order.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     order.currentTask = taskName;
     order.status = "In Progress";
     const body_on = [
@@ -133,7 +146,7 @@ router.post('/machining', async (req, res) => {
     var taskName = req.headers['cpee-label'];
     let theOrder = map.get(req.body.reference);
     theOrder.status = "In Progress";
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     console.log("Machine: ", req.body.machine);
     theOrder.direction = req.body.machine === "A" ? 1 : 0;
@@ -169,7 +182,7 @@ router.post('/task', (req, res) => {
     var taskName = req.headers['cpee-label'];
     let theOrder = map.get(req.body.reference);
     theOrder.status = "In Progress";
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     map.set(req.body.reference, theOrder);
     res.status(200).setHeader('cpee-callback', true).send();
@@ -180,7 +193,64 @@ router.get('/details', (req, res) => {
 });
 
 router.post('/details', (req, res) => {
+    console.log(JSON.stringify(map.get(req.body.reference)));
     res.json(map.get(req.body.reference));
+});
+
+router.post('/height', (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    map.set(req.body.reference, theOrder);
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.post('/determineHeight', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    theOrder.status = "Completed";
+    theOrder.height = req.body.height;
+    map.set(req.body.reference, theOrder);
+    await fetch(theOrder.callback, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            height: req.body.height
+        })
+    });
+    return res.json(map.get(req.body.reference));
+});
+
+router.post('/weight', (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    map.set(req.body.reference, theOrder);
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.post('/determineWeight', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    theOrder.status = "Completed";
+    theOrder.weight = req.body.weight;
+    map.set(req.body.reference, theOrder);
+    await fetch(theOrder.callback, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            weight: req.body.weight
+        })
+    });
+    return res.json(map.get(req.body.reference));
 });
 
 router.post('/complete', async (req, res) => {
@@ -289,23 +359,50 @@ router.post('/pack', (req, res) => {
         theOrder.box = 4;
     }
     map.set(req.body.reference, theOrder);
-    console.log("Box Order: ", map.get(req.body.reference));
-    res.send();
+    console.log("Box Decimal: ", theOrder.box);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/logisticOption', (req, res) => {
+router.post('/logisticOption', async (req, res) => {
     let theOrder = map.get(req.body.reference);
+    let callback = req.headers['cpee-callback'];
+    let taskName = req.headers['cpee-label'];
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    let option;
     if (req.body.logisticOption === "Express") {
         theOrder.logisticOption = 1;
+        option = "expressShip";
     } else if (req.body.logisticOption === "Palette") {
         theOrder.logisticOption = 3;
+        option = "largeShip";
     } else {
         // Standard
         theOrder.logisticOption = 2;
+        option = "standardShip";
     }
+    const body_on = [
+        {
+            name: option,
+            value: true
+        }
+    ];
+    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body_on)
+    });
     map.set(req.body.reference, theOrder);
     console.log("LogisticOption Order: ", map.get(req.body.reference));
-    res.send();
+    res.status(200).setHeader('cpee-callback', true).send();
 });
 
 router.post('/determineQuality', async (req, res) => {
@@ -320,7 +417,7 @@ router.post('/determineQuality', async (req, res) => {
     }
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -344,7 +441,7 @@ router.post('/classicTable', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -368,7 +465,7 @@ router.post('/modernTable', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -392,7 +489,7 @@ router.post('/tableLegs', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -445,7 +542,7 @@ router.post('/preDrill', async (req, res) => {
     var taskName = req.headers['cpee-label'];
     let theOrder = map.get(req.body.reference);
     theOrder.status = "In Progress";
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     map.set(req.body.reference, theOrder);
     const body_on = [
@@ -469,7 +566,7 @@ router.post('/drawers', async (req, res) => {
     var taskName = req.headers['cpee-label'];
     let theOrder = map.get(req.body.reference);
     theOrder.status = "In Progress";
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     map.set(req.body.reference, theOrder);
     const body_on = [
@@ -493,7 +590,7 @@ router.post('/shelves', async (req, res) => {
     var taskName = req.headers['cpee-label'];
     let theOrder = map.get(req.body.reference);
     theOrder.status = "In Progress";
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     map.set(req.body.reference, theOrder);
     const body_on = [
@@ -516,7 +613,7 @@ router.post('/defaultDoor', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -540,7 +637,7 @@ router.post('/slidingDoor', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -564,7 +661,7 @@ router.post('/lock', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -588,7 +685,7 @@ router.post('/assemble', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -612,7 +709,7 @@ router.post('/extras', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -636,7 +733,7 @@ router.post('/improve', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -660,7 +757,7 @@ router.post('/equipment', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.callback = callback;
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -684,7 +781,7 @@ router.post('/mirrorMaterial', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.palletCallback = callback;
+    theOrder.palletCallback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentPalletTask = taskName;
     theOrder.palletStatus = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -708,7 +805,7 @@ router.post('/circularMirror', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.palletCallback = callback;
+    theOrder.palletCallback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentPalletTask = taskName;
     theOrder.palletStatus = "In Progress";
     map.set(req.body.reference, theOrder);
@@ -732,7 +829,7 @@ router.post('/angularMirror', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     var callback = req.headers['cpee-callback'];
     var taskName = req.headers['cpee-label'];
-    theOrder.palletCallback = callback;
+    theOrder.palletCallback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentPalletTask = taskName;
     theOrder.palletStatus = "In Progress";
     map.set(req.body.reference, theOrder);
