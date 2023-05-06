@@ -1,50 +1,59 @@
 <testset xmlns="http://cpee.org/ns/properties/2.0">
   <executionhandler>ruby</executionhandler>
   <dataelements>
+    <height/>
     <id/>
     <palletID/>
-    <quality/>
+    <quality>false</quality>
+    <weight/>
     <mirrorID/>
     <product>schrank</product>
     <doorType>default</doorType>
     <mirrorShape>rund</mirrorShape>
     <tableStyle/>
     <additionalEquipment>true</additionalEquipment>
-    <maxHeight>7.5</maxHeight>
-    <maxWeight>3.0</maxWeight>
-    <height>5</height>
-    <weight>2</weight>
-    <express>true</express>
+    <maxHeight>3</maxHeight>
+    <maxWeight>3</maxWeight>
+    <express>false</express>
     <box/>
     <logisticOption/>
     <machine/>
   </dataelements>
   <endpoints>
-    <starter>http://host.docker.internal:9033/start</starter>
+    <starter>http://host.docker.internal:9033/tasks/start</starter>
+    <subprocess>https-post://cpee.org/flow/start/url/</subprocess>
     <timeout>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</timeout>
-    <init>http://host.docker.internal:9033/start/init</init>
-    <complete>http://host.docker.internal:9033/start/complete</complete>
-    <task>http://host.docker.internal:9033/start/task</task>
-    <determineQuality>http://host.docker.internal:9033/start/determineQuality</determineQuality>
-    <logisticOption>http://host.docker.internal:9033/start/logisticOption</logisticOption>
-    <pack>http://host.docker.internal:9033/start/pack</pack>
-    <modernTable>http://host.docker.internal:9033/start/modernTable</modernTable>
-    <classicTable>http://host.docker.internal:9033/start/classicTable</classicTable>
-    <drawers>http://host.docker.internal:9033/start/drawers</drawers>
-    <preDrill>http://host.docker.internal:9033/start/preDrill</preDrill>
-    <tableLegs>http://host.docker.internal:9033/start/tableLegs</tableLegs>
-    <machining>http://host.docker.internal:9033/start/machining</machining>
-    <shelves>http://host.docker.internal:9033/start/shelves</shelves>
-    <defaultDoor>http://host.docker.internal:9033/start/defaultDoor</defaultDoor>
-    <slidingDoor>http://host.docker.internal:9033/start/slidingDoor</slidingDoor>
-    <lock>http://host.docker.internal:9033/start/lock</lock>
-    <assemble>http://host.docker.internal:9033/start/assemble</assemble>
-    <extras>http://host.docker.internal:9033/start/extras</extras>
-    <angular>http://host.docker.internal:9033/start/angularMirror</angular>
-    <circular>http://host.docker.internal:9033/start/circularMirror</circular>
-    <mirrorMaterial>http://host.docker.internal:9033/start/mirrorMaterial</mirrorMaterial>
-    <improve>http://host.docker.internal:9033/start/improve</improve>
-    <equipment>http://host.docker.internal:9033/start/equipment</equipment>
+    <init>http://host.docker.internal:9033/tasks/init</init>
+    <send>https-post://cpee.org/ing/correlators/message/send/</send>
+    <complete>http://host.docker.internal:9033/tasks/complete</complete>
+    <receive>https-get://cpee.org/ing/correlators/message/receive/</receive>
+    <task>http://host.docker.internal:9033/tasks/task</task>
+    <user>https-post://cpee.org/services/timeout-user.php</user>
+    <auto>https-post://cpee.org/services/timeout-auto.php</auto>
+    <determineQuality>http://host.docker.internal:9033/tasks/determineQuality</determineQuality>
+    <logisticOption>http://host.docker.internal:9033/tasks/logisticOption</logisticOption>
+    <pack>http://host.docker.internal:9033/tasks/pack</pack>
+    <modernTable>http://host.docker.internal:9033/tasks/modernTable</modernTable>
+    <classicTable>http://host.docker.internal:9033/tasks/classicTable</classicTable>
+    <drawers>http://host.docker.internal:9033/tasks/drawers</drawers>
+    <preDrill>http://host.docker.internal:9033/tasks/preDrill</preDrill>
+    <tableLegs>http://host.docker.internal:9033/tasks/tableLegs</tableLegs>
+    <machining>http://host.docker.internal:9033/tasks/machining</machining>
+    <shelves>http://host.docker.internal:9033/tasks/shelves</shelves>
+    <defaultDoor>http://host.docker.internal:9033/tasks/defaultDoor</defaultDoor>
+    <slidingDoor>http://host.docker.internal:9033/tasks/slidingDoor</slidingDoor>
+    <lock>http://host.docker.internal:9033/tasks/lock</lock>
+    <assemble>http://host.docker.internal:9033/tasks/assemble</assemble>
+    <extras>http://host.docker.internal:9033/tasks/extras</extras>
+    <angular>http://host.docker.internal:9033/tasks/angularMirror</angular>
+    <circular>http://host.docker.internal:9033/tasks/circularMirror</circular>
+    <mirrorMaterial>http://host.docker.internal:9033/tasks/mirrorMaterial</mirrorMaterial>
+    <improve>http://host.docker.internal:9033/tasks/improve</improve>
+    <equipment>http://host.docker.internal:9033/tasks/equipment</equipment>
+    <height>http://host.docker.internal:9033/tasks/height</height>
+    <weight>http://host.docker.internal:9033/tasks/weight</weight>
+    <addToPallet>http://host.docker.internal:9033/tasks/addToPallet</addToPallet>
+    <sendProduct>http://host.docker.internal:9033/tasks/send</sendProduct>
   </endpoints>
   <attributes>
     <info>xx</info>
@@ -816,7 +825,12 @@
             </documentation>
           </call>
           <choose mode="exclusive">
-            <alternative condition="data.tableStyel != &quot;classic&quot;">
+            <alternative condition="data.tableStyle != &quot;classic&quot;">
+              <_probability>
+                <_probability_min/>
+                <_probability_max/>
+                <_probability_avg/>
+              </_probability>
               <call id="a21" endpoint="modernTable">
                 <parameters>
                   <label>Kabeldurchführung einfügen</label>
@@ -862,11 +876,6 @@
                   </code>
                 </documentation>
               </call>
-              <_probability>
-                <_probability_min/>
-                <_probability_max/>
-                <_probability_avg/>
-              </_probability>
             </alternative>
             <otherwise>
               <call id="a22" endpoint="classicTable">
@@ -1205,8 +1214,6 @@
         </alternative>
         <otherwise/>
       </choose>
-      <stop id="a17"/>
-      <manipulate id="a19" label="Produkt mittels Material ermitteln"/>
       <choose mode="exclusive">
         <alternative condition="data.product == &quot;schreibtisch&quot; and !data.additionalEquipment">
           <call id="a1" endpoint="pack">
@@ -1363,11 +1370,98 @@
           </call>
         </otherwise>
       </choose>
-      <manipulate id="a20" label="Pakethöhe messen"/>
-      <manipulate id="a26" label="Paket wiegen"/>
+      <call id="a18" endpoint="height">
+        <parameters>
+          <label>Pakethöhe messen</label>
+          <method>:post</method>
+          <arguments>
+            <reference>!data.palletID</reference>
+          </arguments>
+        </parameters>
+        <code>
+          <prepare/>
+          <finalize output="result">data.height = result['height']</finalize>
+          <update output="result"/>
+          <rescue output="result"/>
+        </code>
+        <annotations>
+          <_timing>
+            <_timing_weight/>
+            <_timing_avg/>
+            <explanations/>
+          </_timing>
+          <_shifting>
+            <_shifting_type>Duration</_shifting_type>
+          </_shifting>
+          <_context_data_analysis>
+            <probes/>
+            <ips/>
+          </_context_data_analysis>
+          <report>
+            <url/>
+          </report>
+          <_notes>
+            <_notes_general/>
+          </_notes>
+        </annotations>
+        <documentation>
+          <input/>
+          <output/>
+          <implementation>
+            <description/>
+          </implementation>
+          <code>
+            <description/>
+          </code>
+        </documentation>
+      </call>
+      <call id="a20" endpoint="weight">
+        <parameters>
+          <label>Paket wiegen</label>
+          <method>:post</method>
+          <arguments>
+            <reference>!data.palletID</reference>
+          </arguments>
+        </parameters>
+        <code>
+          <prepare/>
+          <finalize output="result">data.weight = result['weight']</finalize>
+          <update output="result"/>
+          <rescue output="result"/>
+        </code>
+        <annotations>
+          <_timing>
+            <_timing_weight/>
+            <_timing_avg/>
+            <explanations/>
+          </_timing>
+          <_shifting>
+            <_shifting_type>Duration</_shifting_type>
+          </_shifting>
+          <_context_data_analysis>
+            <probes/>
+            <ips/>
+          </_context_data_analysis>
+          <report>
+            <url/>
+          </report>
+          <_notes>
+            <_notes_general/>
+          </_notes>
+        </annotations>
+        <documentation>
+          <input/>
+          <output/>
+          <implementation>
+            <description/>
+          </implementation>
+          <code>
+            <description/>
+          </code>
+        </documentation>
+      </call>
       <choose mode="exclusive">
         <alternative condition="(data.weight &lt; data.maxWeight) and (data.height &lt; data.maxHeight) and !data.express">
-          <manipulate id="a32" label="Lieferschein für kleines Paket drucken"/>
           <call id="a28" endpoint="logisticOption">
             <parameters>
               <label>Lieferschein für kleines Paket drucken</label>
@@ -1420,7 +1514,7 @@
             <_probability_avg/>
           </_probability>
         </alternative>
-        <alternative condition="(data.weight &gt;= data.maxWeight) or(data.height &gt;= data.maxHeight) and !data.express">
+        <alternative condition="((data.weight &gt;= data.maxWeight) or (data.height &gt;= data.maxHeight)) and !data.express">
           <_probability>
             <_probability_min/>
             <_probability_max/>
@@ -1472,7 +1566,51 @@
               </code>
             </documentation>
           </call>
-          <manipulate id="a34" label="Paket auf Palette beladen und abwarten bis diese voll ist"/>
+          <call id="a17" endpoint="addToPallet">
+            <parameters>
+              <label>Paket auf Palette beladen und abwarten bis diese voll ist</label>
+              <method>:post</method>
+              <arguments>
+                <reference>!data.palletID</reference>
+              </arguments>
+            </parameters>
+            <code>
+              <prepare/>
+              <finalize output="result"/>
+              <update output="result"/>
+              <rescue output="result"/>
+            </code>
+            <annotations>
+              <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+              </_timing>
+              <_shifting>
+                <_shifting_type>Duration</_shifting_type>
+              </_shifting>
+              <_context_data_analysis>
+                <probes/>
+                <ips/>
+              </_context_data_analysis>
+              <report>
+                <url/>
+              </report>
+              <_notes>
+                <_notes_general/>
+              </_notes>
+            </annotations>
+            <documentation>
+              <input/>
+              <output/>
+              <implementation>
+                <description/>
+              </implementation>
+              <code>
+                <description/>
+              </code>
+            </documentation>
+          </call>
         </alternative>
         <otherwise>
           <call id="a30" endpoint="logisticOption">
@@ -1523,7 +1661,51 @@
           </call>
         </otherwise>
       </choose>
-      <manipulate id="a27" label="Produkt versenden"/>
+      <call id="a25" endpoint="sendProduct">
+        <parameters>
+          <label>Produkt versenden</label>
+          <method>:post</method>
+          <arguments>
+            <reference>!data.palletID</reference>
+          </arguments>
+        </parameters>
+        <code>
+          <prepare/>
+          <finalize output="result"/>
+          <update output="result"/>
+          <rescue output="result"/>
+        </code>
+        <annotations>
+          <_timing>
+            <_timing_weight/>
+            <_timing_avg/>
+            <explanations/>
+          </_timing>
+          <_shifting>
+            <_shifting_type>Duration</_shifting_type>
+          </_shifting>
+          <_context_data_analysis>
+            <probes/>
+            <ips/>
+          </_context_data_analysis>
+          <report>
+            <url/>
+          </report>
+          <_notes>
+            <_notes_general/>
+          </_notes>
+        </annotations>
+        <documentation>
+          <input/>
+          <output/>
+          <implementation>
+            <description/>
+          </implementation>
+          <code>
+            <description/>
+          </code>
+        </documentation>
+      </call>
       <stop id="a31"/>
     </description>
   </description>

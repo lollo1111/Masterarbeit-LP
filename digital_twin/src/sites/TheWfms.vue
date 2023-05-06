@@ -62,7 +62,7 @@ export default {
                     });
                 }
                 vm.currentCounter = highestId;
-                const response = await fetch("http://localhost:9033/start/files");
+                const response = await fetch("http://localhost:9033/wfms/files");
                 vm.options = await response.json();
             }
             getInstances();
@@ -119,7 +119,7 @@ export default {
         },
         async deleteXML() {
             const selectedFile = this.selectedValue.split(".")[0];
-            const response = await fetch(('http://localhost:9033/start/deleteFile/' + selectedFile), {
+            const response = await fetch(('http://localhost:9033/tasks/deleteFile/' + selectedFile), {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -130,7 +130,7 @@ export default {
         },
         async downloadXML() {
             const selectedFile = this.selectedValue.split(".")[0];
-            const response = await fetch(('http://localhost:9033/start/download/' + selectedFile));
+            const response = await fetch(('http://localhost:9033/wfms/download/' + selectedFile));
             if (!response.ok) {
                 alert("Download Error")
             } else {
@@ -152,7 +152,7 @@ export default {
         },
         async readFile() {
             const selectedFile = this.selectedValue.split(".")[0];
-            const response = await fetch(('http://localhost:9033/start/selectFile/' + selectedFile));
+            const response = await fetch(('http://localhost:9033/wfms/selectFile/' + selectedFile));
             this.xml = await response.text();
         }
     }

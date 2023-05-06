@@ -73,24 +73,21 @@ END_FUNCTION
 
 FUNCTION setBox : INT
   VAR_INPUT
-    sensor : BOOL;
     box : INT;
   END_VAR
 
-  IF sensor THEN
-    IF box = 1 THEN
-      setBox := 1;
-      return;
-    ELSIF box = 2 THEN
-      setBox := 2;
-      return;
-    ELSIF box = 4 THEN
-      setBox := 4;
-      return;
-    ELSE
-      setBox := 0;
-      return;
-    END_IF;
+  IF box = 1 THEN
+    setBox := 8;
+    return;
+  ELSIF box = 2 THEN
+    setBox := 2;
+    return;
+  ELSIF box = 4 THEN
+    setBox := 4;
+    return;
+  ELSE
+    setBox := 0;
+    return;
   END_IF;
 END_FUNCTION
 
@@ -222,6 +219,7 @@ PROGRAM program0
     end_option_3_sensor AT %IX107.4 : BOOL;
     end_option_3_sensor_2 AT %IX107.5 : BOOL;
     palletizer_pusherLimit AT %IX107.6 : BOOL;
+    improve_sensor AT %IX107.7 : BOOL;
     spawn_pallett_conveyor AT %QX100.6 : BOOL;
     spawn_pallett_emit AT %QX100.7 : BOOL;
     machining_B_remover AT %QX101.0 : BOOL;
@@ -304,14 +302,11 @@ PROGRAM program0
     logistic_option_1_conveyor_2_3 AT %QX110.5 : BOOL;
     logistic_option_1_conveyor_3_3 AT %QX110.6 : BOOL;
     logistic_option_2_conveyor_1_1 AT %QX110.7 : BOOL;
-    after_logistic_remover AT %QX111.0 : BOOL;
     after_logistic_conveyor AT %QX111.1 : BOOL;
     varnishing_stopper_1_2 AT %QX111.2 : BOOL;
     varnishing_stopper_2_2 AT %QX111.3 : BOOL;
     after_palletizer_conveyor AT %QX111.4 : BOOL;
-    after_palletizer_remover AT %QX111.5 : BOOL;
     pre_palletizer_emitter AT %QX111.6 : BOOL;
-    pre_palletizer_conveyor AT %QX111.7 : BOOL;
     palletizer_clamp AT %QX112.0 : BOOL;
     palletizer_elevator_down AT %QX112.1 : BOOL;
     palletizer_elevator_up AT %QX112.2 : BOOL;
@@ -385,7 +380,6 @@ PROGRAM program0
     SR28 : SR;
     CTUD9 : CTUD;
     CTUD10 : CTUD;
-    SR29 : SR;
     CTUD11 : CTUD;
     CTUD12 : CTUD;
     SR30 : SR;
@@ -402,6 +396,8 @@ PROGRAM program0
     openPlate_elapsedTime : TIME;
     pick_ccw_elapsedTime : TIME;
     pick_x_elapsedTime : TIME;
+    end_elapsedTime : TIME;
+    end_2_elapsedTime : TIME;
     pick_z_elapsedTime : TIME;
     pick_rotating_elapsedTime : TIME;
     CTUD15 : CTUD;
@@ -422,6 +418,8 @@ PROGRAM program0
     SR38 : SR;
     TON6 : TON;
     TON7 : TON;
+    TON8 : TON;
+    TON9 : TON;
     GT28_OUT : BOOL;
     GE32_OUT : BOOL;
     OR7_OUT : BOOL;
@@ -482,6 +480,7 @@ PROGRAM program0
     AND251_OUT : BOOL;
     OR260_OUT : BOOL;
     NOT280_OUT : BOOL;
+    EQ909_OUT : BOOL;
     AND269_OUT : BOOL;
     AND277_OUT : BOOL;
     setFloorWithPosition248_OUT : INT;
@@ -503,9 +502,9 @@ PROGRAM program0
     OR246_OUT : BOOL;
     ADD33_OUT : INT;
     NE29_OUT : BOOL;
+    GT694_OUT : BOOL;
     R_TRIG9 : R_TRIG;
     R_TRIG10 : R_TRIG;
-    GT694_OUT : BOOL;
     R_TRIG11 : R_TRIG;
     GT697_OUT : BOOL;
     AND696_OUT : BOOL;
@@ -555,7 +554,10 @@ PROGRAM program0
     AND373_OUT : BOOL;
     AND369_OUT : BOOL;
     GT360_OUT : BOOL;
-    NOT400_OUT : BOOL;
+    NOT915_OUT : BOOL;
+    AND914_OUT : BOOL;
+    NOT913_OUT : BOOL;
+    GT487_OUT : BOOL;
     AND399_OUT : BOOL;
     R_TRIG15 : R_TRIG;
     AND554_OUT : BOOL;
@@ -603,6 +605,8 @@ PROGRAM program0
     R_TRIG23 : R_TRIG;
     R_TRIG24 : R_TRIG;
     GT463_OUT : BOOL;
+    GE401_OUT : BOOL;
+    OR920_OUT : BOOL;
     setBox572_OUT : INT;
     GT583_OUT : BOOL;
     R_TRIG25 : R_TRIG;
@@ -632,7 +636,7 @@ PROGRAM program0
     AND641_OUT : BOOL;
     R_TRIG32 : R_TRIG;
     R_TRIG33 : R_TRIG;
-    AND654_OUT : BOOL;
+    AND894_OUT : BOOL;
     R_TRIG34 : R_TRIG;
     GT614_OUT : BOOL;
     GT625_OUT : BOOL;
@@ -651,6 +655,7 @@ PROGRAM program0
     AND666_OUT : BOOL;
     fill672_OUT : INT;
     GT648_OUT : BOOL;
+    OR917_OUT : BOOL;
     GT674_OUT : BOOL;
     GT669_OUT : BOOL;
     OR675_OUT : BOOL;
@@ -659,7 +664,6 @@ PROGRAM program0
     EQ724_OUT : BOOL;
     NOT751_OUT : BOOL;
     AND752_OUT : BOOL;
-    GT727_OUT : BOOL;
     GT749_OUT : BOOL;
     EQ769_OUT : BOOL;
     NOT772_OUT : BOOL;
@@ -788,7 +792,8 @@ PROGRAM program0
   OR260_OUT := OR(AND262_OUT, AND251_OUT);
   SR6(S1 := OR259_OUT, R := OR260_OUT);
   NOT280_OUT := NOT(elevator_2_right_limit);
-  AND269_OUT := AND(second_floor_end_sensor, NOT280_OUT);
+  EQ909_OUT := EQ(after_elevator_counter, 0);
+  AND269_OUT := AND(second_floor_end_sensor, NOT280_OUT, EQ909_OUT);
   SR10(S1 := AND269_OUT, R := second_floor_remover);
   AND277_OUT := AND(elevator_2_end_sensor, elevator_2_right_limit);
   SR11(S1 := AND277_OUT, R := first_floor_end_sensor);
@@ -816,15 +821,15 @@ PROGRAM program0
   ADD33_OUT := ADD(1, elevator_2_position);
   NE29_OUT := NE(ADD33_OUT, 450);
   first_floor_stopper := NE29_OUT;
+  GT694_OUT := GT(after_elevator_counter, 0);
+  before_cross_left_conveyor := GT694_OUT;
   R_TRIG9(CLK := second_floor_trigger_sensor);
   R_TRIG10(CLK := second_floor_end_sensor);
   CTUD4(CU := R_TRIG9.Q, CD := R_TRIG10.Q, PV := 10000);
   second_floor_counter := CTUD4.CV;
-  GT694_OUT := GT(after_elevator_counter, 0);
-  before_cross_left_conveyor := GT694_OUT;
   R_TRIG11(CLK := elevator_2_end_sensor);
   GT697_OUT := GT(after_elevator_counter, 0);
-  AND696_OUT := AND(GT697_OUT, cross_sensor);
+  AND696_OUT := AND(GT697_OUT, cross_center_sensor, before_cross_right_stopper);
   R_TRIG12(CLK := AND696_OUT);
   CTUD15(CU := R_TRIG11.Q, CD := R_TRIG12.Q, PV := 10000);
   after_elevator_counter := CTUD15.CV;
@@ -892,13 +897,13 @@ PROGRAM program0
   AND357_OUT := AND(NOT356_OUT, GE353_OUT);
   R_TRIG13(CLK := AND357_OUT);
   GT700_OUT := GT(spawn_counter_a, 0);
-  AND699_OUT := AND(cross_center_sensor, GT700_OUT);
+  AND699_OUT := AND(cross_center_sensor, GT700_OUT, before_cross_left_stopper);
   R_TRIG14(CLK := AND699_OUT);
   CTUD5(CU := R_TRIG13.Q, CD := R_TRIG14.Q, PV := 10000);
   spawn_counter_a := CTUD5.CV;
   NOT365_OUT := NOT(pick_grab);
   GT367_OUT := GT(pick_positionX, 0);
-  LT376_OUT := LT(pick_positionX, 20);
+  LT376_OUT := LT(pick_positionX, 50);
   AND373_OUT := AND(GT367_OUT, LT376_OUT);
   AND369_OUT := AND(NOT365_OUT, AND373_OUT);
   SR13(S1 := after_pick_emitter, R := AND369_OUT);
@@ -910,15 +915,18 @@ PROGRAM program0
   after_pick_conveyor_3_3 := after_pick_conveyor_2_3;
   SR15(S1 := cross_center_sensor, R := cross_sensor);
   join_chain_left := SR15.Q1;
-  SR14(S1 := join_enter_right_sensor, R := cross_center_sensor);
+  NOT915_OUT := NOT(before_cross_right_stopper);
+  AND914_OUT := AND(join_enter_right_sensor, NOT915_OUT);
+  SR14(S1 := AND914_OUT, R := cross_center_sensor);
   join_chain_back := SR14.Q1;
   before_varnishing_conveyor_1_2 := join_chain_left;
   SR16(S1 := join_enter_left_sensor, R := cross_center_sensor);
   join_chain_forward := SR16.Q1;
   SR17(S1 := join_enter_left_sensor, R := cross_sensor);
   before_cross_right_stopper := SR17.Q1;
-  NOT400_OUT := NOT(before_cross_left_stopper);
-  AND399_OUT := AND(NOT400_OUT, join_enter_right_sensor);
+  NOT913_OUT := NOT(join_enter_left_sensor);
+  GT487_OUT := GT(spawn_counter_a, 0);
+  AND399_OUT := AND(NOT913_OUT, GT487_OUT);
   SR18(S1 := AND399_OUT, R := cross_sensor);
   before_cross_left_stopper := SR18.Q1;
   R_TRIG15(CLK := varnishing_trigger_sensor);
@@ -936,10 +944,10 @@ PROGRAM program0
   AND426_OUT := AND(NOT427_OUT, NOT428_OUT);
   SR19(S1 := check_direction_roll_back, R := AND426_OUT);
   NOT418_OUT := NOT(check_direction_limit_0);
-  OR423_OUT := OR(SR19.Q1, NOT418_OUT);
+  OR423_OUT := OR(SR19.Q1, NOT418_OUT, before_check_direction_sensor);
   after_check_stopper := OR423_OUT;
   NOT419_OUT := NOT(check_direction_limit_0);
-  SR23(S1 := check_rfid_sensor, R := check_direction_limit_90);
+  SR23(S1 := improve_sensor, R := check_direction_limit_front);
   OR422_OUT := OR(NOT419_OUT, SR23.Q1);
   before_check_stopper := OR422_OUT;
   NOT481_OUT := NOT(check_direction_limit_0);
@@ -1005,9 +1013,10 @@ PROGRAM program0
   CTUD10(CU := R_TRIG23.Q, CD := R_TRIG24.Q, PV := 10000);
   current_pack_counter := CTUD10.CV;
   GT463_OUT := GT(current_pack_counter, 0);
-  pack_stopper := GT463_OUT;
-  SR29(S1 := pack_trigger_sensor, R := pack_end_sensor);
-  setBox572_OUT := setBox(SR29.Q1, box_rfid_read);
+  GE401_OUT := GE(pack_passed_counter, 2);
+  OR920_OUT := OR(GT463_OUT, GE401_OUT);
+  pack_stopper := OR920_OUT;
+  setBox572_OUT := setBox(box_rfid_read);
   pack_emitter_part := setBox572_OUT;
   GT583_OUT := GT(height_light_array_emitter, 0);
   R_TRIG25(CLK := GT583_OUT);
@@ -1052,18 +1061,22 @@ PROGRAM program0
   AND550_OUT := AND(logistic_2_pusher_sensor, EQ891_OUT);
   SR31(S1 := AND550_OUT, R := logistic_2_pusher_front_limit);
   logistic_2_pusher := SR31.Q1;
+  TON8(IN := end_sensor, PT := T#50ms);
+  end_elapsedTime := TON8.ET;
   R_TRIG31(CLK := logistic_1_pusher_front_limit);
-  SR32(S1 := logistic_option_1_out_sensor, R := after_logistic_remover);
+  TON9(IN := end_sensor, PT := T#50ms);
+  SR32(S1 := logistic_option_1_out_sensor, R := TON9.Q);
   AND641_OUT := AND(SR32.Q1, end_sensor);
   R_TRIG32(CLK := AND641_OUT);
   CTUD13(CU := R_TRIG31.Q, CD := R_TRIG32.Q, PV := 10000);
   option_1_counter := CTUD13.CV;
   R_TRIG33(CLK := logistic_2_pusher_front_limit);
-  SR33(S1 := logistic_option_2_out_sensor, R := after_logistic_remover);
-  AND654_OUT := AND(SR33.Q1, end_sensor);
-  R_TRIG34(CLK := AND654_OUT);
+  SR33(S1 := logistic_option_2_out_sensor, R := TON8.Q);
+  AND894_OUT := AND(end_sensor, SR33.Q1);
+  R_TRIG34(CLK := AND894_OUT);
   CTUD14(CU := R_TRIG33.Q, CD := R_TRIG34.Q, PV := 10000);
   option_2_counter := CTUD14.CV;
+  end_2_elapsedTime := TON9.ET;
   GT614_OUT := GT(option_1_counter, 0);
   logistic_option_1_conveyor_1_3 := GT614_OUT;
   logistic_option_1_conveyor_2_3 := logistic_option_1_conveyor_1_3;
@@ -1074,7 +1087,6 @@ PROGRAM program0
   GT651_OUT := GT(option_2_counter, 0);
   OR628_OUT := OR(GT630_OUT, GT651_OUT);
   after_logistic_conveyor := OR628_OUT;
-  after_logistic_remover := end_sensor;
   TOF0(IN := varnishing_rfid_sensor, PT := T#2500ms);
   discharge659_OUT := discharge(TOF0.Q);
   tank_dischargeValve := discharge659_OUT;
@@ -1091,7 +1103,8 @@ PROGRAM program0
   fill672_OUT := fill(AND666_OUT);
   tank_fillValve := fill672_OUT;
   GT648_OUT := GT(tank_dischargeValve, 0);
-  varnishing_stopper_2_2 := GT648_OUT;
+  OR917_OUT := OR(GT648_OUT, before_check_stopper);
+  varnishing_stopper_2_2 := OR917_OUT;
   GT674_OUT := GT(tank_dischargeValve, 0);
   GT669_OUT := GT(tank_fillValve, 0);
   OR675_OUT := OR(GT674_OUT, GT669_OUT);
@@ -1104,8 +1117,6 @@ PROGRAM program0
   NOT751_OUT := NOT(palletizer_elevator_frontLimit);
   AND752_OUT := AND(EQ724_OUT, NOT751_OUT, logistic_option_3_task_sensor);
   pre_palletizer_emitter := AND752_OUT;
-  GT727_OUT := GT(pallet_counter, 0);
-  pre_palletizer_conveyor := GT727_OUT;
   GT749_OUT := GT(pallet_counter, 0);
   EQ769_OUT := EQ(plate_counter, 0);
   NOT772_OUT := NOT(palletizer_elevatorMoving);
@@ -1137,7 +1148,6 @@ PROGRAM program0
   AND778_OUT := AND(EQ780_OUT, EQ781_OUT, palletizer_elevator_frontLimit, NOT782_OUT, palletizer_plateLimit);
   SR35(S1 := AND778_OUT, R := end_sensor_2);
   after_palletizer_conveyor := SR35.Q1;
-  after_palletizer_remover := end_sensor_2;
   NOT839_OUT := NOT(palletizer_pusherLimit);
   AND829_OUT := AND(end_option_3_sensor, end_option_3_sensor, NOT839_OUT);
   NOT850_OUT := NOT(palletizer_plateLimit);

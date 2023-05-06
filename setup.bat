@@ -1,11 +1,14 @@
 @echo off
-echo\
-set /p required=Is docker running and .NET Runtime and SDK preinstalled? (y/n):
-if %required%==n (echo\ && echo Please start Docker and make sure .NET Runtime and SDK are preinstalled. && exit)
-echo\ && echo Don't forget to update the .env File (press any key to continue)
+cls
+set required=""
+set down=""
+set /p required=Wurde Docker gestartet sowie .NET Runtime und SDK vorinstalliert? (beliebige Taste/n):
+if "%required%"=="" (set "required=y")
+if %required%==n (echo Starte Docker und installiere .NET Runtime sowie SDK && exit)
+echo\ && echo Vergiss nicht das .env File zu aktualisieren (beliebige Taste zum fortsetzen klicken)
 pause > nul
 for /f "delims== tokens=1,2" %%G in (.env) do set %%G=%%H
-echo\ && echo Create mbconfig.cfg File for OpenPLC
+echo\ && echo OpenPLC mbconfig.cfg File wird erstellt.
 (
 echo Num_Devices = "1"
 echo Polling_Period = "100"
@@ -35,15 +38,19 @@ echo device0.Holding_Registers_Read_Size = "32"
 echo device0.Holding_Registers_Start = "0"
 echo device0.Holding_Registers_Size = "32"
 ) > openplc/mbconfig.cfg
-echo\
-echo\ && echo Starting Factory I/O ...
+echo\ && echo Factory I/O wird gestartet ...
 start "" %FACTORY_IO%
-echo\ && echo Build and run Docker Container
+echo\ && echo Docker Container wird erstellt ...
 docker-compose up --build -d
-echo\ && echo Give Docker some time ...
+echo\ && echo Docker Container wird gestartet ...
 timeout /t 10 /nobreak
-echo\ && echo Open Workflow Engine
-explorer "http://localhost:5173"
-echo\ && echo Start Factory I/O SDK and Producer
-@REM cd factoryio/sdk
-@REM dotnet run
+explorer "http://localhost"
+cd factoryio/sdk
+cls
+echo Web Anwendung des digitalen Zwillings: ^<http://localhost/^>
+echo SDK wird gestartet ... (beliebige Taste zum Beenden klicken, nicht mit Ctr + C^)
+dotnet run
+cd %~dp0
+set /p down=Docker Container beenden sowie Volumes entfernen? (beliebige Taste/y):
+if %down%==y (docker-compose down -v)
+echo SDK wurde beendet.

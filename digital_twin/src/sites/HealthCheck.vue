@@ -162,7 +162,7 @@ export default {
         try {
             do {
                 this.refreshTime = null;
-                const response = await fetch('http://localhost:9033/start/healthcheck');
+                const response = await fetch('http://localhost:9033/healthcheck');
                 this.codes = ["healthy"];
                 const msg = await response.json();
                 for (let i = 0; i < msg.length; i++) {

@@ -3,8 +3,6 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const HashMap = require('hashmap');
 const crypto = require('crypto');
 const fs = require('fs').promises;
-const axios = require('axios');
-const { spawn } = require('child_process');
 
 let router = express.Router();
 const map = new HashMap();
@@ -13,24 +11,13 @@ let schreibtische = [];
 let schraenke = [];
 let mirrors = [];
 let boxes = [];
-let sdk_health = 500;
+let palette = [];
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function readJson() {
-    const data = await fs.readFile("./data/worklist.json", "utf8");
-    const json = JSON.parse(Buffer.from(data));
-    return json;
-}
-
-async function readFile(filename) {
-    const data = await fs.readFile(("./data/xmls/" + filename), "utf8");
-    return data;
-}
-
-router.post('/', async (req, res) => {
+router.post('/start', async (req, res) => {
     const id = crypto.randomUUID();
     let start_counter = await fetch('http://host.docker.internal:7410/api/tags/by-name/start_counter');
     let start_counter_amount = await start_counter.json();
@@ -193,7 +180,6 @@ router.get('/details', (req, res) => {
 });
 
 router.post('/details', (req, res) => {
-    console.log(JSON.stringify(map.get(req.body.reference)));
     res.json(map.get(req.body.reference));
 });
 
@@ -259,12 +245,6 @@ router.post('/complete', async (req, res) => {
     map.set(req.body.reference, theOrder);
     await fetch(theOrder.callback, {
         method: 'PUT',
-        // headers: {
-        //     'Content-Type': 'application/json'
-        // },
-        // body: JSON.stringify({
-        //     reference: req.body.reference
-        // })
     });
     res.status(200).send();
 });
@@ -375,31 +355,14 @@ router.post('/logisticOption', async (req, res) => {
     theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
     theOrder.currentTask = taskName;
     theOrder.status = "In Progress";
-    let option;
     if (req.body.logisticOption === "Express") {
         theOrder.logisticOption = 1;
-        option = "expressShip";
     } else if (req.body.logisticOption === "Palette") {
         theOrder.logisticOption = 3;
-        option = "largeShip";
     } else {
         // Standard
         theOrder.logisticOption = 2;
-        option = "standardShip";
     }
-    const body_on = [
-        {
-            name: option,
-            value: true
-        }
-    ];
-    await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body_on)
-    });
     map.set(req.body.reference, theOrder);
     console.log("LogisticOption Order: ", map.get(req.body.reference));
     res.status(200).setHeader('cpee-callback', true).send();
@@ -407,7 +370,7 @@ router.post('/logisticOption', async (req, res) => {
 
 router.post('/determineQuality', async (req, res) => {
     let theOrder = map.get(req.body.reference);
-    const quality = Math.random() < 0.5;
+    const quality = Math.random() < 0.8;
     // const quality = true;
     if (quality) {
         theOrder.qualityAcceptable = true;
@@ -535,6 +498,41 @@ router.get('/preparePaket', (req, res) => {
     res.status(200).json({
         reference: ref
     })
+});
+
+router.post('/addToPallet', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
+    theOrder.currentTask = taskName;
+    theOrder.status = "In Progress";
+    map.set(req.body.reference, theOrder);
+    if (palette.length === 0) {
+        palette.push(req.body.reference);
+    } else if (palette.length === 1) {
+        palette.push(req.body.reference);
+        const part = [
+            {
+                name: "pre_palletizer_stopper",
+                value: true
+            }
+        ];
+        await fetch('http://host.docker.internal:7410/api/tag/values/by-name', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(part)
+        });
+    } else if (palette.length === 2) {
+        palette = [ req.body.reference ];
+    }
+    res.status(200).setHeader('cpee-callback', true).send();
+});
+
+router.get('/palletContent', (req, res) => {
+    res.json(palette);
 });
 
 router.post('/preDrill', async (req, res) => {
@@ -849,153 +847,15 @@ router.post('/angularMirror', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.get('/worklist', async (req, res) => {
-    const json = await readJson();
-    const response = await fetch("http://host.docker.internal:7410/api/tags");
-    const devices = await response.json();
-    const replaceDevicesWithObjects = (json, devices) => {
-        return json.map(obj => {
-            const devicesWithObjects = obj.devices.map(device => {
-                const matchingDevice = devices.find(obj2 => obj2.name === device);
-                return matchingDevice ? matchingDevice : device;
-            });
-            return { ...obj, devices: devicesWithObjects };
-        });
-    };
-    const result = replaceDevicesWithObjects(json, devices);
-    // const sensorObj = json.find(obj => obj.device === 'startsensor');
-    // sensorObj.list.push("LOL");
-    // console.log(JSON.stringify(json));
-    // await fs.writeFile('./data/neu.json', JSON.stringify(json));
-    res.status(200).json(result);
-});
-
-router.get('/healthcheck', async (req, res) => {
-    const child = spawn('docker', ['ps']);
-    let output = '';
-
-    child.stdout.on('data', (data) => {
-        output += data.toString();
-    });
-
-    child.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
-    });
-
-    child.on('close', async (code) => {
-        if (code !== 0) {
-            return res.status(500).send(`Docker ps command failed with code ${code}`);
-        }
-
-        const containers = output.split('\n').slice(1, -1).map((line) => {
-            const parts = line.split(/\s{2,}/);
-            return {
-                id: parts[0],
-                image: parts[1],
-                command: parts[2],
-                created: parts[3],
-                status: parts[4],
-                ports: parts[5],
-                names: parts[6],
-            };
-        });
-        const mosquitto = containers.filter(container => container.names === "mosquitto")[0]["status"].startsWith("Up") ? 200 : 500;
-        const kafka = containers.filter(container => container.names === "broker")[0]["status"].startsWith("Up") ? 200 : 500;
-        const consumer = containers.filter(container => container.image === "consumer_image")[0]["status"].startsWith("Up") ? 200 : 500;
-        const mqttBridge = containers.filter(container => container.image === "masterarbeit-lorenz-pircher-mqttbridge")[0]["status"].startsWith("Up") ? 200 : 500;
-
-        const endpoints = [
-            'http://host.docker.internal:7410/api/tags',
-            'http://host.docker.internal:8081',
-            'http://host.docker.internal:8298',
-            'http://host.docker.internal:8080',
-            'http://host.docker.internal:3000',
-            'http://host.docker.internal:8086'
-        ];
-        const responses = await Promise.all(endpoints.map(endpoint => axios.get(endpoint).catch(error => ({ error }))));
-        let statuses = responses.map(response => {
-            if (response.error) {
-                console.error(`Error fetching ${response.error.config.url}: ${response.error.message}`)
-                return 500
-            }
-            return response.status
-        })
-        statuses.push(...[mosquitto, kafka, consumer, mqttBridge, sdk_health]);
-        // const statuses = responses.map(response => response.status);
-
-        const openPLC = spawn('docker', ['logs', '--since', '10s', 'openplc']);
-
-        let logs = '';
-
-        openPLC.stdout.on('data', (data) => {
-            logs += data.toString();
-
-            // Search for log message
-            const logMatch = logs.includes("Connection failed on MB device FactoryIO");
-            if (logMatch) {
-                statuses[3] = 500;
-            }
-        });
-
-        openPLC.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-        });
-
-        openPLC.on('close', async (_code) => {
-            res.status(200).json(statuses);
-        });
-    });
-});
-
-router.get('/startContainer', (req, res) => {
-    sdk_health = 200;
-    res.status(200).send();
-});
-
-router.get('/endContainer', (req, res) => {
-    sdk_health = 500;
-    res.status(200).send();
-});
-
-router.get('/files', async (req, res) => {
-    try {
-        const files = await fs.readdir('./data/xmls');
-        res.status(200).json(files);
-    } catch (error) {
-        console.error(error);
-    }
-});
-
-router.post('/createFile', async (req, res) => {
-    res.status(201).send();
-});
-
-router.delete('/deleteFile/:fileId', async (req, res) => {
-    const fileId = req.params.fileId;
-    try {
-        await fs.unlink('./data/xmls/' + fileId + '.xml');
-        res.status(204).send();
-    } catch (err) {
-        console.error(err);
-    }
-});
-
-router.get('/download/:fileId', async (req, res) => {
-    const fileId = req.params.fileId;
-    const xml = await readFile((fileId + ".xml"));
-    const filename = fileId + '.xml';
-    res.set({
-        'Content-Type': 'application/xml',
-        'Content-Disposition': `attachment; filename="${filename}"`
-    });
-    res.status(200).send(xml);
-});
-
-router.get('/selectFile/:fileId', async (req, res) => {
-    const fileId = req.params.fileId;
-    const xml = await readFile((fileId + ".xml"));
-    res.set('Content-Type', 'text/xml');
-    res.status(200).send(xml);
+router.post('/send', async (req, res) => {
+    let theOrder = map.get(req.body.reference);
+    var callback = req.headers['cpee-callback'];
+    var taskName = req.headers['cpee-label'];
+    theOrder.status = "In Progress";
+    theOrder.callback = callback.replace("https", "http").replace("localhost", "host.docker.internal");
+    theOrder.currentTask = taskName;
+    map.set(req.body.reference, theOrder);
+    res.status(200).setHeader('cpee-callback', true).send();
 });
 
 module.exports = router;

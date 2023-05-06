@@ -114,7 +114,7 @@ services:
     build: digital_twin/
     image: digitaltwin_image
     ports:
-      - '5173:5173'
+      - '80:5173'
     depends_on:
       - grafana
 
@@ -180,6 +180,16 @@ services:
       - mosquitto
     networks:
       - my-network
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger
+    ports:
+      - "9011:8080"
+    volumes:
+      - ./swagger/openapi.json:/openapi.json
+    environment:
+      SWAGGER_JSON: /openapi.json
 
 volumes:
   influxvolume:

@@ -15,7 +15,7 @@ export const useInstanceStore = defineStore('InstanceStore', {
     actions: {
         async loadWorklist() {
             try {
-                const response = await fetch('http://localhost:9033/start/worklist');
+                const response = await fetch('http://localhost:9033/wfms/worklist');
                 const data = await response.json();
                 this.worklist = data;
             } catch (error) {

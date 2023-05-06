@@ -9,10 +9,14 @@ app.use(express.json());
 const port = 9033;
 
 // Import Routes
-const startMethod = require('./routes/start');
+const taskMethods = require('./routes/tasks');
+const healthcheckMethods = require('./routes/healthcheck');
+const wfmsMethods = require('./routes/wfms');
 
 // Use Routes
-app.use('/start', startMethod);
+app.use('/tasks', taskMethods);
+app.use('/healthcheck', healthcheckMethods);
+app.use('/wfms', wfmsMethods);
 
 app.listen(port, () => {
     console.log('listening on *:9033');
