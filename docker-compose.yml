@@ -8,7 +8,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - my-network 
+      - twin-network 
 
   broker:
     image: confluentinc/cp-kafka:7.0.1
@@ -31,7 +31,7 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - my-network 
+      - twin-network 
 
   influxdb: 
     image: influxdb:latest
@@ -50,7 +50,7 @@ services:
       DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
     networks:
-      - my-network
+      - twin-network
 
   grafana:
     container_name: grafana
@@ -84,12 +84,7 @@ services:
       # broker:
       #   condition: service_healthy
     networks:
-      - my-network
-
-  socket-client:
-    container_name: client
-    build: socket_client/
-    image: socket_client_image
+      - twin-network
 
   open-plc:
     container_name: openplc
@@ -169,7 +164,7 @@ services:
       broker:
         condition: service_healthy
     networks:
-      - my-network 
+      - twin-network 
       
   mqttbridge:
     container_name: mqttbridge
@@ -179,7 +174,7 @@ services:
     depends_on:
       - mosquitto
     networks:
-      - my-network
+      - twin-network
 
   swagger-ui:
     image: swaggerapi/swagger-ui
@@ -193,11 +188,13 @@ services:
 
 volumes:
   influxvolume:
+    name: "influx-data"
   grafana_data:
+    name: "grafana-data"
   data:
     name: "mqtt-broker-data"
 
 networks:
-  my-network:
+  twin-network:
     driver: bridge
   cpee-network:

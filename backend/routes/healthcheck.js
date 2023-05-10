@@ -55,16 +55,10 @@ router.get('/', async (req, res) => {
             return response.status
         })
         statuses.push(...[mosquitto, kafka, consumer, mqttBridge, sdk_health]);
-        // const statuses = responses.map(response => response.status);
-
-        const openPLC = spawn('docker', ['logs', '--since', '10s', 'openplc']);
-
+        const openPLC = spawn('docker', ['logs', '--since', '30s', 'openplc']);
         let logs = '';
-
         openPLC.stdout.on('data', (data) => {
             logs += data.toString();
-
-            // Search for log message
             const logMatch = logs.includes("Connection failed on MB device FactoryIO");
             if (logMatch) {
                 statuses[3] = 500;

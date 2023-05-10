@@ -1,6 +1,6 @@
 <template>
     <the-card>
-        <template #header>Worklist</template>
+        <template #header>Geräte Übersicht</template>
         <template #default>
             <div class="container">
                 <dialog :open="filter">

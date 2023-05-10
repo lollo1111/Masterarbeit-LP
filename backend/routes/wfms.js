@@ -28,10 +28,6 @@ router.get('/worklist', async (req, res) => {
         });
     };
     const result = replaceDevicesWithObjects(json, devices);
-    // const sensorObj = json.find(obj => obj.device === 'startsensor');
-    // sensorObj.list.push("LOL");
-    // console.log(JSON.stringify(json));
-    // await fs.writeFile('./data/neu.json', JSON.stringify(json));
     res.status(200).json(result);
 });
 

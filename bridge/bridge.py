@@ -2,8 +2,6 @@ import paho.mqtt.client as mqtt
 from confluent_kafka import Producer
 import socket
 
-# host.docker.internal
-#broker:29092
 conf = {'bootstrap.servers': "broker:29092",
         'client.id': socket.gethostname()}
 
@@ -16,7 +14,6 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload.decode('utf-8')))
     producer.produce(msg.topic.replace("/", "-"), value=str(msg.payload.decode('utf-8')))
-    #producer.flush()
     producer.poll()
 
 client = mqtt.Client('MQTTBridge')
