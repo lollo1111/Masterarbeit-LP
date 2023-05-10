@@ -16,17 +16,7 @@
     {
         "task": "RFID Transponder initialisieren",
         "product": "both",
-        "items": [{
-            "id": "xx",
-            "details": {
-                "Produkt": "Schrank"
-            }},
-            {
-                "id": "yy",
-                "details": {
-                    "Produkt": "schreibtisch"
-                }
-        }],
+        "items": [],
         "process": "production",
         "devices": [
             "start_rfid_sensor",
@@ -698,7 +688,7 @@
         ]
     },
     {
-        "task": "Paket auf Palette stapeln",
+        "task": "Paket auf Palette stapeln und abwarten bis diese voll ist",
         "product": "both",
         "items": [],
         "process": "logistic",

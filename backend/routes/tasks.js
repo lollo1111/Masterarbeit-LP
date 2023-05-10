@@ -3,6 +3,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const HashMap = require('hashmap');
 const crypto = require('crypto');
 const fs = require('fs').promises;
+const lockfile = require('lockfile');
 
 let router = express.Router();
 const map = new HashMap();
@@ -18,14 +19,25 @@ function timeout(ms) {
 }
 
 async function readJson() {
-    const data = await fs.readFile("./data/worklist.json", "utf8");
+    const data = await fs.readFile("./data/devices.json", "utf8");
     const json = JSON.parse(Buffer.from(data));
     return json;
 }
 
 async function writeJson(simulation, enter = true, palletTask = false) {
     let json = await readJson();
-    let currentTask
+    const lockfilePath = './data/devices.json.lock';
+    await new Promise((resolve, reject) => {
+        lockfile.lock(lockfilePath, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+    if (simulation.currentTask === "Erneute Qualitätskontrolle") simulation.currentTask = "Qualitätskontrolle";
+    let currentTask;
     if (palletTask) {
         currentTask = json.find(obj => obj.task === simulation.currentPalletTask);
     } else {
@@ -34,13 +46,26 @@ async function writeJson(simulation, enter = true, palletTask = false) {
     if (enter) {
         if (currentTask) {
             currentTask.items.push(simulation);
+        } else {
+            console.log("Nicht gefunden: " + simulation.currentTask);
         }
     } else {
         if (currentTask) {
             currentTask.items = currentTask.items.filter(item => item.id !== simulation.id);
+        } else {
+            console.log("Nicht gefunden: " + simulation.currentTask);
         }
     }
-    // await fs.writeFile('./data/neu.json', JSON.stringify(json));
+    await fs.writeFile('./data/devices.json', JSON.stringify(json));
+    await new Promise((resolve, reject) => {
+        lockfile.unlock(lockfilePath, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
 }
 
 async function updatePart(partName, value) {

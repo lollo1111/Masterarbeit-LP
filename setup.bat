@@ -5,7 +5,7 @@ set down=""
 set /p required=Wurde Docker gestartet sowie .NET Runtime und SDK vorinstalliert? (beliebige Taste/n):
 if "%required%"=="" (set "required=y")
 if %required%==n (echo Starte Docker und installiere .NET Runtime sowie SDK && exit)
-echo\ && echo Vergiss nicht das .env File zu aktualisieren (beliebige Taste zum fortsetzen klicken)
+echo\ && echo Vergiss nicht das .env File zu aktualisieren (beliebige Taste zum Fortsetzen)
 pause > nul
 for /f "delims== tokens=1,2" %%G in (.env) do set %%G=%%H
 echo\ && echo OpenPLC mbconfig.cfg File wird erstellt.
@@ -51,6 +51,6 @@ echo Web Anwendung des digitalen Zwillings: ^<http://localhost/^>
 echo SDK wird gestartet ... (beliebige Taste zum Beenden klicken, nicht mit Ctr + C^)
 dotnet run
 cd %~dp0
-set /p down=Docker Container beenden sowie Volumes entfernen? (beliebige Taste/y):
+set /p down=Docker Container beenden sowie Volumes entfernen? (y/beliebige Taste):
 if %down%==y (docker-compose down -v)
 echo SDK wurde beendet.

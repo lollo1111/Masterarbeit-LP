@@ -1,8 +1,8 @@
 <template>
     <p><strong>ID</strong>: {{ simulation.id }}</p>
-    <p><strong>JSON Details</strong>:</p>
+    <p><strong>JSON</strong>:</p>
     <div class="json">
-        <p>{{ JSON.stringify(simulation.details) }}</p>
+        <p>{{ JSON.stringify(simulation) }}</p>
     </div>
 </template>
 

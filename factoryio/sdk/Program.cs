@@ -428,6 +428,7 @@ namespace EngineIO.Samples
                 Order theOrder = await rfidDevice.getOrder(palletReference);
                 // Richtung auf Index 1 hinterlegen
                 await rfidDevice.writeValue(1, theOrder.Direction);
+                await sendTopic("product", theOrder.Direction == 0 ? "A" : "B");
                 // Lesen
                 int direction = await rfidDevice.readValue(1, false);
                 Console.WriteLine("Direction: " + direction.ToString());
@@ -590,6 +591,7 @@ namespace EngineIO.Samples
                 int palletReference = await rfidDevice.readValue(0);             
                 // Resultat abfragen und auf RFID Index 1 schreiben
                 Order theOrder = await rfidDevice.getOrder(palletReference);
+                await sendTopic("quality", theOrder.QualityAcceptable); 
                 if (theOrder.QualityAcceptable == true) {
                     await rfidDevice.writeValue(1, 0);
                 } else {
@@ -668,6 +670,8 @@ namespace EngineIO.Samples
                 MemoryMap.Instance.Update();
                 await completeTask(firstBox);
                 await completeTask(secondBox);
+                await sendTopic("endsensor", 1);
+                await sendTopic("endsensor", 1); 
             }
             else if (name == "varnishing_stopper_1_2")
             {

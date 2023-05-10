@@ -2,22 +2,22 @@ import { defineStore } from 'pinia'
 
 export const useInstanceStore = defineStore('InstanceStore', {
     state: () => ({ 
-        worklist: [],
+        devices: [],
         instances: []
     }),
     getters: {
-        getWorklist: (state) => state.worklist,
+        getDevices: (state) => state.devices,
         getInstances: (state) => state.instances,
         getCpeeId: (state) => {
             return (instanceId) => state.instances.filter(instance => instance.id === instanceId)[0]["cpeeId"];
           }
     },
     actions: {
-        async loadWorklist() {
+        async loadDevices() {
             try {
-                const response = await fetch('http://localhost:9033/wfms/worklist');
+                const response = await fetch('http://localhost:9033/wfms/devices');
                 const data = await response.json();
-                this.worklist = data;
+                this.devices = data;
             } catch (error) {
                 console.error(error);
             }

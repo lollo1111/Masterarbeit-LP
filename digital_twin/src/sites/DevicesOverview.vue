@@ -41,7 +41,7 @@
                     alias necessitatibus beatae perferendis, ratione placeat.
                 </p>
                 <ul>
-                    <li :class="{ activeSimulation: item.items.length > 0 }" v-for="item of filteredWorklist"
+                    <li :class="{ activeSimulation: item.items.length > 0 }" v-for="item of filteredDevices"
                         :key="item.task">
                         <device-group :item="item"></device-group>
                     </li>
@@ -57,7 +57,7 @@ import { useInstanceStore } from '../stores/InstanceStore';
 const store = useInstanceStore();
 export default {
     async created() {
-        await this.refreshWorklist();
+        await this.refreshDevices();
 
     },
     components: {
@@ -72,30 +72,30 @@ export default {
         }
     },
     computed: {
-        worklist() {
-            return store.getWorklist;
+        devices() {
+            return store.getDevices;
         },
-        filteredWorklist() {
+        filteredDevices() {
             if (!this.filterType) {
-                return this.worklist;
+                return this.devices;
             } else if (this.filterType === "schreibtisch") {
-                return this.worklist.filter(item => item.product === "schreibtisch" || item.product === "both");
+                return this.devices.filter(item => item.product === "schreibtisch" || item.product === "both");
             } else if (this.filterType === "schrank") {
-                return this.worklist.filter(item => item.product === "schrank" || item.product === "both");
+                return this.devices.filter(item => item.product === "schrank" || item.product === "both");
             } else if (this.filterType === "both") {
-                return this.worklist.filter(item => item.product === "both");
+                return this.devices.filter(item => item.product === "both");
             } else if (this.filterType === "production") {
-                return this.worklist.filter(item => item.process === "production");
+                return this.devices.filter(item => item.process === "production");
             } else if (this.filterType === "logistic") {
-                return this.worklist.filter(item => item.process === "logistic");
+                return this.devices.filter(item => item.process === "logistic");
             } else if (this.filterType === "items") {
-                return this.worklist.filter(item => item.items.length > 0);
+                return this.devices.filter(item => item.items.length > 0);
             }
         }
     },
     methods: {
-        async refreshWorklist() {
-            await store.loadWorklist();
+        async refreshDevices() {
+            await store.loadDevices();
         },
         toggleFilter() {
             this.filter = !this.filter;
@@ -114,7 +114,7 @@ export default {
             if (this.auto) {
                 while (this.auto) {
                     await this.delay(10000);
-                    await this.refreshWorklist();
+                    await this.refreshDevices();
                     console.log("Refreshed");
                 }
             }

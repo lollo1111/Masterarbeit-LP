@@ -3,7 +3,7 @@ const TheStartsite = () => import('./sites/TheStartsite.vue');
 const TheDashboard = () => import('./sites/TheDashboard.vue');
 const TheForm = () => import('./sites/TheForm.vue');
 const TheWfms = () => import('./sites/TheWfms.vue');
-const TheWorklist = () => import('./sites/TheWorklist.vue');
+const DeviceOverview = () => import('./sites/DevicesOverview.vue');
 const HealthCheck = () => import('./sites/HealthCheck.vue');
 const TheSwagger = () => import('./sites/TheSwagger.vue');
 const NotFound = () => import('./sites/NotFound.vue');
@@ -25,7 +25,7 @@ const router = createRouter({
             component: TheForm
         }, {
             path: '/overview',
-            component: TheWorklist
+            component: DeviceOverview
         }, {
             path: '/healthcheck',
             component: HealthCheck

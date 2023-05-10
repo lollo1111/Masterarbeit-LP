@@ -32,7 +32,7 @@
             </div>
             <ul>
                 <keep-alive>
-                    <li v-for="instance in instances" :key="instance.id">
+                    <li v-for="instance in reversedInstances" :key="instance.id">
                         <one-instance :exists="instance.exists" :xml="instance.xml" :mode="instance.mode" :instanceId="instance.id"
                             @delete-instance="deleteInstance"></one-instance>
                     </li>
@@ -81,6 +81,9 @@ export default {
         }
     },
     computed: {
+        reversedInstances() {
+            return this.instances.slice().reverse();
+        },
         clickableDiv() {
             if (!this.xml) {
                 return {

@@ -9,12 +9,12 @@ async function readFile(filename) {
 }
 
 async function readJson() {
-    const data = await fs.readFile("./data/worklist.json", "utf8");
+    const data = await fs.readFile("./data/devices.json", "utf8");
     const json = JSON.parse(Buffer.from(data));
     return json;
 }
 
-router.get('/worklist', async (req, res) => {
+router.get('/devices', async (req, res) => {
     const json = await readJson();
     const response = await fetch("http://host.docker.internal:7410/api/tags");
     const devices = await response.json();
