@@ -64,7 +64,7 @@
     <description xmlns="http://cpee.org/ns/description/1.0">
       <call id="a36" endpoint="starter">
         <parameters>
-          <label>Material vorbereiten</label>
+          <label>Material auf Palette vorbereiten</label>
           <method>:post</method>
           <arguments>
             <product>!data.product</product>
@@ -205,7 +205,7 @@
           </call>
           <call id="a2" endpoint="preDrill">
             <parameters>
-              <label>Löcher vorbohren (Schrank)</label>
+              <label>Loecher vorbohren (Schrank)</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>
@@ -309,7 +309,7 @@
                   </_probability>
                   <call id="a35" endpoint="slidingDoor">
                     <parameters>
-                      <label>Schiebetür herstellen</label>
+                      <label>Schiebetuer herstellen</label>
                       <method>:post</method>
                       <arguments>
                         <reference>!data.palletID</reference>
@@ -356,7 +356,7 @@
                 <otherwise>
                   <call id="a41" endpoint="defaultDoor">
                     <parameters>
-                      <label>Standardtür herstellen</label>
+                      <label>Standardtuer herstellen</label>
                       <method>:post</method>
                       <arguments>
                         <reference>!data.palletID</reference>
@@ -403,7 +403,7 @@
               </choose>
               <call id="a10" endpoint="lock">
                 <parameters>
-                  <label>Türschloss einbauen</label>
+                  <label>Tuerschloss einbauen</label>
                   <method>:post</method>
                   <arguments>
                     <reference>!data.palletID</reference>
@@ -598,7 +598,7 @@
           </parallel>
           <call id="a11" endpoint="assemble">
             <parameters>
-              <label>Spiegel auf Tür befestigen</label>
+              <label>Spiegel auf Tuer befestigen</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>
@@ -736,7 +736,7 @@
           </call>
           <call id="a7" endpoint="preDrill">
             <parameters>
-              <label>Löcher vorbohren (Schreibtisch)</label>
+              <label>Loecher vorbohren (Schreibtisch)</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>
@@ -833,7 +833,7 @@
               </_probability>
               <call id="a21" endpoint="modernTable">
                 <parameters>
-                  <label>Kabeldurchführung einfügen</label>
+                  <label>Kabeldurchfuehrung einfuegen</label>
                   <method>:post</method>
                   <arguments>
                     <reference>!data.palletID</reference>
@@ -974,7 +974,7 @@
       </choose>
       <call id="a24" endpoint="task">
         <parameters>
-          <label>Oberflächenbehandlung</label>
+          <label>Oberflaechenbehandlung</label>
           <method>:post</method>
           <arguments>
             <reference>!data.palletID</reference>
@@ -1019,7 +1019,7 @@
       </call>
       <call id="a33" endpoint="determineQuality">
         <parameters>
-          <label>Qualitätskontrolle</label>
+          <label>Qualitaetskontrolle</label>
           <method>:post</method>
           <arguments>
             <reference>!data.palletID</reference>
@@ -1115,7 +1115,7 @@
         </call>
         <call id="a13" endpoint="determineQuality">
           <parameters>
-            <label>Erneute Qualitätskontrolle</label>
+            <label>Erneute Qualitaetskontrolle</label>
             <method>:post</method>
             <arguments>
               <reference>!data.palletID</reference>
@@ -1163,7 +1163,7 @@
         <alternative condition="data.additionalEquipment">
           <call id="a16" endpoint="equipment">
             <parameters>
-              <label>Zusatzausrüstung beilegen</label>
+              <label>Zusatzausruestung beilegen</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>
@@ -1372,7 +1372,7 @@
       </choose>
       <call id="a18" endpoint="height">
         <parameters>
-          <label>Pakethöhe messen</label>
+          <label>Pakethoehe messen</label>
           <method>:post</method>
           <arguments>
             <reference>!data.palletID</reference>
@@ -1464,7 +1464,7 @@
         <alternative condition="(data.weight &lt; data.maxWeight) and (data.height &lt; data.maxHeight) and !data.express">
           <call id="a28" endpoint="logisticOption">
             <parameters>
-              <label>Lieferschein für kleines Paket drucken</label>
+              <label>Lieferschein fuer kleines Paket drucken</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>
@@ -1522,7 +1522,7 @@
           </_probability>
           <call id="a29" endpoint="logisticOption">
             <parameters>
-              <label>Lieferschein für großes Paket drucken</label>
+              <label>Lieferschein fuer grosses Paket drucken</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>
@@ -1568,7 +1568,7 @@
           </call>
           <call id="a17" endpoint="addToPallet">
             <parameters>
-              <label>Paket auf Palette beladen und abwarten bis diese voll ist</label>
+              <label>Paket auf Palette stapeln und abwarten bis diese voll ist</label>
               <method>:post</method>
               <arguments>
                 <reference>!data.palletID</reference>

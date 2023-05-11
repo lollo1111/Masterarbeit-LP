@@ -114,7 +114,7 @@
         ]
     },
     {
-        "task": "Löcher vorbohren (Schreibtisch)",
+        "task": "Loecher vorbohren (Schreibtisch)",
         "product": "schreibtisch",
         "items": [],
         "process": "production",
@@ -167,7 +167,7 @@
         ]
     },
     {
-        "task": "Kabeldurchführung einfügen",
+        "task": "Kabeldurchfuehrung einfuegen",
         "product": "schreibtisch",
         "items": [],
         "process": "production",
@@ -259,7 +259,7 @@
         ]
     },
     {
-        "task": "Löcher vorbohren (Schrank)",
+        "task": "Loecher vorbohren (Schrank)",
         "product": "schrank",
         "items": [],
         "process": "production",
@@ -275,7 +275,7 @@
         "devices": []
     },
     {
-        "task": "Schiebetür herstellen",
+        "task": "Schiebetuer herstellen",
         "product": "schrank",
         "items": [],
         "process": "production",
@@ -301,7 +301,7 @@
         ]
     },
     {
-        "task": "Standardtür herstellen",
+        "task": "Standardtuer herstellen",
         "product": "schrank",
         "items": [],
         "process": "production",
@@ -327,7 +327,7 @@
         ]
     },
     {
-        "task": "Türschloss einbauen",
+        "task": "Tuerschloss einbauen",
         "product": "schrank",
         "items": [],
         "process": "production",
@@ -401,7 +401,7 @@
         ]
     },
     {
-        "task": "Spiegel auf Tür befestigen",
+        "task": "Spiegel auf Tuer befestigen",
         "product": "schrank",
         "items": [],
         "process": "production",
@@ -428,7 +428,7 @@
         "devices": []
     },
     {
-        "task": "Oberflächenbehandlung",
+        "task": "Oberflaechenbehandlung",
         "product": "both",
         "items": [],
         "process": "production",
@@ -468,7 +468,7 @@
         ]
     },
     {
-        "task": "Qualitätskontrolle",
+        "task": "Qualitaetskontrolle",
         "product": "both",
         "items": [],
         "process": "production",
@@ -511,7 +511,7 @@
         ]
     },
     {
-        "task": "Zusatzausrüstung beilegen",
+        "task": "Zusatzausruestung beilegen",
         "product": "both",
         "items": [],
         "process": "logistic",
@@ -608,7 +608,7 @@
         ]
     },
     {
-        "task": "Pakethöhe messen",
+        "task": "Pakethoehe messen",
         "product": "both",
         "items": [],
         "process": "logistic",
@@ -651,7 +651,7 @@
         ]
     },
     {
-        "task": "Lieferschein für kleines Paket drucken",
+        "task": "Lieferschein fuer kleines Paket drucken",
         "product": "both",
         "items": [],
         "process": "logistic",
@@ -662,7 +662,7 @@
         ]
     },
     {
-        "task": "Lieferschein für großes Paket drucken",
+        "task": "Lieferschein fuer grosses Paket drucken",
         "product": "both",
         "items": [],
         "process": "logistic",
