@@ -163,10 +163,10 @@ router.post('/start', async (req, res) => {
     await updatePart("start_emitter", true);
     await timeout(100);
     await updatePart("start_emitter", false);
-    res.status(200).setHeader('cpee-callback', true).send();
+    res.status(201).setHeader('cpee-callback', true).send();
 });
 
-router.get('/finished', async (req, res) => {
+router.patch('/placed', async (req, res) => {
     order.status = 'Completed';
     await writeJson(order, false);
     await sendCallback(order.callback, { id: order.id });
@@ -184,7 +184,7 @@ router.get('/init', async (req, res) => {
 });
 
 
-router.post('/machining', async (req, res) => {
+router.put('/machining', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     theOrder.direction = req.body.machine === "A" ? 1 : 0;
     if (req.body.machine === "A") {
@@ -196,7 +196,7 @@ router.post('/machining', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/task', async (req, res) => {
+router.put('/varnishing', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     res.status(200).setHeader('cpee-callback', true).send();
@@ -206,13 +206,13 @@ router.post('/details', (req, res) => {
     res.json(map.get(req.body.reference));
 });
 
-router.post('/height', async (req, res) => {
+router.put('/height', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/determineHeight', async (req, res) => {
+router.patch('/determineHeight', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     theOrder.status = "Completed";
     theOrder.height = req.body.height;
@@ -222,13 +222,13 @@ router.post('/determineHeight', async (req, res) => {
     return res.json(map.get(req.body.reference));
 });
 
-router.post('/weight', async (req, res) => {
+router.put('/weight', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/determineWeight', async (req, res) => {
+router.patch('/determineWeight', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     theOrder.status = "Completed";
     theOrder.weight = req.body.weight;
@@ -238,7 +238,7 @@ router.post('/determineWeight', async (req, res) => {
     return res.json(map.get(req.body.reference));
 });
 
-router.post('/complete', async (req, res) => {
+router.patch('/complete', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     theOrder.status = "Completed";
     await writeJson(theOrder, false);
@@ -247,7 +247,7 @@ router.post('/complete', async (req, res) => {
     res.status(200).send();
 });
 
-router.post('/completeMirrorTasks', async (req, res) => {
+router.patch('/completeMirrorTasks', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     theOrder.palletStatus = "Completed";
     await writeJson(theOrder, false, true);
@@ -258,7 +258,7 @@ router.post('/completeMirrorTasks', async (req, res) => {
 
 // RFID Transponder Initialization
 // wird von SDK geschickt und Daten werden in CPEE geladen
-router.post('/setup', async (req, res) => {
+router.patch('/setup', async (req, res) => {
     order.status = "Completed";
     await writeJson(order, false);
     map.set(req.body.reference, order);
@@ -266,7 +266,7 @@ router.post('/setup', async (req, res) => {
     return res.json(map.get(req.body.reference));
 });
 
-router.post('/completeQuality', async (req, res) => {
+router.patch('/completeQuality', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     await writeJson(theOrder, false);
     theOrder.status = "Completed";
@@ -295,7 +295,7 @@ router.post('/boxReference', (req, res) => {
     res.send();
 });
 
-router.post('/pack', async (req, res) => {
+router.put('/pack', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     if (req.body.box === "S") {
         theOrder.box = 1;
@@ -309,7 +309,7 @@ router.post('/pack', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/logisticOption', async (req, res) => {
+router.put('/logisticOption', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     if (req.body.logisticOption === "Express") {
         theOrder.logisticOption = 1;
@@ -323,7 +323,7 @@ router.post('/logisticOption', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/determineQuality', async (req, res) => {
+router.put('/determineQuality', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     const quality = Math.random() < 0.8;
     // const quality = true;
@@ -338,21 +338,21 @@ router.post('/determineQuality', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/classicTable', async (req, res) => {
+router.put('/classicTable', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("classic", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/modernTable', async (req, res) => {
+router.put('/modernTable', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("modern", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/tableLegs', async (req, res) => {
+router.put('/tableLegs', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_table_legs_production", true);
@@ -387,7 +387,7 @@ router.get('/preparePaket', (req, res) => {
     })
 });
 
-router.post('/addToPallet', async (req, res) => {
+router.put('/addToPallet', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     if (palette.length === 0) {
@@ -405,98 +405,98 @@ router.get('/palletContent', (req, res) => {
     res.json(palette);
 });
 
-router.post('/preDrill', async (req, res) => {
+router.put('/preDrill', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart(theOrder.product === "schreibtisch" ? "simulate_pre_drill" : "simulate_pre_drill_schrank", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/drawers', async (req, res) => {
+router.put('/drawers', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_drawers_production", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/shelves', async (req, res) => {
+router.put('/shelves', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_shelves_production", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/defaultDoor', async (req, res) => {
+router.put('/defaultDoor', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("defaultDoor", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/slidingDoor', async (req, res) => {
+router.put('/slidingDoor', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("slidingDoor", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/lock', async (req, res) => {
+router.put('/lock', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_lock_production", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/assemble', async (req, res) => {
+router.put('/assemble', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_assemble", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/extras', async (req, res) => {
+router.put('/extras', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_extra_parts", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/improve', async (req, res) => {
+router.put('/improve', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_improve_quality", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/equipment', async (req, res) => {
+router.put('/equipment', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_additional_equipment", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/mirrorMaterial', async (req, res) => {
+router.put('/mirrorMaterial', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference, true);
     map.set(req.body.reference, theOrder);
     await updatePart("simulate_prepare_mirror_material", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/circularMirror', async (req, res) => {
+router.put('/circularMirror', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference, true);
     map.set(req.body.reference, theOrder);
     await updatePart("circular", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/angularMirror', async (req, res) => {
+router.put('/angularMirror', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     await updatePart("angular", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.post('/send', async (req, res) => {
+router.put('/send', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
     res.status(200).setHeader('cpee-callback', true).send();

@@ -20,7 +20,7 @@ export default {
             this.instance = "http://localhost:8081/?monitor=http://localhost:8298/" + cpeeId + "/";
         } else if (!this.xml) {
             const formData = new URLSearchParams();
-            formData.append('info', 'WfMS for the Digital Twin');
+            formData.append('info', 'WfMS zur Steuerung des digitalen Zwillings');
             const response = await fetch('http://localhost:8298/', {
                 method: 'POST',
                 headers: {

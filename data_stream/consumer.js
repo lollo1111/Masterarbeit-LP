@@ -36,37 +36,32 @@ const run = async () => {
       const payload = JSON.parse(message.value.toString());
       let point;
       if (deviceid === 'startsensor') {
-        console.log(`Received message from startsensor`)
         point = new Point("sensor")
           .tag("name", "startsensor")
           .intField("val", payload.val)
           .timestamp(new Date(payload.timestamp));
       } else if (deviceid === 'endsensor') {
-        console.log(`Received message from endsensor`)
         point = new Point("sensor")
           .tag("name", "endsensor")
           .intField("val", payload.val)
           .timestamp(new Date(payload.timestamp));
       } else if (deviceid === 'tank') {
-        console.log(`Received message from tank`)
         point = new Point("machine")
           .tag("name", "tank")
           .intField("val", payload.val)
           .timestamp(new Date(payload.timestamp));
       } else if (deviceid === 'product') {
-        console.log(`Received message from product`)
         point = new Point("product")
           .tag("name", payload.val === "A" ? "schreibtisch" : "schrank")
           .intField("val", 1)
           .timestamp(new Date(payload.timestamp));
       } else if (deviceid === "quality") {
-        console.log(`Received message from quality`)
         point = new Point("sensor")
           .tag("name", "quality")
           .booleanField("val", payload.val)
           .timestamp(new Date(payload.timestamp));
       } else {
-        console.log(`Received message from unknown device`)
+        console.log("Received message from unknown device")
       }
       writeApi
         .writePoint(point)

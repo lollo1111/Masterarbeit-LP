@@ -3,104 +3,1587 @@
   "info": {
     "version": "1.0.0",
     "title": "Digitaler Zwilling Simulations-API",
-    "description": "A sample API that uses a petstore as an example to demonstrate features in the OpenAPI 3.0 specification",
-    "contact": {
-      "name": "Lorenz Pircher",
-      "email": "a01633083@univie.ac.at"
-    }
+    "description": "Eine API zur Durchführung von Simulationen eines digitalen Zwillings in Factory I/O, welche via eines WfMS gestartet und kontrolliert werden."
   },
-  "servers": [
-    {
-      "url": "http://localhost:9033/tasks"
-    }
-  ],
   "paths": {
-    "/pets": {
-      "get": {
-        "description": "Returns all pets from the system that the user has access to\nNam sed condimentum est. Maecenas tempor sagittis sapien, nec rhoncus sem sagittis sit amet. Aenean at gravida augue, ac iaculis sem. Curabitur odio lorem, ornare eget elementum nec, cursus id lectus. Duis mi turpis, pulvinar ac eros ac, tincidunt varius justo. In hac habitasse platea dictumst. Integer at adipiscing ante, a sagittis ligula. Aenean pharetra tempor ante molestie imperdiet. Vivamus id aliquam diam. Cras quis velit non tortor eleifend sagittis. Praesent at enim pharetra urna volutpat venenatis eget eget mauris. In eleifend fermentum facilisis. Praesent enim enim, gravida ac sodales sed, placerat id erat. Suspendisse lacus dolor, consectetur non augue vel, vehicula interdum libero. Morbi euismod sagittis libero sed lacinia.\nSed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condimentum ligula luctus nec. Phasellus semper velit eget aliquet faucibus. In a mattis elit. Phasellus vel urna viverra, condimentum lorem id, rhoncus nibh. Ut pellentesque posuere elementum. Sed a varius odio. Morbi rhoncus ligula libero, vel eleifend nunc tristique vitae. Fusce et sem dui. Aenean nec scelerisque tortor. Fusce malesuada accumsan magna vel tempus. Quisque mollis felis eu dolor tristique, sit amet auctor felis gravida. Sed libero lorem, molestie sed nisl in, accumsan tempor nisi. Fusce sollicitudin massa ut lacinia mattis. Sed vel eleifend lorem. Pellentesque vitae felis pretium, pulvinar elit eu, euismod sapien.\n",
-        "operationId": "findPets",
-        "parameters": [
-          {
-            "name": "tags",
-            "in": "query",
-            "description": "tags to filter by",
-            "required": false,
-            "style": "form",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "maximum number of results to return",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+    "/tasks/details": {
+      "post": {
+        "summary": "Ruft Details anhand der Referenz ab",
+        "tags": [
+          "Informationen abrufen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
           }
+        }
+      }
+    },
+    "/tasks/palletContent": {
+      "get": {
+        "summary": "Ruft Referenzen der Pakete ab, welche auf dem RFID Transponder der aktuellen Palette hinterlegt sind",
+        "tags": [
+          "Informationen abrufen"
         ],
         "responses": {
           "200": {
-            "description": "pet response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Pet"
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "description": "Ok"
           }
         }
-      },
-      "post": {
-        "description": "Creates a new pet in the store.  Duplicates are allowed",
-        "operationId": "addPet",
+      }
+    },
+    "/tasks/prepareSchrank": {
+      "get": {
+        "summary": "Bereitet neue Palette vor und speichert ursprüngliche Referenz auf Index 0",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/prepareSchreibtisch": {
+      "get": {
+        "summary": "Bereitet neue Palette vor und speichert ursprüngliche Referenz auf Index 0",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/prepareSpiegel": {
+      "get": {
+        "summary": "Bereitet zusätzliche Palette vor und speichert ursprüngliche Referenz auf Index 0",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/preparePaket": {
+      "get": {
+        "summary": "Speichert ursprüngliche Referenz auf Index 0 des RFID Transponders des Paketes",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/varnishing": {
+      "put": {
+        "summary": "Startet die Lackierung des Produktes",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Oberflaechenbehandlung"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
         "requestBody": {
-          "description": "Pet to add to the store",
-          "required": true,
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/tasks/addToPallet": {
+      "put": {
+        "summary": "Hinterlegt Referenz auf RFID-Transponder der Palette, auf welche das Paket gestapelt wird",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Paket auf Palette beladen und abwarten bis diese voll ist"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/tasks/saveSchrank": {
+      "post": {
+        "summary": "Hinterlegt Referenznummer in Liste",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Added"
+          }
+        }
+      }
+    },
+    "/tasks/saveSchreibtisch": {
+      "post": {
+        "summary": "Hinterlegt Referenznummer in Liste",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Added"
+          }
+        }
+      }
+    },
+    "/tasks/mirrorReference": {
+      "post": {
+        "summary": "Hinterlegt Referenznummer in Liste",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Added"
+          }
+        }
+      }
+    },
+    "/tasks/boxReference": {
+      "post": {
+        "summary": "Hinterlegt Referenznummer in Liste",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Added"
+          }
+        }
+      }
+    },
+    "/tasks/init": {
+      "get": {
+        "summary": "Initialisiert die Simulation und schreibt Werte auf den RFID Transponder",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "RFID Transponder initialisieren"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Material auf Palette vorbereiten"
+            },
+            "required": true
+          }
+        ],
+        "summary": "Leitet eine Simulation in Factory I/O ein.",
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPet"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Schrank"
+                  },
+                  {
+                    "$ref": "#/components/schemas/Schreibtisch"
+                  }
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "pet response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Pet"
-                }
-              }
-            }
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
+    "/tasks/machining": {
+      "put": {
+        "summary": "Startet die erforderliche Maschine",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
           },
-          "default": {
-            "description": "unexpected error",
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Material zuschneiden mit Maschine A"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Machine"
+        },
+        "responses": {
+          "201": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/tasks/height": {
+      "put": {
+        "summary": "Startet das Abmessen des Paketes",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Pakethoehe messen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/weight": {
+      "put": {
+        "summary": "Startet das Abwiegen des Paketes",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Paket wiegen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/preDrill": {
+      "put": {
+        "summary": "Startet das Vorbohren des Materials",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Loecher vorbohren (Schreibtisch)"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/drawers": {
+      "put": {
+        "summary": "Startet die Herstellung der Schubladen",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Schubladen herstellen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schreibtisch)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/shelves": {
+      "put": {
+        "summary": "Startet die Herstellung der Regale",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Regale herstellen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/defaultDoor": {
+      "put": {
+        "summary": "Startet die Herstellung der Default-Tür",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Standardtuer herstellen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/slidingDoor": {
+      "put": {
+        "summary": "Startet die Herstellung der Schiebetür",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Schiebetuer herstellen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/lock": {
+      "put": {
+        "summary": "Startet das Einbauen eines Türschlosses",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Tuerschloss einbauen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/assemble": {
+      "put": {
+        "summary": "Startet das Befestigen des Spiegels auf der Tür",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Spiegel auf Tuer befestigen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/extras": {
+      "put": {
+        "summary": "Startet das Beilegen von Kleiderhaken und einer Schrankstange",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Kleiderhaken und Schrankstange beilegen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/equipment": {
+      "put": {
+        "summary": "Startet das Beilegen von Zusatzausrüstung",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Zusatzausruestung beilegen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/improve": {
+      "put": {
+        "summary": "Startet mit der Qualitätsverbesserung, indem fehlende Bestandteile beigelegt werden",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Fehlende Bestandteile beilegen"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/mirrorMaterial": {
+      "put": {
+        "summary": "Bereitet Material (Spiegel) vor",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Spiegel zur Bearbeitung vorbereiten"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/circularMirror": {
+      "put": {
+        "summary": "Startet den runden Zuschnitt eines Spiegels",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Spiegel rund zuschneiden"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/angularMirror": {
+      "put": {
+        "summary": "Startet den eckigen Zuschnitt eines Spiegels",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Spiegel eckig zuschneiden"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Schrank)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/pack": {
+      "put": {
+        "summary": "Verpackt das Material in der vorgesehenen Verpackung",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "In Box M verpacken"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Box"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/logisticOption": {
+      "put": {
+        "summary": "Sorgt dafür, dass das Produkt mit der korrekten Versandmethode gesendet wird",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Expresslieferschein drucken"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Logistic"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/determineHeight": {
+      "patch": {
+        "summary": "Schließt Messvorgang ab und gibt Wert ans WfMS zurück",
+        "tags": [
+          "Task abschließen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Height"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/determineWeight": {
+      "patch": {
+        "summary": "Schließt Messvorgang ab und gibt Wert ans WfMS zurück",
+        "tags": [
+          "Task abschließen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Weight"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/completeQuality": {
+      "patch": {
+        "summary": "Schließt Qualitätskontrolle ab und gibt Resultat ans WfMS zurück",
+        "tags": [
+          "Task abschließen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Quality"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/determineQuality": {
+      "put": {
+        "summary": "Startet die Qualitätskontrolle",
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/classicTable": {
+      "put": {
+        "summary": "Start Vorgang zur Gravur der Tischplatte",
+        "tags": [
+          "Tasks (Schreibtisch)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Tischplatte gravieren"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/modernTable": {
+      "put": {
+        "summary": "Startet das Einfügen einer Kabeldurchführung",
+        "tags": [
+          "Tasks (Schreibtisch)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Kabeldurchfuehrung einfuegen"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/tableLegs": {
+      "put": {
+        "summary": "Startet die Herstellung der Tischbeine",
+        "tags": [
+          "Tasks (Schreibtisch)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Tischbeine herstellen"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/send": {
+      "put": {
+        "summary": "Versendet das Produkt",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "cpee-callback",
+            "schema": {
+              "type": "string",
+              "example": "yolomadonna"
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-instance",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            },
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "cpee-label",
+            "schema": {
+              "type": "string",
+              "example": "Produkt versenden"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Tasks (Beide)"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/setup": {
+      "patch": {
+        "summary": "Schließt Initialisierung ab und hinterlegt Simulationsobjekt mit Referenz als Schlüssel",
+        "tags": [
+          "Task abschließen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/tasks/placed": {
+      "patch": {
+        "summary": "Material wurde auf Fließband platziert",
+        "tags": [
+          "Task abschließen"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/complete": {
+      "patch": {
+        "summary": "Schließt vorgang ab und informiert WfMS",
+        "tags": [
+          "Task abschließen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/tasks/completeMirrorTasks": {
+      "patch": {
+        "summary": "Schließt Spiegel-Task ab und informiert WfMS",
+        "tags": [
+          "Task abschließen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
+          "201": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/healthcheck/": {
+      "get": {
+        "summary": "Ruft Healthcheck der Implementierung ab",
+        "tags": [
+          "Healthcheck"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/healthcheck/startContainer": {
+      "get": {
+        "summary": "Informiert REST API, dass SDK gestartet wurde",
+        "tags": [
+          "Healthcheck"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/healthcheck/endContainer": {
+      "get": {
+        "summary": "Informiert REST API, dass SDK beendet wurde",
+        "tags": [
+          "Healthcheck"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/wfms/devices": {
+      "get": {
+        "summary": "Ruft aktuelle Werte einer Auswahl an Objekten in Factory I/O sowie Simulationen ab",
+        "tags": [
+          "WfMS"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/wfms/files": {
+      "get": {
+        "summary": "Ruft alle vorhandenen XML-Files als Liste ab",
+        "tags": [
+          "WfMS"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/wfms/deleteFile/{fileId}": {
+      "delete": {
+        "summary": "Löscht ein vorgegebenes File",
+        "tags": [
+          "WfMS"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/wfms/download/{fileId}": {
+      "get": {
+        "summary": "Lädt ein vorgegebenes File herunter",
+        "tags": [
+          "WfMS"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/wfms/selectFile/{fileId}": {
+      "get": {
+        "summary": "Gibt Inhalte eines Files in XML zurück",
+        "tags": [
+          "WfMS"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "example": 100
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
             "content": {
-              "application/json": {
+              "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -108,131 +1591,244 @@
         }
       }
     },
-    "/pets/{id}": {
-      "get": {
-        "description": "Returns a user based on a single ID, if the user does not have access to the pet",
-        "operationId": "find pet by id",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of pet to fetch",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
+    "/wfms/createFile": {
+      "post": {
+        "summary": "Erstellt und speichert neues XML File",
+        "tags": [
+          "WfMS"
         ],
         "responses": {
-          "200": {
-            "description": "pet response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Pet"
-                },
-                "example": {
-                  "id": 1,
-                  "name": "doggie",
-                  "tag": "dog"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "deletes a single pet based on the ID supplied",
-        "operationId": "deletePet",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of pet to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "pet deleted"
-          },
-          "default": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+          "201": {
+            "description": "Created"
           }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "Pet": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/NewPet"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "properties": {
-              "id": {
-                "type": "integer",
-                "format": "int64"
-              }
+    "requestBodies": {
+      "Schrank": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Schrank"
             }
-          }
-        ]
-      },
-      "NewPet": {
-        "required": [
-          "name"
-        ],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "tag": {
-            "type": "string"
           }
         }
       },
-      "Error": {
-        "required": [
-          "code",
-          "message"
-        ],
+      "Schreibtisch": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Schreibtisch"
+            }
+          }
+        }
+      },
+      "Machine": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Machine"
+            }
+          }
+        }
+      },
+      "Height": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Height"
+            }
+          }
+        }
+      },
+      "Weight": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Weight"
+            }
+          }
+        }
+      },
+      "Reference": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          }
+        }
+      },
+      "Quality": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Quality"
+            }
+          }
+        }
+      },
+      "Box": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Box"
+            }
+          }
+        }
+      },
+      "Logistic": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Logistic"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Schrank": {
+        "type": "object",
         "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
+          "product": {
+            "type": "string",
+            "example": "schrank"
           },
-          "message": {
-            "type": "string"
+          "mirrorShape": {
+            "type": "string",
+            "example": "rund"
+          },
+          "doorType": {
+            "type": "string",
+            "example": "default"
+          },
+          "express": {
+            "type": "boolean",
+            "example": true
+          },
+          "additionalEquipment": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Schreibtisch": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string",
+            "example": "schreibtisch"
+          },
+          "tableStyle": {
+            "type": "string",
+            "example": "classic"
+          },
+          "express": {
+            "type": "boolean",
+            "example": true
+          },
+          "additionalEquipment": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Reference": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          }
+        }
+      },
+      "Machine": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          },
+          "machine": {
+            "type": "string",
+            "example": "A"
+          }
+        }
+      },
+      "Height": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          },
+          "height": {
+            "type": "integer",
+            "example": 230
+          }
+        }
+      },
+      "Weight": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          },
+          "weight": {
+            "type": "integer",
+            "example": 510
+          }
+        }
+      },
+      "Quality": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          },
+          "quality": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Box": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          },
+          "box": {
+            "type": "string",
+            "example": "M"
+          }
+        }
+      },
+      "Logistic": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": 60
+          },
+          "logisticOption": {
+            "type": "string",
+            "example": "Express"
           }
         }
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "description": "Simulations-API",
+      "url": "https://localhost:9033"
+    }
+  ]
 }

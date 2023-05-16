@@ -52,6 +52,7 @@
         "items": [],
         "process": "production",
         "devices": [
+            "pick_stopper",
             "machining_A_trigger",
             "machining_A_busy",
             "machining_A_hasError",
@@ -264,7 +265,15 @@
         "items": [],
         "process": "production",
         "devices": [
-            "after_machining_b_sensor"
+            "after_machining_b_sensor",
+            "simulate_pre_drill_schrank",
+            "pre_drill_b_sensor",
+            "pre_drill_b_rfid_command",
+            "pre_drill_b_rfid_execute",
+            "pre_drill_b_rfid_id",
+            "pre_drill_b_rfid_memoryindex",
+            "pre_drill_b_rfid_write",
+            "pre_drill_b_rfid_read"
         ]
     },
     {
@@ -272,7 +281,15 @@
         "product": "schrank",
         "items": [],
         "process": "production",
-        "devices": []
+        "devices": [
+            "shelves_rfid_command",
+            "shelves_rfid_execute",
+            "shelves_rfid_id",
+            "shelves_rfid_memoryindex",
+            "shelves_rfid_write",
+            "shelves_rfid_read",
+            "simulate_shelves_production "
+        ]
     },
     {
         "task": "Schiebetuer herstellen",
@@ -280,6 +297,8 @@
         "items": [],
         "process": "production",
         "devices": [
+            "door_type_sensor",
+            "slidingDoor",
             "first_floor_conveyor_1_8",
             "first_floor_conveyor_2_8",
             "first_floor_conveyor_3_8",
@@ -306,6 +325,8 @@
         "items": [],
         "process": "production",
         "devices": [
+            "door_type_sensor",
+            "defaultDoor",
             "first_floor_conveyor_1_8",
             "first_floor_conveyor_2_8",
             "first_floor_conveyor_3_8",
@@ -316,14 +337,7 @@
             "elevator_1_left_limit",
             "elevator_1_right_limit",
             "elevator_1_set_point",
-            "elevator_1_position",
-            "first_floor_rfid_command",
-            "first_floor_rfid_execute",
-            "first_floor_rfid_id",
-            "first_floor_rfid_memoryindex",
-            "first_floor_rfid_write",
-            "first_floor_rfid_read",
-            "first_floor_rfid_status"
+            "elevator_1_position"
         ]
     },
     {
@@ -335,7 +349,15 @@
             "first_floor_conveyor_5_8",
             "first_floor_conveyor_6_8",
             "first_floor_conveyor_7_8",
-            "first_floor_conveyor_8_8"
+            "first_floor_conveyor_8_8",
+            "lock_rfid_command",
+            "lock_rfid_execute",
+            "lock_rfid_id",
+            "lock_rfid_memoryindex",
+            "lock_rfid_write",
+            "lock_rfid_read",
+            "lock_sensor",
+            "simulate_lock_production"
         ]
     },
     {
@@ -344,6 +366,7 @@
         "items": [],
         "process": "production",
         "devices": [
+            "simulate_prepare_mirror_material",
             "elevator_1_forward",
             "elevator_1_back",
             "elevator_1_left_limit",
@@ -374,6 +397,14 @@
         "items": [],
         "process": "production",
         "devices": [
+            "circular",
+            "shape_sensor",
+            "shape_rfid_command",
+            "shape_rfid_execute",
+            "shape_rfid_id",
+            "shape_rfid_memoryindex",
+            "shape_rfid_write",
+            "shape_rfid_read",
             "second_floor_conveyor_1_8",
             "second_floor_conveyor_2_8",
             "second_floor_conveyor_3_8",
@@ -390,6 +421,14 @@
         "items": [],
         "process": "production",
         "devices": [
+            "angular",
+            "shape_sensor",
+            "shape_rfid_command",
+            "shape_rfid_execute",
+            "shape_rfid_id",
+            "shape_rfid_memoryindex",
+            "shape_rfid_write",
+            "shape_rfid_read",
             "second_floor_conveyor_1_8",
             "second_floor_conveyor_2_8",
             "second_floor_conveyor_3_8",
@@ -406,6 +445,13 @@
         "items": [],
         "process": "production",
         "devices": [
+            "simulate_assemble",
+            "assemble_rfid_command",
+            "assemble_rfid_execute",
+            "assemble_rfid_id",
+            "assemble_rfid_memoryindex",
+            "assemble_rfid_write",
+            "assemble_rfid_read",
             "elevator_2_forward",
             "elevator_2_back",
             "elevator_2_left_limit",
@@ -425,7 +471,16 @@
         "product": "schrank",
         "items": [],
         "process": "production",
-        "devices": []
+        "devices": [
+            "simulate_extra_parts",
+            "extra_stuff_sensor",
+            "extra_stuff_rfid_command",
+            "extra_stuff_rfid_execute",
+            "extra_stuff_rfid_id",
+            "extra_stuff_rfid_memoryindex",
+            "extra_stuff_rfid_write",
+            "extra_stuff_rfid_read"
+        ]
     },
     {
         "task": "Oberflaechenbehandlung",
@@ -507,7 +562,15 @@
             "after_quality_conveyor_3_3",
             "after_quality_conveyor_2_3",
             "after_quality_conveyor_1_3",
-            "before_quality_conveyor_2_2"
+            "before_quality_conveyor_2_2",
+            "improve_sensor",
+            "improve_rfid_command",
+            "improve_rfid_execute",
+            "improve_rfid_id",
+            "improve_rfid_memoryindex",
+            "improve_rfid_write",
+            "improve_rfid_read",
+            "simulate_improve_quality"
         ]
     },
     {
@@ -515,7 +578,16 @@
         "product": "both",
         "items": [],
         "process": "logistic",
-        "devices": []
+        "devices": [
+            "additional_equipment_sensor",
+            "additional_equipment_rfid_command",
+            "additional_equipment_rfid_execute",
+            "additional_equipment_rfid_id",
+            "additional_equipment_rfid_memoryindex",
+            "additional_equipment_rfid_write",
+            "additional_equipment_rfid_read",
+            "simulate_additional_equipment"
+        ]
     },
     {
         "task": "In Box S verpacken",
@@ -523,6 +595,12 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "box_rfid_command",
+            "box_rfid_execute",
+            "box_rfid_id",
+            "box_rfid_memoryindex",
+            "box_rfid_write",
+            "box_rfid_read",
             "pack_start_sensor",
             "pack_emitter",
             "pack_emitter_base",
@@ -553,6 +631,12 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "box_rfid_command",
+            "box_rfid_execute",
+            "box_rfid_id",
+            "box_rfid_memoryindex",
+            "box_rfid_write",
+            "box_rfid_read",
             "pack_start_sensor",
             "pack_emitter",
             "pack_emitter_base",
@@ -583,6 +667,12 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "box_rfid_command",
+            "box_rfid_execute",
+            "box_rfid_id",
+            "box_rfid_memoryindex",
+            "box_rfid_write",
+            "box_rfid_read",
             "pack_start_sensor",
             "pack_emitter",
             "pack_emitter_base",
@@ -638,16 +728,7 @@
             "measurement_rfid_memoryindex",
             "measurement_rfid_write",
             "measurement_rfid_read",
-            "measurement_rfid_status",
-            "logistic_1_pusher",
-            "logistic_1_pusher_front_limit",
-            "logistic_1_pusher_back_limit",
-            "logistic_1_pusher_sensor",
-            "logistic_2_pusher",
-            "logistic_2_pusher_front_limit",
-            "logistic_2_pusher_back_limit",
-            "logistic_2_pusher_sensor",
-            "logistic_pusher_conveyor"
+            "measurement_rfid_status"
         ]
     },
     {
@@ -656,9 +737,21 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "pusher_sensor",
             "logistic_option_2_task_sensor",
             "logistic_option_2_conveyor_1_1",
-            "logistic_option_2_out_sensor"
+            "logistic_option_2_out_sensor",
+            "logistic_2_pusher",
+            "logistic_2_pusher_front_limit",
+            "logistic_2_pusher_back_limit",
+            "logistic_2_pusher_sensor",
+            "logistic_pusher_conveyor",
+            "option_2_rfid_command",
+            "option_2_rfid_execute",
+            "option_2_rfid_id",
+            "option_2_rfid_memoryindex",
+            "option_2_rfid_write",
+            "option_2_rfid_read"
         ]
     },
     {
@@ -667,11 +760,22 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "pusher_sensor",
             "logistic_option_3_task_sensor",
             "logistic_option_3_conveyor_1_4",
             "logistic_option_3_conveyor_2_4",
             "logistic_option_3_conveyor_3_4",
-            "logistic_option_3_conveyor_4_4"
+            "logistic_option_3_conveyor_4_4",
+            "logistic_2_pusher_sensor",
+            "logistic_pusher_conveyor",
+            "end_option_3_sensor",
+            "end_option_3_sensor_2",
+            "option_3_rfid_command",
+            "option_3_rfid_execute",
+            "option_3_rfid_id",
+            "option_3_rfid_memoryindex",
+            "option_3_rfid_write",
+            "option_3_rfid_read"
         ]
     },
     {
@@ -680,11 +784,23 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "pusher_sensor",
             "logistic_option_1_task_sensor",
             "logistic_option_1_conveyor_1_3",
             "logistic_option_1_conveyor_2_3",
             "logistic_option_1_conveyor_3_3",
-            "logistic_option_1_out_sensor"
+            "logistic_option_1_out_sensor",
+            "logistic_1_pusher",
+            "logistic_1_pusher_front_limit",
+            "logistic_1_pusher_back_limit",
+            "logistic_1_pusher_sensor",
+            "logistic_pusher_conveyor",
+            "option_1_rfid_command",
+            "option_1_rfid_execute",
+            "option_1_rfid_id",
+            "option_1_rfid_memoryindex",
+            "option_1_rfid_write",
+            "option_1_rfid_read"
         ]
     },
     {
@@ -711,7 +827,16 @@
             "palletizer_elevator_frontLimit",
             "palletizer_elevator_backLimit",
             "pre_palletizer_emitter",
-            "pre_palletizer_conveyor"
+            "pre_palletizer_conveyor",
+            "spawn_pallet_trigger_sensor_2",
+            "palletizer_rfid_command",
+            "palletizer_rfid_execute",
+            "palletizer_rfid_id",
+            "palletizer_rfid_memoryindex",
+            "palletizer_rfid_write",
+            "palletizer_rfid_read",
+            "pallet_sensor",
+            "pallet_end_sensor"
         ]
     },
     {
@@ -720,6 +845,19 @@
         "items": [],
         "process": "logistic",
         "devices": [
+            "end_sensor_2",
+            "product_shipment_rfid_command",
+            "product_shipment_rfid_execute",
+            "product_shipment_rfid_id",
+            "product_shipment_rfid_memoryindex",
+            "product_shipment_rfid_write",
+            "product_shipment_rfid_read",
+            "pallet_shipment_rfid_command",
+            "pallet_shipment_rfid_execute",
+            "pallet_shipment_rfid_id",
+            "pallet_shipment_rfid_memoryindex",
+            "pallet_shipment_rfid_write",
+            "pallet_shipment_rfid_read",
             "after_logistic_conveyor",
             "after_logistic_remover",
             "end_sensor",

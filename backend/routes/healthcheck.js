@@ -46,32 +46,36 @@ router.get('/', async (req, res) => {
             'http://host.docker.internal:3000',
             'http://host.docker.internal:8086'
         ];
-        const responses = await Promise.all(endpoints.map(endpoint => axios.get(endpoint).catch(error => ({ error }))));
-        let statuses = responses.map(response => {
-            if (response.error) {
-                console.error(`Error fetching ${response.error.config.url}: ${response.error.message}`)
-                return 500
-            }
-            return response.status
-        })
-        statuses.push(...[mosquitto, kafka, consumer, mqttBridge, sdk_health]);
-        const openPLC = spawn('docker', ['logs', '--since', '30s', 'openplc']);
-        let logs = '';
-        openPLC.stdout.on('data', (data) => {
-            logs += data.toString();
-            const logMatch = logs.includes("Connection failed on MB device FactoryIO");
-            if (logMatch) {
-                statuses[3] = 500;
-            }
-        });
+        try {
+            const responses = await Promise.all(endpoints.map(endpoint => axios.get(endpoint).catch(error => ({ error }))));
+            let statuses = responses.map(response => {
+                if (response.error) {
+                    console.error(`Error fetching ${response.error.config.url}: ${response.error.message}`)
+                    return 500
+                }
+                return response.status
+            })
+            statuses.push(...[mosquitto, kafka, consumer, mqttBridge, sdk_health]);
+            const openPLC = spawn('docker', ['logs', '--since', '30s', 'openplc']);
+            let logs = '';
+            openPLC.stdout.on('data', (data) => {
+                logs += data.toString();
+                const logMatch = logs.includes("Connection failed on MB device FactoryIO");
+                if (logMatch) {
+                    statuses[3] = 500;
+                }
+            });
 
-        openPLC.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-        });
+            openPLC.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+            });
 
-        openPLC.on('close', async (_code) => {
-            res.status(200).json(statuses);
-        });
+            openPLC.on('close', async (_code) => {
+                res.status(200).json(statuses);
+            });
+        } catch (err) {
+            console.log(err);
+        }
     });
 });
 

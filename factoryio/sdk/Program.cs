@@ -18,6 +18,22 @@ namespace EngineIO.Samples
 
         private static readonly HttpClient client = new HttpClient();
 
+        public static async Task addReference(int rfidRef, string endpoint)
+        {
+            try
+            {
+                Reference reference = new Reference
+                {
+                    reference = rfidRef.ToString(),
+                };
+                string payload = System.Text.Json.JsonSerializer.Serialize(reference);
+                await client.PostAsync(endpoint, new StringContent(payload, Encoding.UTF8, "application/json"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nAn error occurred: {ex.Message}");
+            }
+        }
         public static async Task completeTask(int rfidRef, string endpoint = "http://host.docker.internal:9033/tasks/complete", string payload = "")
         {
             try
@@ -31,7 +47,9 @@ namespace EngineIO.Samples
                     payload = System.Text.Json.JsonSerializer.Serialize(reference);
                 }
                 // Console.WriteLine("Endpoint: " + endpoint + ", body: " + payload);
-                await client.PostAsync(endpoint, new StringContent(payload, Encoding.UTF8, "application/json"));
+                var request = new HttpRequestMessage(HttpMethod.Patch, endpoint);
+                request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                await client.SendAsync(request);
             }
             catch (Exception ex)
             {
@@ -407,7 +425,8 @@ namespace EngineIO.Samples
             if (name == "start_sensor" && isVal)
             {
                 Console.WriteLine("Neues Produkt in der Fertigungslinie");
-                var response = await client.GetAsync("http://host.docker.internal:9033/tasks/finished");
+                var request = new HttpRequestMessage(HttpMethod.Patch, "http://host.docker.internal:9033/tasks/placed");
+                await client.SendAsync(request);
             }
             else if (name == "start_rfid_sensor" && isVal)
             {
@@ -437,13 +456,13 @@ namespace EngineIO.Samples
             {
                 RfidDevice rfidDevice = new RfidDevice("before_machining_b_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/saveSchrank");
+                await addReference(palletReference, "http://host.docker.internal:9033/tasks/saveSchrank");
             }
             else if (name == "direction_forward_rfid_sensor" && isVal)
             {
                 RfidDevice rfidDevice = new RfidDevice("before_machining_a_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/saveSchreibtisch");
+                await addReference(palletReference, "http://host.docker.internal:9033/tasks/saveSchreibtisch");
             }
             else if (name == "spawn_pallett_trigger_sensor" && isVal)
             {
@@ -490,7 +509,7 @@ namespace EngineIO.Samples
             }
             else if (name == "pre_drill_a_sensor" && isVal)
             {
-                Console.WriteLine("Pre-Drill.");
+                Console.WriteLine("Vorbohren.");
                 RfidDevice rfidDevice = new RfidDevice("pre_drill_a_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_pre_drill", MemoryType.Output);
@@ -518,7 +537,7 @@ namespace EngineIO.Samples
             {
                 RfidDevice rfidDevice = new RfidDevice("elevator_1_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/mirrorReference");
+                await addReference(palletReference, "http://host.docker.internal:9033/tasks/mirrorReference");
             }
             else if (name == "second_floor_trigger_sensor" && isVal) {
                 Console.WriteLine("Prepare Mirror Material.");
@@ -538,7 +557,7 @@ namespace EngineIO.Samples
             {
                 RfidDevice rfidDevice = new RfidDevice("pack_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/boxReference");
+                await addReference(palletReference, "http://host.docker.internal:9033/tasks/boxReference");
                 Order theOrder = await rfidDevice.getOrder(palletReference);
                 await rfidDevice.writeValue(1, theOrder.Box);
             }
