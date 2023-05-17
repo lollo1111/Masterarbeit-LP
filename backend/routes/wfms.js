@@ -3,8 +3,8 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const fs = require('fs').promises;
 let router = express.Router();
 
-async function readFile(filename) {
-    const data = await fs.readFile(("./data/xmls/" + filename), "utf8");
+async function readFile(filename, path="./data/xmls/") {
+    const data = await fs.readFile((path + filename), "utf8");
     return data;
 }
 
@@ -41,6 +41,14 @@ router.get('/files', async (req, res) => {
 });
 
 router.post('/createFile', async (req, res) => {
+    let xmlString = await readFile("template.xml", "./data/")
+    xmlString = xmlString.replace("{{product}}", req.body.product).replace("{{express}}", req.body.express).replace("{{additionalEquipment}}", req.body.additionalEquipment).replace("{{maxHeight}}", req.body.maxHeight).replace("{{maxWeight}}", req.body.maxWeight).replace("{{Big}}", req.body.conditionBig).replace("{{Small}}", req.body.conditionSmall).replace("{{BoxS}}", req.body.conditionS).replace("{{BoxM}}", req.body.conditionM);
+    if (req.body.product === "schrank") {
+        xmlString = xmlString.replace("{{doorType}}", req.body.doorType).replace("{{mirrorShape}}", req.body.mirrorShape).replace("{{tableStyle}}", "");
+    } else {
+        xmlString = xmlString.replace("{{tableStyle}}", req.body.tableStyle).replace("{{doorType}}", "").replace("{{mirrorShape}}", "");
+    }
+    await fs.writeFile(('./data/xmls/' + req.body.name + '.xml'), xmlString);
     res.status(201).send();
 });
 

@@ -16,17 +16,13 @@
                 <div :class="{ hasXml: xml }" :style="clickableDiv" @click="createInstance" class="create">
                     <a>🗒️<span class="textspan">Instanz aus Vorlage erstellen</span></a>
                     <p>
-                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et
-                        inventore
-                        alias necessitatibus beatae perferendis, ratione placeat.
+                        Startet eine Simulation aus einem existierenden XML-File.
                     </p>
                 </div>
                 <div @click="createEmptyInstance" class="createEmpty">
                     <a>🆕<span class="textspan">Leere Instanz erstellen</span></a>
                     <p>
-                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et
-                        inventore
-                        alias necessitatibus beatae perferendis, ratione placeat.
+                        Öffnet eine leere WfMS Instanz, welche manuell gestartet werden muss.
                     </p>
                 </div>
             </div>

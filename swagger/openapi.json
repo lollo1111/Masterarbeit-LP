@@ -16,7 +16,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -35,7 +35,7 @@
         }
       }
     },
-    "/tasks/prepareSchrank": {
+    "/tasks/prepareWardrobe": {
       "get": {
         "summary": "Bereitet neue Palette vor und speichert ursprüngliche Referenz auf Index 0",
         "tags": [
@@ -48,7 +48,7 @@
         }
       }
     },
-    "/tasks/prepareSchreibtisch": {
+    "/tasks/prepareDesk": {
       "get": {
         "summary": "Bereitet neue Palette vor und speichert ursprüngliche Referenz auf Index 0",
         "tags": [
@@ -61,7 +61,7 @@
         }
       }
     },
-    "/tasks/prepareSpiegel": {
+    "/tasks/prepareMirror": {
       "get": {
         "summary": "Bereitet zusätzliche Palette vor und speichert ursprüngliche Referenz auf Index 0",
         "tags": [
@@ -74,7 +74,7 @@
         }
       }
     },
-    "/tasks/preparePaket": {
+    "/tasks/prepareBox": {
       "get": {
         "summary": "Speichert ursprüngliche Referenz auf Index 0 des RFID Transponders des Paketes",
         "tags": [
@@ -96,7 +96,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -126,8 +126,8 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "Ok"
           }
         }
       }
@@ -141,7 +141,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -171,13 +171,29 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
+          "200": {
+            "description": "Ok"
+          }
+        }
+      }
+    },
+    "/tasks/saveWardrobe": {
+      "post": {
+        "summary": "Hinterlegt Referenznummer in Liste",
+        "tags": [
+          "Referenznummer sichern oder abrufen"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Reference"
+        },
+        "responses": {
           "201": {
             "description": "Created"
           }
         }
       }
     },
-    "/tasks/saveSchrank": {
+    "/tasks/saveDesk": {
       "post": {
         "summary": "Hinterlegt Referenznummer in Liste",
         "tags": [
@@ -188,23 +204,7 @@
         },
         "responses": {
           "201": {
-            "description": "Added"
-          }
-        }
-      }
-    },
-    "/tasks/saveSchreibtisch": {
-      "post": {
-        "summary": "Hinterlegt Referenznummer in Liste",
-        "tags": [
-          "Referenznummer sichern oder abrufen"
-        ],
-        "requestBody": {
-          "$ref": "#/components/requestBodies/Reference"
-        },
-        "responses": {
-          "201": {
-            "description": "Added"
+            "description": "Created"
           }
         }
       }
@@ -220,7 +220,7 @@
         },
         "responses": {
           "201": {
-            "description": "Added"
+            "description": "Created"
           }
         }
       }
@@ -236,7 +236,7 @@
         },
         "responses": {
           "201": {
-            "description": "Added"
+            "description": "Created"
           }
         }
       }
@@ -250,7 +250,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -282,7 +282,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -341,7 +341,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -371,8 +371,8 @@
           "$ref": "#/components/requestBodies/Machine"
         },
         "responses": {
-          "201": {
-            "description": "Updated"
+          "200": {
+            "description": "Ok"
           }
         }
       }
@@ -386,7 +386,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -416,7 +416,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -431,7 +431,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -461,7 +461,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -476,7 +476,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -506,7 +506,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -521,7 +521,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -551,7 +551,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -566,7 +566,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -596,7 +596,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -611,7 +611,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -656,7 +656,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -686,7 +686,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -701,7 +701,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -731,7 +731,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -746,7 +746,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -776,7 +776,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -791,7 +791,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -821,7 +821,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -836,7 +836,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -866,7 +866,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -881,7 +881,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -911,7 +911,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -926,7 +926,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -956,7 +956,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -971,7 +971,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1001,7 +1001,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1016,7 +1016,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1046,7 +1046,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1061,7 +1061,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1091,7 +1091,7 @@
           "$ref": "#/components/requestBodies/Box"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1106,7 +1106,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1136,7 +1136,7 @@
           "$ref": "#/components/requestBodies/Logistic"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1152,7 +1152,7 @@
           "$ref": "#/components/requestBodies/Height"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1168,13 +1168,13 @@
           "$ref": "#/components/requestBodies/Weight"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
       }
     },
-    "/tasks/completeQuality": {
+    "/tasks/determineQuality": {
       "patch": {
         "summary": "Schließt Qualitätskontrolle ab und gibt Resultat ans WfMS zurück",
         "tags": [
@@ -1190,7 +1190,7 @@
         }
       }
     },
-    "/tasks/determineQuality": {
+    "/tasks/quality": {
       "put": {
         "summary": "Startet die Qualitätskontrolle",
         "tags": [
@@ -1200,7 +1200,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1221,7 +1221,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1245,7 +1245,7 @@
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1266,7 +1266,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1290,7 +1290,7 @@
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1311,7 +1311,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1335,7 +1335,7 @@
           }
         ],
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1350,7 +1350,7 @@
             "name": "cpee-callback",
             "schema": {
               "type": "string",
-              "example": "yolomadonna"
+              "example": "774ebb7a530f279dbf00618cf45f8e0a"
             },
             "required": true
           },
@@ -1380,7 +1380,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Ok"
           }
         }
@@ -1396,7 +1396,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Updated"
           }
         }
@@ -1425,7 +1425,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Updated"
           }
         }
@@ -1441,7 +1441,7 @@
           "$ref": "#/components/requestBodies/Reference"
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Updated"
           }
         }
@@ -1597,6 +1597,9 @@
         "tags": [
           "WfMS"
         ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Simulation"
+        },
         "responses": {
           "201": {
             "description": "Created"
@@ -1607,6 +1610,15 @@
   },
   "components": {
     "requestBodies": {
+      "Simulation": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Simulation"
+            }
+          }
+        }
+      },
       "Schrank": {
         "content": {
           "application/json": {
@@ -1690,6 +1702,59 @@
       }
     },
     "schemas": {
+      "Simulation": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string",
+            "example": "schrank"
+          },
+          "mirrorShape": {
+            "type": "string",
+            "example": "rund"
+          },
+          "doorType": {
+            "type": "string",
+            "example": "default"
+          },
+          "express": {
+            "type": "boolean",
+            "example": true
+          },
+          "additionalEquipment": {
+            "type": "boolean",
+            "example": true
+          },
+          "conditionS": {
+            "type": "string",
+            "example": "(data.gewicht &lt; data.maxGewicht) and (data.hoehe &lt; data.maxHoehe) and !data.express"
+          },
+          "conditionM": {
+            "type": "string",
+            "example": "((data.gewicht &gt;= data.maxGewicht) or (data.hoehe &gt;= data.maxHoehe)) and !data.express"
+          },
+          "conditionSmall": {
+            "type": "string",
+            "example": "data.produkt == &quot;schreibtisch&quot; and !data.zusatzmaterial"
+          },
+          "conditionBig": {
+            "type": "string",
+            "example": "(data.produkt == &quot;schreibtisch&quot; and data.zusatzmaterial) or (data.produkt == &quot;schrank&quot; and !data.zusatzmaterial)"
+          },
+          "name": {
+            "type": "string",
+            "example": "Schrank_S1"
+          },
+          "maxHeight": {
+            "type": "integer",
+            "example": 200
+          },
+          "maxWeight": {
+            "type": "integer",
+            "example": 500
+          }
+        }
+      },
       "Schrank": {
         "type": "object",
         "properties": {
@@ -1828,7 +1893,7 @@
   "servers": [
     {
       "description": "Simulations-API",
-      "url": "https://localhost:9033"
+      "url": "http://localhost:9033"
     }
   ]
 }

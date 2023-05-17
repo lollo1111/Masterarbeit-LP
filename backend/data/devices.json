@@ -249,8 +249,6 @@
             "spawn_pallett_stopper",
             "spawn_pallett_sensor",
             "spawn_pallet_end_sensor",
-            "spawn_curve_1_2",
-            "spawn_curve_2_2",
             "spawn_pallett_rfid_command",
             "spawn_pallett_rfid_execute",
             "spawn_pallett_rfid_id",
@@ -265,6 +263,7 @@
         "items": [],
         "process": "production",
         "devices": [
+            "spawn_curve_1_2",
             "after_machining_b_sensor",
             "simulate_pre_drill_schrank",
             "pre_drill_b_sensor",
@@ -282,6 +281,7 @@
         "items": [],
         "process": "production",
         "devices": [
+            "spawn_curve_2_2",
             "shelves_rfid_command",
             "shelves_rfid_execute",
             "shelves_rfid_id",

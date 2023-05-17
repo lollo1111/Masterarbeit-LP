@@ -19,7 +19,7 @@
     <start>http://host.docker.internal:9033/tasks/start</start>
     <initialisieren>http://host.docker.internal:9033/tasks/init</initialisieren>
     <lackieren>http://host.docker.internal:9033/tasks/varnishing</lackieren>
-    <qualitaetErmitteln>http://host.docker.internal:9033/tasks/determineQuality</qualitaetErmitteln>
+    <qualitaetErmitteln>http://host.docker.internal:9033/tasks/quality</qualitaetErmitteln>
     <logistikOption>http://host.docker.internal:9033/tasks/logisticOption</logistikOption>
     <verpacken>http://host.docker.internal:9033/tasks/pack</verpacken>
     <modernerTisch>http://host.docker.internal:9033/tasks/modernTable</modernerTisch>

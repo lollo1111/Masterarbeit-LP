@@ -8,11 +8,11 @@ const lockfile = require('lockfile');
 let router = express.Router();
 const map = new HashMap();
 let order;
-let schreibtische = [];
-let schraenke = [];
+let desks = [];
+let wardrobes = [];
 let mirrors = [];
 let boxes = [];
-let palette = [];
+let pallet = [];
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -242,7 +242,11 @@ router.patch('/complete', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     theOrder.status = "Completed";
     await writeJson(theOrder, false);
-    map.set(req.body.reference, theOrder);
+    if (theOrder.currentTask !== "Produkt versenden") {
+        map.set(req.body.reference, theOrder);
+    } else {
+        map.delete(req.body.reference);
+    }
     await sendCallback(theOrder.callback);
     res.status(200).send();
 });
@@ -256,8 +260,6 @@ router.patch('/completeMirrorTasks', async (req, res) => {
     res.status(200).send();
 });
 
-// RFID Transponder Initialization
-// wird von SDK geschickt und Daten werden in CPEE geladen
 router.patch('/setup', async (req, res) => {
     order.status = "Completed";
     await writeJson(order, false);
@@ -266,7 +268,7 @@ router.patch('/setup', async (req, res) => {
     return res.json(map.get(req.body.reference));
 });
 
-router.patch('/completeQuality', async (req, res) => {
+router.patch('/determineQuality', async (req, res) => {
     let theOrder = map.get(req.body.reference);
     await writeJson(theOrder, false);
     theOrder.status = "Completed";
@@ -275,13 +277,13 @@ router.patch('/completeQuality', async (req, res) => {
     return res.json(map.get(req.body.reference));
 });
 
-router.post('/saveSchrank', (req, res) => {
-    schraenke.push(req.body.reference);
+router.post('/saveWardrobe', (req, res) => {
+    wardrobes.push(req.body.reference);
     res.send();
 });
 
-router.post('/saveSchreibtisch', (req, res) => {
-    schreibtische.push(req.body.reference);
+router.post('/saveDesk', (req, res) => {
+    desks.push(req.body.reference);
     res.send();
 });
 
@@ -323,10 +325,9 @@ router.put('/logisticOption', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.put('/determineQuality', async (req, res) => {
+router.put('/quality', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     const quality = Math.random() < 0.8;
-    // const quality = true;
     if (quality) {
         theOrder.qualityAcceptable = true;
     } else {
@@ -359,28 +360,28 @@ router.put('/tableLegs', async (req, res) => {
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
-router.get('/prepareSchrank', (req, res) => {
-    const ref = schraenke.shift();
+router.get('/prepareWardrobe', (req, res) => {
+    const ref = wardrobes.shift();
     res.status(200).json({
         reference: ref
     })
 });
 
-router.get('/prepareSchreibtisch', (req, res) => {
-    const ref = schreibtische.shift();
+router.get('/prepareDesk', (req, res) => {
+    const ref = desks.shift();
     res.status(200).json({
         reference: ref
     })
 });
 
-router.get('/prepareSpiegel', (req, res) => {
+router.get('/prepareMirror', (req, res) => {
     const ref = mirrors.shift();
     res.status(200).json({
         reference: ref
     })
 });
 
-router.get('/preparePaket', (req, res) => {
+router.get('/prepareBox', (req, res) => {
     const ref = boxes.shift();
     res.status(200).json({
         reference: ref
@@ -390,25 +391,25 @@ router.get('/preparePaket', (req, res) => {
 router.put('/addToPallet', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
-    if (palette.length === 0) {
-        palette.push(req.body.reference);
-    } else if (palette.length === 1) {
-        palette.push(req.body.reference);
+    if (pallet.length === 0) {
+        pallet.push(req.body.reference);
+    } else if (pallet.length === 1) {
+        pallet.push(req.body.reference);
         await updatePart("pre_palletizer_stopper", true);
-    } else if (palette.length === 2) {
-        palette = [req.body.reference];
+    } else if (pallet.length === 2) {
+        pallet = [req.body.reference];
     }
     res.status(200).setHeader('cpee-callback', true).send();
 });
 
 router.get('/palletContent', (req, res) => {
-    res.json(palette);
+    res.json(pallet);
 });
 
 router.put('/preDrill', async (req, res) => {
     let theOrder = await registerTask(req, req.body.reference);
     map.set(req.body.reference, theOrder);
-    await updatePart(theOrder.product === "schreibtisch" ? "simulate_pre_drill" : "simulate_pre_drill_schrank", true);
+    await updatePart(theOrder.product === "schreibtisch" ? "simulate_pre_drill" : "simulate_pre_drill_wardrobe", true);
     res.status(200).setHeader('cpee-callback', true).send();
 });
 

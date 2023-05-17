@@ -1,6 +1,6 @@
 # Masterarbeit
-## Die Vernetzung eines digitalen Zwillings mit einem Workflow System am Beispiel eines Fertigungsprozesses
-Dokumentation folgt ...
+## Die Steuerung von digitalen Zwillingen mit Workflow-Management-Systemen am Beispiel von Fertigungsprozessen
+Ermöglicht die Kontrolle einer 3D-Simulation einer Fertigungsanlage in Factory I/O anhand eines WfMS.
 
 > Zum Ausführen benötigt man [Factory I/O](https://factoryio.com/start-trial), [.NET](https://dotnet.microsoft.com/en-us/download/dotnet/5.0) Runtime sowie SDK und [Docker](https://www.docker.com/).
 ```

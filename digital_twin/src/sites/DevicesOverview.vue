@@ -36,10 +36,6 @@
                         class="spantext">Filter</span></a> | <a @click="toggleAuto">⏩<span
                         title="Aktualisiert automatisch alle 10 Sekunden." class="spantext">Automatisch
                         aktualisieren</span> {{ auto ? "✅" : "" }}</a>
-                <p>
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repellendus autem provident ipsam et inventore
-                    alias necessitatibus beatae perferendis, ratione placeat.
-                </p>
                 <ul>
                     <li :class="{ activeSimulation: item.items.length > 0 }" v-for="item of filteredDevices"
                         :key="item.task">
