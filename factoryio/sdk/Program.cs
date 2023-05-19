@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using MQTTnet;
 using MQTTnet.Client;
+using System.Linq;
 
 namespace EngineIO.Samples
 {
@@ -34,7 +35,7 @@ namespace EngineIO.Samples
                 Console.WriteLine($"\nAn error occurred: {ex.Message}");
             }
         }
-        public static async Task completeTask(int rfidRef, string endpoint = "http://host.docker.internal:9033/tasks/complete", string payload = "")
+        public static async Task<bool> completeTask(int rfidRef, string endpoint = "http://host.docker.internal:9033/tasks/complete", string payload = "")
         {
             try
             {
@@ -46,14 +47,15 @@ namespace EngineIO.Samples
                 {
                     payload = System.Text.Json.JsonSerializer.Serialize(reference);
                 }
-                // Console.WriteLine("Endpoint: " + endpoint + ", body: " + payload);
                 var request = new HttpRequestMessage(HttpMethod.Patch, endpoint);
                 request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
                 await client.SendAsync(request);
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"\nAn error occurred: {ex.Message}");
+                return false;
             }
         }
 
@@ -104,7 +106,6 @@ namespace EngineIO.Samples
 
             public async Task<bool> foundTag(int delay)
             {
-                // prüfen ob rfid tag erkannt
                 int counter = 0;
                 command.Value = 0;
                 amount = command_id.Value;
@@ -117,7 +118,6 @@ namespace EngineIO.Samples
                         await Task.Delay(16);
                     }
                     ++counter;
-                    // Console.WriteLine("STATUS (counter: " + counter + "): " + status.Value.ToString());
                     rfid.Value = false;
                     MemoryMap.Instance.Update();
                     await Task.Delay(delay);
@@ -299,9 +299,16 @@ namespace EngineIO.Samples
                     sum += scaleValues[i];
                 }
                 int average = sum / scaleValues.Length;
-                Console.WriteLine("Average Box Weight: " + average);
                 return average;
             }
+        }
+
+        public static string FormatEvent(string eventData)
+        {
+            string[] eventFields = eventData.Split('|').Select(f => f.Trim()).ToArray();
+            string formattedEvent = string.Format("{0,-40} {1,-20} {2,-20} {3,-20}",
+                eventFields[0], eventFields[1], eventFields[2], eventFields[3]);
+            return formattedEvent;
         }
 
         public class Order
@@ -357,16 +364,37 @@ namespace EngineIO.Samples
 
         static async Task Main(string[] args)
         {
+            Console.WriteLine("SDK gestartet ...");
             var factory = new MqttFactory();
             _client = factory.CreateMqttClient();
 
             var options = new MqttClientOptionsBuilder()
-                .WithTcpServer("localhost", 1883) // Specify the broker address and port
+                .WithTcpServer("localhost", 1883)
                 .Build();
 
             await _client.ConnectAsync(options);
             await client.GetAsync("http://host.docker.internal:9033/healthcheck/startContainer");
-            Console.WriteLine("Producer gestartet.");
+            Console.WriteLine("MQTT Producer gestartet ...\n\nSimulationen können gestartet werden ...");
+            Console.WriteLine("\n{0,-40} {1,-20} {2,-20} {3,-20}", "Task", "Status", "Zeitstempel", "ID");
+            Console.WriteLine(new string('-', 90));
+
+            //
+            // Example MQTT Topics for the dashboard
+            await sendTopic("quality", true);
+            await Task.Delay(1500);
+            await sendTopic("quality", true);
+            await sendTopic("machineA", true);
+            await sendTopic("machineB", false);
+            await Task.Delay(1500);
+            await sendTopic("quality", false);
+            await sendTopic("machineA", false);
+            await sendTopic("classic", 1);
+            await sendTopic("modern", 1);
+            await sendTopic("circular", 1);
+            await sendTopic("default", 1);
+            //
+            //
+
             MemoryMap.Instance.InputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
             MemoryMap.Instance.OutputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
 
@@ -378,6 +406,7 @@ namespace EngineIO.Samples
                 MemoryMap.Instance.Update();
                 await Task.Delay(16);
             }
+            Console.Clear();
             await client.GetAsync("http://host.docker.internal:9033/healthcheck/endContainer");
             MemoryMap.Instance.Dispose();
             Console.WriteLine("SDK wird beendet ...\n");
@@ -407,15 +436,14 @@ namespace EngineIO.Samples
                 Order theOrder = await rfidDevice.getOrder(int.Parse(reference.reference));
                 remover.Value = false;
                 MemoryMap.Instance.Update();
-                // 1. Auf Index 1 Höhe hinterlegen
                 await rfidDevice.writeValue(1, intVal);
-                // 2. Referenznummer auf Index 0 hinterlegen
                 await rfidDevice.writeValue(0, int.Parse(reference.reference));
                 var msg = new JObject();
                 msg["reference"] = reference.reference;
                 msg["height"] = intVal;
                 string payload = JsonConvert.SerializeObject(msg);
-                await completeTask(int.Parse(reference.reference), "http://host.docker.internal:9033/tasks/determineHeight", payload);
+                bool taskSucceed = await completeTask(int.Parse(reference.reference), "http://host.docker.internal:9033/tasks/determineHeight", payload);
+                Console.WriteLine(FormatEvent("Pakethoehe messen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + reference.reference));
             }
         }
 
@@ -424,13 +452,12 @@ namespace EngineIO.Samples
             bool isVal = bool.Parse(val);
             if (name == "start_sensor" && isVal)
             {
-                Console.WriteLine("Neues Produkt in der Fertigungslinie");
                 var request = new HttpRequestMessage(HttpMethod.Patch, "http://host.docker.internal:9033/tasks/placed");
                 await client.SendAsync(request);
+                Console.WriteLine(FormatEvent("Material auf Palette vorbereiten | Fertig | " + DateTime.Now.ToString() +" | -"));
             }
             else if (name == "start_rfid_sensor" && isVal)
             {
-                Console.WriteLine("Material vorbereitet.");
                 await sendTopic("startsensor", 1);
                 RfidDevice rfidDevice = new RfidDevice("start_rfid");
                 int palletReference = await rfidDevice.readReference();
@@ -438,19 +465,17 @@ namespace EngineIO.Samples
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_init", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/setup");
+                bool taskSucceed = await completeTask(palletReference, "http://host.docker.internal:9033/tasks/setup");
+                Console.WriteLine(FormatEvent("RFID Transponder initialisieren | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "direction_rfid_sensor" && isVal)
             {
                 RfidDevice rfidDevice = new RfidDevice("direction_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 Order theOrder = await rfidDevice.getOrder(palletReference);
-                // Richtung auf Index 1 hinterlegen
                 await rfidDevice.writeValue(1, theOrder.Direction);
                 await sendTopic("product", theOrder.Direction == 0 ? "B" : "A");
-                // Lesen
                 int direction = await rfidDevice.readValue(1, false);
-                Console.WriteLine("Direction: " + direction.ToString());
             }
             else if (name == "direction_end_sensor_left" && isVal)
             {
@@ -474,21 +499,16 @@ namespace EngineIO.Samples
                 var order = await client.PostAsync("http://host.docker.internal:9033/tasks/details", new StringContent(body, Encoding.UTF8, "application/json"));
                 string orderString = await order.Content.ReadAsStringAsync();
                 Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
-                // 1. Referenznummer auf Index 0 hinterlegen
                 await rfidDevice.writeValue(0, int.Parse(reference.reference));
-                Console.WriteLine("Palette mit Referenz verbunden: " + reference.reference);
-                // Auf Index 1 Türtyp hinterlegen
                 if (theOrder.DoorType != null)
                 {
                     if (theOrder.DoorType == "default")
                     {
                         await rfidDevice.writeValue(1, 0);
-                        Console.WriteLine("Default Door");
                     }
                     else
                     {
                         await rfidDevice.writeValue(1, 1);
-                        Console.WriteLine("Sliding Door");
                     }
                 }
             }
@@ -502,36 +522,47 @@ namespace EngineIO.Samples
                 var order = await client.PostAsync("http://host.docker.internal:9033/tasks/details", new StringContent(body, Encoding.UTF8, "application/json"));
                 string orderString = await order.Content.ReadAsStringAsync();
                 Order theOrder = JsonConvert.DeserializeObject<Order>(orderString);
-                // 1. Referenznummer auf Index 0 hinterlegen
                 await rfidDevice.writeValue(0, int.Parse(reference.reference));
-                Console.WriteLine("Palette mit Referenz verbunden: " + reference.reference);
-                await completeTask(int.Parse(reference.reference));
+            }
+            else if (name == "pick_stopper" && !isVal)
+            {
+                MemoryBit palletSensor = MemoryMap.Instance.GetBit("after_machining_a_sensor", MemoryType.Input);
+                if (palletSensor.Value)
+                {
+                    RfidDevice rfidDevice = new RfidDevice("after_machining_a_rfid");
+                    int palletReference = await rfidDevice.readValue(0);
+                    bool taskSucceed = await completeTask(palletReference);
+                    await sendTopic("machineA", false);
+                    Console.WriteLine(FormatEvent("Material zuschneiden mit Maschine B | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
+                }
             }
             else if (name == "pre_drill_a_sensor" && isVal)
             {
-                Console.WriteLine("Vorbohren.");
                 RfidDevice rfidDevice = new RfidDevice("pre_drill_a_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_pre_drill", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Loecher vorbohren (Schreibtisch) | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "drawers_sensor" && isVal)
             {
-                Console.WriteLine("Drawers.");
                 RfidDevice rfidDevice = new RfidDevice("drawers_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_drawers_production", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Schubladen herstellen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "after_machining_b_sensor" && isVal)
             {
                 RfidDevice rfidDevice = new RfidDevice("after_machining_b_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                await sendTopic("machineB", false);
+                Console.WriteLine(FormatEvent("Material zuschneiden mit Maschine B | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "elevator_1_right_limit" && !isVal)
             {
@@ -540,18 +571,17 @@ namespace EngineIO.Samples
                 await addReference(palletReference, "http://host.docker.internal:9033/tasks/mirrorReference");
             }
             else if (name == "second_floor_trigger_sensor" && isVal) {
-                Console.WriteLine("Prepare Mirror Material.");
                 RfidDevice rfidDevice = new RfidDevice("second_floor_rfid");
                 var mirrorRef = await client.GetAsync("http://host.docker.internal:9033/tasks/prepareMirror");
                 string mirrorRefString = await mirrorRef.Content.ReadAsStringAsync();
                 Reference reference = JsonConvert.DeserializeObject<Reference>(mirrorRefString);
                 string body = System.Text.Json.JsonSerializer.Serialize(reference);
-                // 1. Referenznummer auf Index 0 hinterlegen
                 await rfidDevice.writeValue(0, int.Parse(reference.reference));
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_prepare_mirror_material", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(int.Parse(reference.reference), "http://host.docker.internal:9033/tasks/completeMirrorTasks");
+                bool taskSucceed = await completeTask(int.Parse(reference.reference), "http://host.docker.internal:9033/tasks/completeMirrorTasks");
+                Console.WriteLine(FormatEvent("Spiegel zur Bearbeitung vorbereiten | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + reference.reference));
             }
             else if (name == "pack_rfid_sensor" && isVal)
             {
@@ -575,40 +605,41 @@ namespace EngineIO.Samples
                 msg["reference"] = palletReference.ToString();
                 msg["weight"] = averageValue;
                 string payload = JsonConvert.SerializeObject(msg);
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/determineWeight", payload);
+                bool taskSucceed = await completeTask(palletReference, "http://host.docker.internal:9033/tasks/determineWeight", payload);
+                Console.WriteLine(FormatEvent("Paket wiegen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "table_style_sensor" && isVal)
             {
-                Console.WriteLine("Table Style.");
                 RfidDevice rfidDevice = new RfidDevice("table_style_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit greenLight = MemoryMap.Instance.GetBit("classic", MemoryType.Output);
                 MemoryBit yellowLight = MemoryMap.Instance.GetBit("modern", MemoryType.Output);
+                string tableStyle = greenLight.Value ? "Tischplatte gravieren" : "Kabeldurchführung einfügen";
                 greenLight.Value = false;
                 yellowLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                await sendTopic(tableStyle, 1);
+                Console.WriteLine(FormatEvent(tableStyle + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "table_legs_sensor" && isVal)
             {
-                Console.WriteLine("Table Legs.");
                 RfidDevice rfidDevice = new RfidDevice("table_legs_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_table_legs_production", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Tischbeine herstellen | " + (taskSucceed ? "Fertig" : "Fehler")  + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if ((name == "before_check_direction_sensor" && isVal) || (name == "check_rfid_sensor" && isVal))
             {
-                Console.WriteLine("Determine Quality: " + name );
                 if (name == "check_rfid_sensor")
                 {
                     await Task.Delay(1500);
                 }
                 RfidDevice rfidDevice = new RfidDevice("check_rfid");
                 int palletReference = await rfidDevice.readValue(0);             
-                // Resultat abfragen und auf RFID Index 1 schreiben
                 Order theOrder = await rfidDevice.getOrder(palletReference);
                 await sendTopic("quality", theOrder.QualityAcceptable); 
                 if (theOrder.QualityAcceptable == true) {
@@ -616,9 +647,7 @@ namespace EngineIO.Samples
                 } else {
                     await rfidDevice.writeValue(1, 1);
                 }
-                // RFID lesen
                 int quality = await rfidDevice.readValue(1, false);
-                Console.WriteLine("Reference: " + palletReference.ToString() + ", Quality Direction: " + quality.ToString());
                 var jsonBody = new JObject();
                 jsonBody["reference"] = palletReference.ToString();
                 jsonBody["quality"] = theOrder.QualityAcceptable;
@@ -626,13 +655,22 @@ namespace EngineIO.Samples
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_quality_check", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/determineQuality", payload);
+                bool taskSucceed = await completeTask(palletReference, "http://host.docker.internal:9033/tasks/determineQuality", payload);
+                Console.WriteLine(FormatEvent("Qualitaetskontrolle | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "machining_A_busy" && !isVal)
             {
                 MemoryBit machine = MemoryMap.Instance.GetBit("machining_A_start", MemoryType.Output);
                 machine.Value = false;
                 MemoryMap.Instance.Update();
+            }
+            else if (name == "machining_A_start" && isVal)
+            {
+                await sendTopic("machineA", true);
+            }
+            else if (name == "machining_B_start" && isVal)
+            {
+                await sendTopic("machineB", true);
             }
             else if (name == "machining_B_busy" && !isVal)
             {
@@ -647,18 +685,17 @@ namespace EngineIO.Samples
             }
             else if (name == "varnishing_end_sensor" && isVal)
             {
-                Console.WriteLine("Varnishing.");
                 MemoryInt readRfid = MemoryMap.Instance.GetInt("varnishing_rfid_read", MemoryType.Input);
-                await completeTask(readRfid.Value);
+                bool taskSucceed = await completeTask(readRfid.Value);
+                Console.WriteLine(FormatEvent("Oberflächenbehandlung | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + readRfid.Value.ToString()));
             }
             else if (name == "end_sensor" && isVal)
             {
-                Console.WriteLine("Send.");
                 MemoryBit remover = MemoryMap.Instance.GetBit("after_logistic_remover", MemoryType.Output);
                 RfidDevice rfidDevice = new RfidDevice("product_shipment_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                // nach 50s wird counter um 1 gekürzt
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Produkt versenden | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
                 remover.Value = true;
                 MemoryMap.Instance.Update();
                 await sendTopic("endsensor", 1);              
@@ -673,7 +710,6 @@ namespace EngineIO.Samples
                 int firstBox = readRfidZero.Value;
                 int secondBox = readRfidOne.Value;
                 MemoryBit remover = MemoryMap.Instance.GetBit("after_palletizer_remover", MemoryType.Output);             
-                // 3x, für jedes item
                 remover.Value = true;
                 MemoryMap.Instance.Update();
                 await Task.Delay(100);
@@ -687,10 +723,15 @@ namespace EngineIO.Samples
                 await Task.Delay(100);
                 remover.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(firstBox);
-                await completeTask(secondBox);
+                
+                bool taskSucceed = await completeTask(firstBox);
+                Console.WriteLine(FormatEvent("Versenden (1/2) | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + firstBox));
+                taskSucceed = await completeTask(secondBox);
+                Console.WriteLine(FormatEvent("Versenden (2/2) | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + secondBox));
                 await sendTopic("endsensor", 1);
-                await sendTopic("endsensor", 1); 
+                await Task.Delay(1500);
+                await sendTopic("endsensor", 1);
+                
             }
             else if (name == "varnishing_stopper_1_2")
             {
@@ -699,101 +740,105 @@ namespace EngineIO.Samples
             }
             else if (name == "pre_drill_b_sensor" && isVal)
             {
-                Console.WriteLine("Pre-Drill.");
                 RfidDevice rfidDevice = new RfidDevice("pre_drill_b_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_pre_drill_wardrobe", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Loecher vorbohren (Schrank) | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "spawn_pallett_end_sensor" && isVal)
             {
-                Console.WriteLine("Shelves.");
                 RfidDevice rfidDevice = new RfidDevice("shelves_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_shelves_production", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Regale herstellen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "door_type_sensor" && isVal)
             {
-                Console.WriteLine("Door Type.");
                 RfidDevice rfidDevice = new RfidDevice("door_type_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit sliding = MemoryMap.Instance.GetBit("slidingDoor", MemoryType.Output);
                 MemoryBit defaultDoor = MemoryMap.Instance.GetBit("defaultDoor", MemoryType.Output);
+                string doorType = sliding.Value ? "Schiebetuer herstellen" : "Standardtuer herstellen";
                 sliding.Value = false;
                 defaultDoor.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                await sendTopic(doorType, 1);
+                Console.WriteLine(FormatEvent(doorType + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "lock_sensor" && isVal)
             {
-                Console.WriteLine("Lock.");
                 RfidDevice rfidDevice = new RfidDevice("lock_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_lock_production", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Tuerschloss einbauen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "elevator_2_end_sensor" && isVal)
             {
-                Console.WriteLine("Assemble.");
                 RfidDevice rfidDevice = new RfidDevice("assemble_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_assemble", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Spiegel auf Tuer befestigen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "extra_stuff_sensor" && isVal)
             {
-                Console.WriteLine("Extra Stuff.");
                 RfidDevice rfidDevice = new RfidDevice("extra_stuff_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_extra_parts", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Kleiderhaken und Schrankstange beilegen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "improve_sensor" && isVal)
             {
-                Console.WriteLine("Improve.");
                 RfidDevice rfidDevice = new RfidDevice("improve_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_improve_quality", MemoryType.Output);
                 simulateLight.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Fehlende Bestandteile beilegen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "additional_equipment_sensor" && isVal)
             {
                 MemoryBit simulateLight = MemoryMap.Instance.GetBit("simulate_additional_equipment", MemoryType.Output);
                 if (simulateLight.Value)
                 {
-                    Console.WriteLine("Additional Equipment.");
                     RfidDevice rfidDevice = new RfidDevice("additional_equipment_rfid");
                     int palletReference = await rfidDevice.readValue(0);
                     simulateLight.Value = false;
                     MemoryMap.Instance.Update();
-                    await completeTask(palletReference);
+                    bool taskSucceed = await completeTask(palletReference);
+                    Console.WriteLine(FormatEvent("Zusatzausruestung beilegen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
                 }
                 
             }
             else if (name == "shape_sensor" && isVal)
             {
-                Console.WriteLine("Mirror Shape.");
                 RfidDevice rfidDevice = new RfidDevice("shape_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 MemoryBit angular = MemoryMap.Instance.GetBit("angular", MemoryType.Output);
                 MemoryBit circular = MemoryMap.Instance.GetBit("circular", MemoryType.Output);
+                string mirrorShape = angular.Value ? "Spiegel eckig zuschneiden" : "Spiegel rund zuschneiden";
                 angular.Value = false;
                 circular.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(palletReference, "http://host.docker.internal:9033/tasks/completeMirrorTasks");
+                bool taskSucceed = await completeTask(palletReference, "http://host.docker.internal:9033/tasks/completeMirrorTasks");
+                await sendTopic(mirrorShape, 1);
+                Console.WriteLine(FormatEvent(mirrorShape + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "pack_trigger_sensor" && isVal)
             {
@@ -802,7 +847,17 @@ namespace EngineIO.Samples
                 MemoryBit emitter = MemoryMap.Instance.GetBit("pack_emitter", MemoryType.Output);
                 RfidDevice rfidDevice = new RfidDevice("box_rfid");
                 int boxSize = await rfidDevice.readValue(1);
-                Console.WriteLine("Box Size " + boxSize.ToString());
+                string box;
+                if (boxSize == 1)
+                {
+                    box = "In Box S verpacken";
+                }
+                else if (boxSize == 2)
+                {
+                    box = "In Box M verpacken";
+                } else {
+                    box = "In Box L verpacken";
+                }
                 remover.Value = true;
                 MemoryMap.Instance.Update();
                 await Task.Delay(300);
@@ -813,7 +868,8 @@ namespace EngineIO.Samples
                 remover.Value = true;
                 emitter.Value = false;
                 MemoryMap.Instance.Update();
-                await completeTask(readRfid.Value);
+                bool taskSucceed = await completeTask(readRfid.Value);
+                Console.WriteLine(FormatEvent(box + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + readRfid.Value));
             }
             else if (name == "pusher_sensor" && isVal)
             {
@@ -833,24 +889,24 @@ namespace EngineIO.Samples
             }
             else if (name == "logistic_option_1_task_sensor" && isVal)
             {
-                Console.WriteLine("Pusher Option 1");
                 RfidDevice rfidDevice = new RfidDevice("option_1_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Expresslieferschein drucken | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "logistic_option_2_task_sensor" && isVal)
             {
-                Console.WriteLine("Pusher Option 2");
                 RfidDevice rfidDevice = new RfidDevice("option_2_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Lieferschein fuer kleines Paket drucken | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "logistic_option_3_task_sensor" && isVal)
             {
-                Console.WriteLine("Pusher Option 3");
                 RfidDevice rfidDevice = new RfidDevice("option_3_rfid");
                 int palletReference = await rfidDevice.readValue(0);
-                await completeTask(palletReference);
+                bool taskSucceed = await completeTask(palletReference);
+                Console.WriteLine(FormatEvent("Lieferschein fuer großes Paket drucken | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "pallet_sensor" && isVal)
             {
@@ -861,7 +917,6 @@ namespace EngineIO.Samples
                 string responseContent = await response.Content.ReadAsStringAsync();
                 JArray responseArray = JArray.Parse(responseContent);
                 int arrayLength = responseArray.Count;
-                Console.WriteLine("Array length: " + arrayLength);
                 int arrVal = 0;
                 int index = 0;
                 if (arrayLength == 2)
@@ -877,7 +932,6 @@ namespace EngineIO.Samples
                 if (arrVal != 0)
                 {
                     await rfidDevice.writeValue(index, arrVal);
-                    Console.WriteLine("Index: " + index.ToString());
                     if (index == 1)
                     {
                         conveyor.Value = true;
@@ -907,8 +961,10 @@ namespace EngineIO.Samples
                 MemoryMap.Instance.Update();
                 int firstBox = readRfidZero.Value;
                 int secondBox = readRfidOne.Value;
-                await completeTask(firstBox);
-                await completeTask(secondBox);
+                bool taskSucceed = await completeTask(firstBox);
+                Console.WriteLine(FormatEvent("Auf Palette stapeln und abwarten (1/2) | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + firstBox));
+                taskSucceed = await completeTask(secondBox);
+                Console.WriteLine(FormatEvent("Auf Palette stapeln und abwarten (2/2) | " + (taskSucceed ? "Fertig" : "Fehler")  + " | "+ DateTime.Now.ToString() + " | " + secondBox));
             }
         }
 

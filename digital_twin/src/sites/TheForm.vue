@@ -272,6 +272,8 @@ export default {
             if (this.sBoxSchrank) conditionS = "data.produkt == &quot;schrank&quot;";
             if (this.sBoxSchrank && this.sBoxSchrankAdditional) {
                 conditionS += " and data.zusatzmaterial";
+            } else if (sBoxSchrank) {
+                conditionS += " and !data.zusatzmaterial";
             }
             if (this.sBoxSchrank && this.sBoxSchreibtisch) {
                 conditionS = "(" + conditionS + ") or (";
@@ -279,6 +281,8 @@ export default {
             if (this.sBoxSchreibtisch) conditionS += "data.produkt == &quot;schreibtisch&quot;";
             if (this.sBoxSchreibtisch && this.sBoxSchreibtischAdditional) {
                 conditionS += " and data.zusatzmaterial";
+            } else if (sBoxSchreibtisch) {
+                conditionS += " and !data.zusatzmaterial";
             }
             if (this.sBoxSchrank && this.sBoxSchreibtisch) {
                 conditionS = conditionS + ")";
@@ -286,6 +290,8 @@ export default {
             if (this.mBoxSchrank) conditionM = "data.produkt == &quot;schrank&quot;";
             if (this.mBoxSchrank && this.mBoxSchrankAdditional) {
                 conditionM += " and data.zusatzmaterial";
+            } else if (mBoxSchrank) {
+                conditionM += " and !data.zusatzmaterial";
             }
             if (this.mBoxSchrank && this.mBoxSchreibtisch) {
                 conditionM = "(" + conditionM + ") or (";
@@ -293,6 +299,8 @@ export default {
             if (this.mBoxSchreibtisch) conditionM += "data.produkt == &quot;schreibtisch&quot;";
             if (this.mBoxSchreibtisch && this.mBoxSchreibtischAdditional) {
                 conditionM += " and data.zusatzmaterial";
+            } else if (this.mBoxSchreibtisch) {
+                conditionM += " and !data.zusatzmaterial";
             }
             if (this.mBoxSchrank && this.mBoxSchreibtisch) {
                 conditionM = conditionM + ")";

@@ -556,6 +556,8 @@ PROGRAM program0
     GT360_OUT : BOOL;
     NOT915_OUT : BOOL;
     AND914_OUT : BOOL;
+    NOT922_OUT : BOOL;
+    AND921_OUT : BOOL;
     NOT913_OUT : BOOL;
     GT487_OUT : BOOL;
     AND399_OUT : BOOL;
@@ -920,7 +922,9 @@ PROGRAM program0
   SR14(S1 := AND914_OUT, R := cross_center_sensor);
   join_chain_back := SR14.Q1;
   before_varnishing_conveyor_1_2 := join_chain_left;
-  SR16(S1 := join_enter_left_sensor, R := cross_center_sensor);
+  NOT922_OUT := NOT(cross_center_sensor);
+  AND921_OUT := AND(join_enter_left_sensor, NOT922_OUT);
+  SR16(S1 := AND921_OUT, R := cross_center_sensor);
   join_chain_forward := SR16.Q1;
   SR17(S1 := join_enter_left_sensor, R := cross_sensor);
   before_cross_right_stopper := SR17.Q1;

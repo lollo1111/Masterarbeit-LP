@@ -48,7 +48,7 @@ explorer "http://localhost"
 cd factoryio/sdk
 cls
 echo Web Anwendung des digitalen Zwillings: ^<http://localhost/^>
-echo SDK wird gestartet ... (beliebige Taste zum Beenden klicken, nicht mit Ctr + C^)
+echo SDK wird gestartet ... (beliebige Taste zum Beenden, nicht Ctr + C^)
 dotnet run
 cd %~dp0
 set /p down=Docker Container beenden sowie Volumes entfernen? (y/beliebige Taste):

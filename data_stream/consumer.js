@@ -24,8 +24,8 @@ const consumer = kafka.consumer({ groupId: 'factory-data-stream' });
 
 const run = async () => {
   await consumer.connect();
-  await consumer.subscribe({ 
-    topics: ["device-startsensor", "device-endsensor", "device-tank", "device-quality", "device-product"],
+  await consumer.subscribe({
+    topics: ["device-machineA", "device-default", "device-sliding", "device-machineB", "device-circular", "device-angular", "device-classic", "device-modern", "device-startsensor", "device-endsensor", "device-tank", "device-quality", "device-product"],
     fromBeginning: true
   });
   await consumer.run({
@@ -56,24 +56,59 @@ const run = async () => {
           .intField("val", 1)
           .timestamp(new Date(payload.timestamp));
       } else if (deviceid === "quality") {
-        point = new Point("sensor")
-          .tag("name", "quality")
+        point = new Point("quality")
           .booleanField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === "machineA") {
+        point = new Point("machines")
+          .tag("name", "Maschine A")
+          .booleanField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === "machineB") {
+        point = new Point("machines")
+          .tag("name", "Maschine B")
+          .booleanField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'classic') {
+        point = new Point("tableStyle")
+          .tag("name", "classic")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'modern') {
+        point = new Point("tableStyle")
+          .tag("name", "modern")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'circular') {
+        point = new Point("mirrorShape")
+          .tag("name", "circular")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'angular') {
+        point = new Point("mirrorShape")
+          .tag("name", "angular")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'default') {
+        point = new Point("doorType")
+          .tag("name", "default")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'sliding') {
+        point = new Point("doorType")
+          .tag("name", "sliding")
+          .intField("val", payload.val)
           .timestamp(new Date(payload.timestamp));
       } else {
         console.log("Received message from unknown device")
       }
       writeApi
-        .writePoint(point)
-      writeApi
-        .flush()
-        .then(() => {
-          console.log('FINISHED')
-        })
-        .catch(e => {
-          console.error(e)
-          console.log('Finished ERROR')
-        })
+        .writePoint(point);
+      try {
+        await writeApi.flush()
+      } catch (e) {
+        console.error()
+      }
     }
   });
 };

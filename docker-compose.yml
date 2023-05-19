@@ -66,7 +66,7 @@ services:
      - TKN=${INFLUXDB_TOKEN}
     ports:
       - 3000:3000
-    user: '104'
+    user: '472'
     volumes:
      - ./grafana/custom.ini:/etc/grafana/grafana.ini
      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
