@@ -2,8 +2,8 @@
 version: "3.7"
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.0.1
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -11,8 +11,8 @@ services:
       - twin-network 
 
   broker:
-    image: confluentinc/cp-kafka:7.0.1
     container_name: broker
+    image: confluentinc/cp-kafka:7.0.1
     ports:
       - "9092:9092"
     depends_on:
@@ -33,9 +33,9 @@ services:
     networks:
       - twin-network 
 
-  influxdb: 
-    image: influxdb:latest
+  influxdb:
     container_name: influxdb
+    image: influxdb:latest
     ports:
       - '8086:8086'
     volumes:
@@ -54,7 +54,9 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana-enterprise:latest
+    image: grafana/grafana
+    # image: grafana/grafana-oss
+    # image: grafana/grafana-enterprise:latest
     restart: always
     links:
      - influxdb
@@ -78,11 +80,9 @@ services:
     links:
       - influxdb
     build: data_stream/
-    image: consumer_image
+    image: consumer
     depends_on:
       - mqttbridge
-      # broker:
-      #   condition: service_healthy
     networks:
       - twin-network
 
@@ -171,14 +171,15 @@ services:
     build:
       context: ./bridge
       dockerfile: Dockerfile
+    image: mqttbridge
     depends_on:
       - mosquitto
     networks:
       - twin-network
 
   swagger-ui:
-    image: swaggerapi/swagger-ui
     container_name: swagger
+    image: swaggerapi/swagger-ui
     ports:
       - "9011:8080"
     volumes:

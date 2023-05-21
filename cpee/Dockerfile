@@ -1,6 +1,4 @@
 FROM debian:bullseye
-WORKDIR /workdir
-ADD setup.sh .
 RUN apt-get update && apt-get install -y \
     sudo \
     ruby \
@@ -13,6 +11,10 @@ RUN apt-get update && apt-get install -y \
     librasqal-dev \
     libraptor2-dev \
     libicu-dev \
-    redis
+    redis \
+    dos2unix
+WORKDIR /workdir
 RUN gem install cpee cpee-instantiation
-CMD ["./setup.sh"]
+COPY setup.sh .
+RUN dos2unix /workdir/setup.sh
+CMD ["/workdir/setup.sh"]

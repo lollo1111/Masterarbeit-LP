@@ -35,9 +35,8 @@ router.get('/', async (req, res) => {
         });
         const mosquitto = containers.filter(container => container.names === "mosquitto")[0]["status"].startsWith("Up") ? 200 : 500;
         const kafka = containers.filter(container => container.names === "broker")[0]["status"].startsWith("Up") ? 200 : 500;
-        const consumer = containers.filter(container => container.image === "consumer_image")[0]["status"].startsWith("Up") ? 200 : 500;
-        const mqttBridge = containers.filter(container => container.image === "masterarbeit-lorenz-pircher-mqttbridge")[0]["status"].startsWith("Up") ? 200 : 500;
-
+        const consumer = containers.filter(container => container.image === "consumer" || container.names === "consumer_image")[0]["status"].startsWith("Up") ? 200 : 500;
+        const mqttBridge = containers.filter(container => container.image === "mqttbridge" || container.names === "mqttbridge")[0]["status"].startsWith("Up") ? 200 : 500;
         const endpoints = [
             'http://host.docker.internal:7410/api/tags',
             'http://host.docker.internal:8081',

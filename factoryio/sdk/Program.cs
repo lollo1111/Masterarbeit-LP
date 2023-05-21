@@ -378,25 +378,16 @@ namespace EngineIO.Samples
             Console.WriteLine("\n{0,-40} {1,-20} {2,-20} {3,-20}", "Task", "Status", "Zeitstempel", "ID");
             Console.WriteLine(new string('-', 90));
 
-            //
-            // Example MQTT Topics for the dashboard
-            await sendTopic("quality", true);
-            await Task.Delay(1500);
-            await sendTopic("quality", true);
-            await sendTopic("machineA", true);
-            await sendTopic("machineB", false);
-            await Task.Delay(1500);
-            await sendTopic("quality", false);
-            await sendTopic("machineA", false);
-            await sendTopic("classic", 1);
-            await sendTopic("modern", 1);
-            await sendTopic("circular", 1);
-            await sendTopic("default", 1);
-            //
-            //
-
             MemoryMap.Instance.InputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
             MemoryMap.Instance.OutputsValueChanged += new MemoriesChangedEventHandler(Instance_ValueChanged);
+
+            MemoryMap.Instance.Update();
+            MemoryBit getMachineA = MemoryMap.Instance.GetBit("machining_A_start", MemoryType.Output);
+            MemoryBit getMachineB = MemoryMap.Instance.GetBit("machining_B_start", MemoryType.Output);
+            MemoryFloat getTankLevelMeter = MemoryMap.Instance.GetFloat("tank_levelMeter", MemoryType.Input);
+            await sendTopic("machineA", getMachineA.Value);
+            await sendTopic("machineB", getMachineB.Value);
+            await sendTopic("tank", ((float)Math.Round(getTankLevelMeter.Value, 2)));
 
             //Calling the Update method will fire events if any memory value or name changed.
             //When a Tag is created in Factory I/O a name is given to its memory, firing the name changed event, and when a tag's value is changed, it is fired the value changed event.
@@ -442,6 +433,7 @@ namespace EngineIO.Samples
                 msg["reference"] = reference.reference;
                 msg["height"] = intVal;
                 string payload = JsonConvert.SerializeObject(msg);
+                await sendTopic("nivellier", intVal);
                 bool taskSucceed = await completeTask(int.Parse(reference.reference), "http://host.docker.internal:9033/tasks/determineHeight", payload);
                 Console.WriteLine(FormatEvent("Pakethoehe messen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + reference.reference));
             }
@@ -532,7 +524,6 @@ namespace EngineIO.Samples
                     RfidDevice rfidDevice = new RfidDevice("after_machining_a_rfid");
                     int palletReference = await rfidDevice.readValue(0);
                     bool taskSucceed = await completeTask(palletReference);
-                    await sendTopic("machineA", false);
                     Console.WriteLine(FormatEvent("Material zuschneiden mit Maschine B | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
                 }
             }
@@ -561,7 +552,6 @@ namespace EngineIO.Samples
                 RfidDevice rfidDevice = new RfidDevice("after_machining_b_rfid");
                 int palletReference = await rfidDevice.readValue(0);
                 bool taskSucceed = await completeTask(palletReference);
-                await sendTopic("machineB", false);
                 Console.WriteLine(FormatEvent("Material zuschneiden mit Maschine B | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "elevator_1_right_limit" && !isVal)
@@ -605,6 +595,7 @@ namespace EngineIO.Samples
                 msg["reference"] = palletReference.ToString();
                 msg["weight"] = averageValue;
                 string payload = JsonConvert.SerializeObject(msg);
+                await sendTopic("scale", averageValue);
                 bool taskSucceed = await completeTask(palletReference, "http://host.docker.internal:9033/tasks/determineWeight", payload);
                 Console.WriteLine(FormatEvent("Paket wiegen | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
@@ -619,7 +610,7 @@ namespace EngineIO.Samples
                 yellowLight.Value = false;
                 MemoryMap.Instance.Update();
                 bool taskSucceed = await completeTask(palletReference);
-                await sendTopic(tableStyle, 1);
+                await sendTopic((greenLight.Value ? "classic" : "modern"), 1);
                 Console.WriteLine(FormatEvent(tableStyle + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "table_legs_sensor" && isVal)
@@ -664,13 +655,13 @@ namespace EngineIO.Samples
                 machine.Value = false;
                 MemoryMap.Instance.Update();
             }
-            else if (name == "machining_A_start" && isVal)
+            else if (name == "machining_A_start")
             {
-                await sendTopic("machineA", true);
+                await sendTopic("machineA", isVal);
             }
-            else if (name == "machining_B_start" && isVal)
+            else if (name == "machining_B_start")
             {
-                await sendTopic("machineB", true);
+                await sendTopic("machineB", isVal);
             }
             else if (name == "machining_B_busy" && !isVal)
             {
@@ -736,7 +727,11 @@ namespace EngineIO.Samples
             else if (name == "varnishing_stopper_1_2")
             {
                 MemoryFloat tank_levelMeter = MemoryMap.Instance.GetFloat("tank_levelMeter", MemoryType.Input);
-                await sendTopic("tank", ((float)Math.Round(tank_levelMeter.Value, 2)));
+                float tankLevel = (float)Math.Round(tank_levelMeter.Value, 2);
+                if (tankLevel > 0)
+                {
+                    await sendTopic("tank", tankLevel);
+                }
             }
             else if (name == "pre_drill_b_sensor" && isVal)
             {
@@ -769,7 +764,7 @@ namespace EngineIO.Samples
                 defaultDoor.Value = false;
                 MemoryMap.Instance.Update();
                 bool taskSucceed = await completeTask(palletReference);
-                await sendTopic(doorType, 1);
+                await sendTopic((sliding.Value ? "sliding" : "default"), 1);
                 Console.WriteLine(FormatEvent(doorType + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "lock_sensor" && isVal)
@@ -837,7 +832,7 @@ namespace EngineIO.Samples
                 circular.Value = false;
                 MemoryMap.Instance.Update();
                 bool taskSucceed = await completeTask(palletReference, "http://host.docker.internal:9033/tasks/completeMirrorTasks");
-                await sendTopic(mirrorShape, 1);
+                await sendTopic((angular.Value ? "angular" : "circular"), 1);
                 Console.WriteLine(FormatEvent(mirrorShape + " | " + (taskSucceed ? "Fertig" : "Fehler") + " | "+ DateTime.Now.ToString() + " | " + palletReference));
             }
             else if (name == "pack_trigger_sensor" && isVal)

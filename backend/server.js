@@ -21,26 +21,3 @@ app.use('/wfms', wfmsMethods);
 app.listen(port, () => {
     console.log('listening on *:9033');
 });
-
-
-
-
-
-
-
-// // old socket io code
-// const { Server } = require("socket.io");
-// const io = new Server(server);
-// io.on("connection", () => {
-//     console.log("New Connection");
-// });
-// try {
-//     io.emit("start", instance);
-// } catch (_err) {
-//     return res.json({
-//         code: false
-//     });
-// }
-// return res.json({
-//     code: true
-// });

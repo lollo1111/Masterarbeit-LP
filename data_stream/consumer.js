@@ -25,7 +25,7 @@ const consumer = kafka.consumer({ groupId: 'factory-data-stream' });
 const run = async () => {
   await consumer.connect();
   await consumer.subscribe({
-    topics: ["device-machineA", "device-default", "device-sliding", "device-machineB", "device-circular", "device-angular", "device-classic", "device-modern", "device-startsensor", "device-endsensor", "device-tank", "device-quality", "device-product"],
+    topics: ["device-machineA", "device-default", "device-sliding", "device-machineB", "device-circular", "device-angular", "device-classic", "device-modern", "device-startsensor", "device-endsensor", "device-tank", "device-quality", "device-product", "device-scale", "device-nivellier"],
     fromBeginning: true
   });
   await consumer.run({
@@ -99,6 +99,16 @@ const run = async () => {
           .tag("name", "sliding")
           .intField("val", payload.val)
           .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'scale') {
+        point = new Point("scale")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'nivellier') {
+        point = new Point("nivellier")
+          .intField("val", payload.val)
+          .timestamp(new Date(payload.timestamp));
+      } else if (deviceid === 'log') {
+
       } else {
         console.log("Received message from unknown device")
       }

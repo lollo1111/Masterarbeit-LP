@@ -272,7 +272,7 @@ export default {
             if (this.sBoxSchrank) conditionS = "data.produkt == &quot;schrank&quot;";
             if (this.sBoxSchrank && this.sBoxSchrankAdditional) {
                 conditionS += " and data.zusatzmaterial";
-            } else if (sBoxSchrank) {
+            } else if (this.sBoxSchrank) {
                 conditionS += " and !data.zusatzmaterial";
             }
             if (this.sBoxSchrank && this.sBoxSchreibtisch) {
@@ -281,7 +281,7 @@ export default {
             if (this.sBoxSchreibtisch) conditionS += "data.produkt == &quot;schreibtisch&quot;";
             if (this.sBoxSchreibtisch && this.sBoxSchreibtischAdditional) {
                 conditionS += " and data.zusatzmaterial";
-            } else if (sBoxSchreibtisch) {
+            } else if (this.sBoxSchreibtisch) {
                 conditionS += " and !data.zusatzmaterial";
             }
             if (this.sBoxSchrank && this.sBoxSchreibtisch) {
@@ -290,7 +290,7 @@ export default {
             if (this.mBoxSchrank) conditionM = "data.produkt == &quot;schrank&quot;";
             if (this.mBoxSchrank && this.mBoxSchrankAdditional) {
                 conditionM += " and data.zusatzmaterial";
-            } else if (mBoxSchrank) {
+            } else if (this.mBoxSchrank) {
                 conditionM += " and !data.zusatzmaterial";
             }
             if (this.mBoxSchrank && this.mBoxSchreibtisch) {
