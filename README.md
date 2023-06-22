@@ -1,5 +1,5 @@
 # Masterarbeit
-## Die Steuerung von digitalen Zwillingen mit Workflow-Management-Systemen am Beispiel von Fertigungsprozessen
+## Die Steuerung von digitalen Zwillingen mit Workflow-Management-Systemen am Beispiel einer virtuellen Fertigungslinie
 Ermöglicht die Kontrolle einer 3D-Simulation einer Fertigungsanlage in Factory I/O anhand eines WfMS.
 
 > Zum Ausführen benötigt man [Factory I/O](https://factoryio.com/start-trial), [.NET](https://dotnet.microsoft.com/en-us/download/dotnet/5.0) Runtime sowie SDK und [Docker](https://www.docker.com/).
