@@ -233,7 +233,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket: \"FactoryIO\")\r\n  |> range(start: -3h)\r\n  |> filter(fn: (r) => r._measurement == \"product\")\r\n  |> group(columns: [\"name\"])\r\n  |> aggregateWindow(every: 1d, fn: count, createEmpty: true)",
+          "query": "from(bucket: \"FactoryIO\")\r\n  |> range(start: -3h)\r\n  |> filter(fn: (r) => r._measurement == \"product\")\r\n  |> group(columns: [\"name\"])\r\n  |> aggregateWindow(every: 2d, fn: count, createEmpty: true)",
           "refId": "A"
         }
       ],
@@ -398,7 +398,32 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "val {host=\"host1\", name=\"Maschine A\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Maschine A"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "val {host=\"host1\", name=\"Maschine B\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Maschine B"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -465,12 +490,12 @@
                 "false": {
                   "color": "red",
                   "index": 1,
-                  "text": "Schlecht"
+                  "text": "👎🏻"
                 },
                 "true": {
                   "color": "green",
                   "index": 0,
-                  "text": "Gut"
+                  "text": "👍🏻"
                 }
               },
               "type": "value"
@@ -656,7 +681,7 @@
               },
               {
                 "color": "green",
-                "value": 1
+                "value": ""
               }
             ]
           },
@@ -664,26 +689,14 @@
         },
         "overrides": [
           {
-            "__systemRef": "hideSeriesFrom",
             "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "val {host=\"host1\", name=\"tank\"}"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
+              "id": "byName",
+              "options": "val {host=\"host1\", name=\"tank\"}"
             },
             "properties": [
               {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
+                "id": "displayName",
+                "value": "Tank Level Meter"
               }
             ]
           }

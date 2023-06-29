@@ -3,7 +3,7 @@
         <h3><router-link to="/">🏭Digitaler Zwilling Web Anwendung</router-link></h3>
         <ul>
             <li><router-link to="/form">📦 Simulation erstellen</router-link></li>
-            <li><router-link to="/wfms">🕹️WfMS</router-link></li>
+            <li><router-link to="/wfms">Simulation durchführen</router-link></li>
             <li><router-link to="/dashboard">📊 Dashboard</router-link></li>
             <li><router-link to="/overview">📜Geräte Übersicht</router-link></li>
             <li><router-link to="/swagger">📡Swagger</router-link></li>

@@ -31,16 +31,16 @@
                         <label for="doorType">Wähle eine Türart aus</label>
                         <select id="doorType" v-model="doorType">
                             <option value="" disabled>Stil auswählen</option>
-                            <option value="defaultDoor">Default</option>
-                            <option value="slidingDoor">Schiebetür</option>
+                            <option value="default">Default</option>
+                            <option value="schiebetuer">Schiebetür</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="mirrorShape">Wähle eine Spiegelform aus</label>
                         <select id="mirrorShape" v-model="mirrorShape">
                             <option value="" disabled>Spiegelform auswählen</option>
-                            <option value="circular">Rund</option>
-                            <option value="angular">Eckig</option>
+                            <option value="rund">Rund</option>
+                            <option value="eckig">Eckig</option>
                         </select>
                     </div>
                 </div>
